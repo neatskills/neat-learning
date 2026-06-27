@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+package-lock.json
+
+# Test output
+test-output/
+test-compression/
+
+# Learning maps (user data)
+docs/neat_learning/

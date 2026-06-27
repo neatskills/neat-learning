@@ -1,0 +1,15 @@
+{
+  "name": "neat-learning",
+  "version": "1.0.0",
+  "description": "AI-guided discovery-based learning system",
+  "scripts": {
+    "test": "node .claude/skills/neat-learning/scripts/state-manager.test.js && node .claude/skills/neat-learning/scripts/map-builder.test.js && node .claude/skills/neat-learning/scripts/activity-updater.test.js && node .claude/skills/neat-learning/scripts/activity-selector.test.js && node .claude/skills/neat-learning/scripts/compression.test.js && node .claude/skills/neat-learning/scripts/integration.test.js",
+    "test:integration": "node .claude/skills/neat-learning/scripts/integration.test.js"
+  },
+  "keywords": ["learning", "ai", "education", "spaced-repetition", "claude"],
+  "author": "neatskills",
+  "license": "MIT",
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  }
+}
