@@ -7,6 +7,7 @@
 const matter = require('gray-matter');
 const fs = require('fs');
 const path = require('path');
+const { ensureActivity, now: getNow, INITIAL_REVIEW_INTERVAL, OPPORTUNITIES_PER_EXERCISE, clamp, MASTERY_LEVEL } = require('./utils');
 
 /**
  * Record Discover activity results
@@ -20,15 +21,11 @@ const path = require('path');
  */
 function recordDiscover(concept, correct, total, hintsNeeded, confusionPatterns = [], strengths = []) {
   const performance = correct / total;
-  const now = new Date().toISOString();
+  const timestamp = getNow();
+  const activity = ensureActivity(concept);
 
-  // Update concept activity section
-  if (!concept.activity) {
-    concept.activity = {};
-  }
-
-  concept.activity.discover = {
-    date: now,
+  activity.discover = {
+    date: timestamp,
     questions: { correct, total },
     hints_needed: hintsNeeded,
     signals: {
@@ -39,16 +36,14 @@ function recordDiscover(concept, correct, total, hintsNeeded, confusionPatterns 
 
   // Update level based on performance
   if (performance >= 0.8 && hintsNeeded <= 1) {
-    // Strong performance: ready for Name
     concept.level = Math.max(concept.level || 0, 1);
-    concept.activity.status = 'ready_for_name';
+    activity.status = 'ready_for_name';
   } else {
-    // Weak performance: needs more discovery
     concept.level = 0;
-    concept.activity.status = 'needs_more_discovery';
+    activity.status = 'needs_more_discovery';
   }
 
-  concept.activity.date = now;
+  activity.date = timestamp;
 
   return concept;
 }
@@ -60,21 +55,17 @@ function recordDiscover(concept, correct, total, hintsNeeded, confusionPatterns 
  * @returns {Object} Updated concept with Name results
  */
 function recordName(concept, termsIntroduced) {
-  const now = new Date().toISOString();
+  const timestamp = getNow();
+  const activity = ensureActivity(concept);
 
-  if (!concept.activity) {
-    concept.activity = {};
-  }
-
-  concept.activity.name = {
-    date: now,
+  activity.name = {
+    date: timestamp,
     terms: termsIntroduced
   };
 
-  // Level 2: can explain concepts
   concept.level = 2;
-  concept.activity.status = 'ready_for_practice';
-  concept.activity.date = now;
+  activity.status = 'ready_for_practice';
+  activity.date = timestamp;
 
   return concept;
 }
@@ -88,19 +79,16 @@ function recordName(concept, termsIntroduced) {
  * @returns {Object} Updated concept with Practice results
  */
 function recordPractice(concept, exercises, independence, errorPatterns = []) {
-  const now = new Date().toISOString();
-
-  if (!concept.activity) {
-    concept.activity = {};
-  }
+  const timestamp = getNow();
+  const activity = ensureActivity(concept);
 
   const totalExercises = exercises.length;
   const completedExercises = exercises.filter(e => e.status === 'complete').length;
   const totalErrors = exercises.reduce((sum, e) => sum + (e.errors || 0), 0);
-  const errorRate = totalErrors / (totalExercises * 3); // Assume ~3 opportunities per exercise
+  const errorRate = totalErrors / (totalExercises * OPPORTUNITIES_PER_EXERCISE);
 
-  concept.activity.practice = {
-    date: now,
+  activity.practice = {
+    date: timestamp,
     independence,
     exercises,
     error_patterns: errorPatterns
@@ -108,16 +96,14 @@ function recordPractice(concept, exercises, independence, errorPatterns = []) {
 
   // Update level based on performance
   if (completedExercises >= 2 && errorRate < 0.3 && independence) {
-    // Level 4: can solve unfamiliar problems
     concept.level = 4;
-    concept.activity.status = 'ready_for_calibrate';
+    activity.status = 'ready_for_calibrate';
   } else {
-    // Needs more practice
     concept.level = 3;
-    concept.activity.status = 'needs_more_practice';
+    activity.status = 'needs_more_practice';
   }
 
-  concept.activity.date = now;
+  activity.date = timestamp;
 
   return concept;
 }
@@ -130,34 +116,29 @@ function recordPractice(concept, exercises, independence, errorPatterns = []) {
  * @returns {Object} Updated concept with Calibrate results
  */
 function recordCalibrate(concept, correct, expertThinking = []) {
-  const now = new Date().toISOString();
+  const timestamp = getNow();
+  const activity = ensureActivity(concept);
 
-  if (!concept.activity) {
-    concept.activity = {};
-  }
-
-  concept.activity.calibrate = {
-    date: now,
+  activity.calibrate = {
+    date: timestamp,
     tradeoffs: { correct, total: 3 },
     expert_thinking: expertThinking
   };
 
   // Update level based on performance
   if (correct >= 2) {
-    // Passed calibration: expert level (5-7 based on depth)
-    concept.level = correct === 3 ? 7 : (correct === 2 ? 5 : 4);
-    concept.activity.status = 'mastered';
+    const levelMap = { 3: 7, 2: 5 };
+    concept.level = levelMap[correct] || 5;
+    activity.status = 'mastered';
 
-    // Initialize spaced repetition
-    concept.review_interval = 172800; // 2 days in seconds
-    concept.last_activity = now;
+    concept.review_interval = INITIAL_REVIEW_INTERVAL;
+    concept.last_activity = timestamp;
   } else {
-    // Failed calibration: stay at level 4
     concept.level = 4;
-    concept.activity.status = 'needs_more_calibrate';
+    activity.status = 'needs_more_calibrate';
   }
 
-  concept.activity.date = now;
+  activity.date = timestamp;
 
   return concept;
 }
@@ -171,34 +152,27 @@ function recordCalibrate(concept, correct, expertThinking = []) {
  */
 function updateReviewInterval(concept, correct, total) {
   const performance = correct / total;
-  const now = new Date().toISOString();
+  const timestamp = getNow();
 
-  let currentInterval = concept.review_interval || 172800;
+  let currentInterval = concept.review_interval || INITIAL_REVIEW_INTERVAL;
 
   if (performance >= 0.8) {
-    // Perfect/good: 2x interval
     currentInterval *= 2;
   } else if (performance >= 0.6) {
-    // OK: 1.5x interval
     currentInterval *= 1.5;
   } else if (performance >= 0.4) {
-    // Weak: keep same
-    // currentInterval stays same
+    // Keep same
   } else {
-    // Very weak: halve interval
     currentInterval /= 2;
   }
 
   // Clamp to min 1 day, max 60 days
-  currentInterval = Math.max(86400, Math.min(5184000, currentInterval));
+  const MIN_INTERVAL = 86400;
+  const MAX_INTERVAL = 5184000;
+  concept.review_interval = Math.round(clamp(currentInterval, MIN_INTERVAL, MAX_INTERVAL));
+  concept.last_activity = timestamp;
 
-  concept.review_interval = Math.round(currentInterval);
-  concept.last_activity = now;
-
-  if (!concept.activity) {
-    concept.activity = {};
-  }
-  concept.activity.date = now;
+  ensureActivity(concept).date = timestamp;
 
   return concept;
 }
@@ -218,7 +192,7 @@ function calculateProgress(sections) {
       totalConcepts++;
       totalLevel += concept.level || 0;
 
-      if ((concept.level || 0) >= 5) {
+      if ((concept.level || 0) >= MASTERY_LEVEL) {
         masteredConcepts++;
       }
     });

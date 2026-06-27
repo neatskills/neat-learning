@@ -9,6 +9,7 @@
 ## When to Compress
 
 **Trigger conditions:**
+
 - 10+ concepts mastered (Level 5+) AND
 - 30+ days since first mastered concept AND
 - No reviews due for any mastered concepts
@@ -134,11 +135,13 @@ sections:
 ```
 
 **What's kept:**
+
 - Concept name, level
 - Review scheduling (review_interval, last_activity)
 - Compression flag
 
 **What's removed:**
+
 - Full activity history (Discover, Name, Practice, Calibrate details)
 - Exercise records
 - Performance signals
@@ -211,6 +214,7 @@ Advanced (6 active):
 ## Implementation Notes
 
 **Compression is optional.** User can:
+
 - Decline compression (keep everything visible)
 - Defer compression (ask again in 7 days)
 - Decompress anytime (restore from archive)

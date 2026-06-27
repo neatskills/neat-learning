@@ -3,6 +3,7 @@
 **Purpose:** Learn through questions and predictions, not explanations
 
 **When to run:**
+
 1. First time learning a concept (after Explore adds it to map)
 2. Review session (test retention)
 3. User shows confusion in Practice (run more Discover to clarify)
@@ -12,6 +13,7 @@
 **Core principle:** User thinks and predicts BEFORE AI explains
 
 **Flow:**
+
 ```
 AI asks predictive question
     ↓
@@ -40,43 +42,51 @@ Track these signals for each concept:
 ### Technical (Kubernetes example)
 
 **Predictive:**
+
 - "If a container crashes, what should Kubernetes do?"
 - "What if you need 3 identical copies running?"
 - "How would you expose a Pod to network traffic?"
 
 **Comparison:**
+
 - "What's the difference between a Pod and a Deployment?"
 - "When would you use ConfigMap vs Secret?"
 
 ### Soft Skills (Negotiation example)
 
 **Scenario-based:**
+
 - "Seller says '$15k firm.' What happens if you counter $8k vs $12k?"
 - "You want $120k. Recruiter offers $90k. What do you say?"
 
 **Predictive:**
+
 - "If you anchor too aggressively, what happens?"
 
 ### Business (Finance example)
 
 **Estimation:**
+
 - "Company generates $100K/year for 10 years. Worth more or less than $1M today? Why?"
 - "Startup grows 20%/year. Year 3 revenue?"
 
 ### Theoretical (Psychology example)
 
 **Pattern recognition:**
+
 - "You believe coffee is healthy. Study A: reduces heart disease. Study B: no effect. Which do you remember better?"
 - "Why do you remember Study A more?"
 
 ## Readiness Criteria
 
 **Move to Name activity when:**
+
 - 4/5+ questions correct (80%+ understanding)
 - Minimal hints needed (0-1 hints per question)
 - No major confusion patterns
 
 **Stay in Discover if:**
+
 - <3/5 correct (need more discovery)
 - Confusion pattern detected (specific misconception to address)
 - Hints needed frequently (>2 per question)

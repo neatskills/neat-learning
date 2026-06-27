@@ -4,6 +4,8 @@
  * Activity selector - determines what activity should run next for a concept
  */
 
+const { elapsed, isMastered, toDays, MS_PER_DAY } = require('./utils');
+
 /**
  * Check if concept is due for review
  * @param {Object} concept - Concept with review_interval and last_activity
@@ -11,19 +13,17 @@
  */
 function checkReviewDue(concept) {
   if (!concept.review_interval || !concept.last_activity) {
-    return { isDue: false, isOverdue: false, daysUntilDue: null };
+    return { isDue: false, isOverdue: false, daysUntilDue: null, elapsedMs: 0 };
   }
 
-  const now = Date.now();
-  const lastActivity = new Date(concept.last_activity).getTime();
-  const elapsed = now - lastActivity; // milliseconds
-  const reviewInterval = concept.review_interval * 1000; // convert to ms
+  const elapsedMs = elapsed(concept.last_activity);
+  const reviewInterval = concept.review_interval * 1000;
 
-  const isDue = elapsed >= reviewInterval;
-  const isOverdue = elapsed > reviewInterval * 1.2; // 20% grace period
-  const daysUntilDue = isDue ? 0 : Math.ceil((reviewInterval - elapsed) / 86400000);
+  const isDue = elapsedMs >= reviewInterval;
+  const isOverdue = elapsedMs > reviewInterval * 1.2; // 20% grace period
+  const daysUntilDue = isDue ? 0 : Math.ceil((reviewInterval - elapsedMs) / MS_PER_DAY);
 
-  return { isDue, isOverdue, daysUntilDue };
+  return { isDue, isOverdue, daysUntilDue, elapsedMs };
 }
 
 /**
@@ -36,7 +36,7 @@ function getConceptsDueForReview(sections) {
 
   sections.forEach(section => {
     section.concepts.forEach(concept => {
-      if ((concept.level || 0) >= 5) {
+      if (isMastered(concept)) {
         const reviewStatus = checkReviewDue(concept);
         if (reviewStatus.isDue) {
           due.push({
@@ -49,12 +49,10 @@ function getConceptsDueForReview(sections) {
     });
   });
 
-  // Sort by most overdue first
+  // Sort by most overdue first (reuse elapsedMs from reviewStatus)
   due.sort((a, b) => {
-    const aElapsed = Date.now() - new Date(a.last_activity).getTime();
-    const bElapsed = Date.now() - new Date(b.last_activity).getTime();
-    const aOverdue = aElapsed - (a.review_interval * 1000);
-    const bOverdue = bElapsed - (b.review_interval * 1000);
+    const aOverdue = a.elapsedMs - (a.review_interval * 1000);
+    const bOverdue = b.elapsedMs - (b.review_interval * 1000);
     return bOverdue - aOverdue;
   });
 
@@ -71,20 +69,17 @@ function getNextActivity(concept) {
   const status = concept.activity?.status;
 
   // Check if mastered and due for review
-  if (level >= 5) {
+  if (isMastered(concept)) {
     const reviewStatus = checkReviewDue(concept);
     if (reviewStatus.isDue) {
-      return 'review'; // Run Discover as review
+      return 'review';
     }
-    return 'done'; // Mastered, not due for review
+    return 'done';
   }
 
   // Level 0: Not started or needs more discovery
   if (level === 0) {
-    if (status === 'needs_more_discovery') {
-      return 'discover';
-    }
-    return 'explore'; // Add to map, then discover
+    return status === 'needs_more_discovery' ? 'discover' : 'explore';
   }
 
   // Level 1: Discover done, ready for Name
@@ -92,21 +87,13 @@ function getNextActivity(concept) {
     return 'name';
   }
 
-  // Level 2: Name done, ready for Practice
-  if (level === 2 || status === 'ready_for_practice') {
+  // Level 2-3: Practice
+  if (level === 2 || level === 3 || status === 'ready_for_practice' || status === 'needs_more_practice') {
     return 'practice';
   }
 
-  // Level 3: Practice started but needs more
-  if (level === 3 || status === 'needs_more_practice') {
-    return 'practice';
-  }
-
-  // Level 4: Practice done, ready for Calibrate
+  // Level 4: Calibrate
   if (level === 4) {
-    if (status === 'needs_more_calibrate') {
-      return 'calibrate';
-    }
     return 'calibrate';
   }
 
@@ -198,7 +185,7 @@ function generateSessionStatus(sections, daysSinceLastSession) {
   if (dueReviews.length > 0) {
     message += `📌 Due for review (${dueReviews.length} concept${dueReviews.length > 1 ? 's' : ''}):\n`;
     dueReviews.slice(0, 3).forEach(concept => {
-      const daysOverdue = Math.floor((Date.now() - new Date(concept.last_activity).getTime()) / 86400000) - Math.floor(concept.review_interval / 86400);
+      const daysOverdue = toDays(concept.elapsedMs) - Math.floor(concept.review_interval / 86400);
       const overdueText = concept.isOverdue ? `, overdue ${daysOverdue} days` : ', due now';
       message += `- ${concept.name} (mastered${overdueText})\n`;
     });

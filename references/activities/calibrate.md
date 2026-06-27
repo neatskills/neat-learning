@@ -3,6 +3,7 @@
 **Purpose:** Teach expert thinking patterns - when rules break, tradeoffs, common mistakes
 
 **When to run:**
+
 - After Practice (2+ exercises complete)
 - User at Level 4+ (can apply knowledge)
 - Final activity before mastery
@@ -20,11 +21,13 @@ Ask 3 types of questions, user must pass 2/3:
 ## Pass Criteria
 
 **Pass 2/3 questions correctly:**
+
 - Concept moves to Level 5-7 (expert thinking demonstrated)
 - Concept marked as "mastered" or "calibrated"
 - Ready for advanced topics or review schedule
 
 **Pass only 0-1/3:**
+
 - Stay at Level 4
 - More calibration practice needed
 - Or return to Practice for reinforcement
@@ -176,19 +179,24 @@ Need more Practice or Calibrate attempts.
 ```
 
 **Level progression:**
+
 - Calibrate passed → Level 5-7 (can explain tradeoffs, teach others, design systems)
 - Calibrate failed → Stay at Level 4, retry after more practice
 
 ## Domain-Specific Calibration
 
 ### Technical: When NOT to use, Architecture tradeoffs, Production mistakes
+
 ### Soft Skills: When approach fails, Context-dependent tactics, Interpersonal pitfalls
+
 ### Business: When method wrong, Assumptions to question, Analytical mistakes  
+
 ### Theoretical: When principle breaks, Edge cases, Misapplications
 
 ## After Calibrate
 
 **Concept fully mastered:**
+
 - Set review schedule (spaced repetition)
 - Concept marked as mastered in map
 - User ready for next concept or advanced topics

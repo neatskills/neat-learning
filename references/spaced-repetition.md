@@ -23,12 +23,14 @@ Based on performance after each review:
 ## Review Schedule Calculation
 
 **After Calibrate passes (initial):**
+
 ```javascript
 concept.review_interval = 172800  // 2 days in seconds
 concept.last_activity = new Date().toISOString()
 ```
 
 **After review session:**
+
 ```javascript
 const performance = correct / total
 
@@ -116,6 +118,7 @@ Want to review before continuing? [y/n/menu]
 ## Review Activity
 
 **Same as Discover activity:**
+
 1. Ask 5 predictive questions
 2. Track performance (correct/total)
 3. Update review interval based on performance
@@ -144,6 +147,7 @@ last_activity: 2026-06-27T00:00:00Z
 ```
 
 **Calculated fields (not stored):**
+
 - `next_review`: last_activity + review_interval
 - `days_until_review`: (next_review - now) / 86400
 - `is_due`: now >= next_review
@@ -152,25 +156,30 @@ last_activity: 2026-06-27T00:00:00Z
 ## Example Review Progression
 
 **Day 0 (Calibrate passed):**
+
 - review_interval: 172800 (2 days)
 - next_review: Day 2
 
 **Day 2 (Review: 5/5):**
+
 - Performance: 1.0 → 2× interval
 - review_interval: 345600 (4 days)
 - next_review: Day 6
 
 **Day 6 (Review: 4/5):**
+
 - Performance: 0.8 → 1.5× interval
 - review_interval: 518400 (6 days)
 - next_review: Day 12
 
 **Day 12 (Review: 2/5):**
+
 - Performance: 0.4 → keep same
 - review_interval: 518400 (6 days)
 - next_review: Day 18
 
 **Day 20 (Review: 1/5, overdue 2 days):**
+
 - Performance: 0.2 → ÷2 interval
 - review_interval: 259200 (3 days)
 - next_review: Day 23

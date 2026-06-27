@@ -7,6 +7,7 @@
 const matter = require('gray-matter');
 const fs = require('fs');
 const path = require('path');
+const { isMastered, daysSince, now: getNow } = require('./utils');
 
 /**
  * Check if compression should be offered
@@ -20,7 +21,7 @@ function shouldOfferCompression(sections, started) {
 
   sections.forEach(section => {
     section.concepts.forEach(concept => {
-      if ((concept.level || 0) >= 5 && !concept.compressed) {
+      if (isMastered(concept) && !concept.compressed) {
         masteredCount++;
 
         const masteredDate = concept.activity?.calibrate?.date || concept.last_activity;
@@ -35,7 +36,7 @@ function shouldOfferCompression(sections, started) {
   });
 
   const daysSinceFirst = firstMasteredDate
-    ? Math.floor((Date.now() - firstMasteredDate.getTime()) / 86400000)
+    ? daysSince(firstMasteredDate.toISOString())
     : 0;
 
   const shouldOffer = masteredCount >= 10 && daysSinceFirst >= 30;
@@ -53,12 +54,66 @@ function shouldOfferCompression(sections, started) {
  * @param {Array<Object>} concepts - Concepts to archive
  * @returns {string} Markdown content for archive
  */
+function formatDiscoverActivity(activity) {
+  let content = `#### Discover ✓\n`;
+  content += `date: ${activity.date}\n`;
+  content += `questions:\n`;
+  content += `  correct: ${activity.questions.correct}\n`;
+  content += `  total: ${activity.questions.total}\n`;
+  content += `hints_needed: ${activity.hints_needed}\n`;
+  if (activity.signals?.strengths?.length > 0) {
+    content += `signals:\n`;
+    content += `  strengths: [${activity.signals.strengths.join(', ')}]\n`;
+  }
+  return content + `\n`;
+}
+
+function formatNameActivity(activity) {
+  let content = `#### Name ✓\n`;
+  content += `vocabulary_introduced: ${activity.date}\n`;
+  content += `terms:\n`;
+  activity.terms.forEach(term => {
+    content += `  - ${term}\n`;
+  });
+  return content + `\n`;
+}
+
+function formatPracticeActivity(activity) {
+  let content = `#### Practice ✓\n`;
+  content += `date: ${activity.date}\n`;
+  content += `independence: ${activity.independence}\n`;
+  if (activity.exercises) {
+    content += `exercises:\n`;
+    activity.exercises.forEach(ex => {
+      content += `  - name: ${ex.name}\n`;
+      content += `    status: ${ex.status}\n`;
+      content += `    errors: ${ex.errors}\n`;
+    });
+  }
+  return content + `\n`;
+}
+
+function formatCalibrateActivity(activity) {
+  let content = `#### Calibrate ✓\n`;
+  content += `date: ${activity.date}\n`;
+  content += `tradeoffs:\n`;
+  content += `  correct: ${activity.tradeoffs.correct}\n`;
+  content += `  total: ${activity.tradeoffs.total}\n`;
+  if (activity.expert_thinking?.length > 0) {
+    content += `expert_thinking:\n`;
+    activity.expert_thinking.forEach(thought => {
+      content += `  - ${thought}\n`;
+    });
+  }
+  return content + `\n`;
+}
+
 function generateArchive(sectionName, concepts) {
-  const now = new Date().toISOString().split('T')[0];
+  const archiveDate = getNow().split('T')[0];
   const conceptNames = concepts.map(c => c.name).join(', ');
 
   let content = `# ${sectionName} - Mastered Concepts Archive\n\n`;
-  content += `Archived: ${now}\n`;
+  content += `Archived: ${archiveDate}\n`;
   content += `Concepts: ${concepts.length} (${conceptNames})\n\n`;
   content += `---\n\n`;
 
@@ -67,60 +122,18 @@ function generateArchive(sectionName, concepts) {
     content += `**Level:** ${concept.level}\n\n`;
     content += `**Status:** ${concept.activity?.status || 'mastered'}\n\n`;
 
-    // Include full activity history
     if (concept.activity) {
       if (concept.activity.discover) {
-        content += `#### Discover ✓\n`;
-        content += `date: ${concept.activity.discover.date}\n`;
-        content += `questions:\n`;
-        content += `  correct: ${concept.activity.discover.questions.correct}\n`;
-        content += `  total: ${concept.activity.discover.questions.total}\n`;
-        content += `hints_needed: ${concept.activity.discover.hints_needed}\n`;
-        if (concept.activity.discover.signals?.strengths?.length > 0) {
-          content += `signals:\n`;
-          content += `  strengths: [${concept.activity.discover.signals.strengths.join(', ')}]\n`;
-        }
-        content += `\n`;
+        content += formatDiscoverActivity(concept.activity.discover);
       }
-
       if (concept.activity.name) {
-        content += `#### Name ✓\n`;
-        content += `vocabulary_introduced: ${concept.activity.name.date}\n`;
-        content += `terms:\n`;
-        concept.activity.name.terms.forEach(term => {
-          content += `  - ${term}\n`;
-        });
-        content += `\n`;
+        content += formatNameActivity(concept.activity.name);
       }
-
       if (concept.activity.practice) {
-        content += `#### Practice ✓\n`;
-        content += `date: ${concept.activity.practice.date}\n`;
-        content += `independence: ${concept.activity.practice.independence}\n`;
-        if (concept.activity.practice.exercises) {
-          content += `exercises:\n`;
-          concept.activity.practice.exercises.forEach(ex => {
-            content += `  - name: ${ex.name}\n`;
-            content += `    status: ${ex.status}\n`;
-            content += `    errors: ${ex.errors}\n`;
-          });
-        }
-        content += `\n`;
+        content += formatPracticeActivity(concept.activity.practice);
       }
-
       if (concept.activity.calibrate) {
-        content += `#### Calibrate ✓\n`;
-        content += `date: ${concept.activity.calibrate.date}\n`;
-        content += `tradeoffs:\n`;
-        content += `  correct: ${concept.activity.calibrate.tradeoffs.correct}\n`;
-        content += `  total: ${concept.activity.calibrate.tradeoffs.total}\n`;
-        if (concept.activity.calibrate.expert_thinking?.length > 0) {
-          content += `expert_thinking:\n`;
-          concept.activity.calibrate.expert_thinking.forEach(thought => {
-            content += `  - ${thought}\n`;
-          });
-        }
-        content += `\n`;
+        content += formatCalibrateActivity(concept.activity.calibrate);
       }
     }
 
@@ -139,15 +152,15 @@ function generateArchive(sectionName, concepts) {
  * @returns {Object} {section: updated section, archiveFile: archive filename}
  */
 function compressSection(section, archivePath) {
-  const mastered = section.concepts.filter(c => (c.level || 0) >= 5 && !c.compressed);
+  const mastered = section.concepts.filter(c => isMastered(c) && !c.compressed);
 
   if (mastered.length === 0) {
     return { section, archiveFile: null };
   }
 
   // Generate archive
-  const now = new Date().toISOString().split('T')[0];
-  const archiveFilename = `${section.name.toLowerCase().replace(/\s+/g, '-')}-mastered-${now}.md`;
+  const archiveDate = getNow().split('T')[0];
+  const archiveFilename = `${section.name.toLowerCase().replace(/\s+/g, '-')}-mastered-${archiveDate}.md`;
   const archiveContent = generateArchive(section.name, mastered);
 
   // Ensure archive directory exists
@@ -161,13 +174,14 @@ function compressSection(section, archivePath) {
 
   // Update section
   section.compressed = true;
-  section.compressed_date = new Date().toISOString();
+  section.compressed_date = getNow();
   section.archive_path = `archive/${archiveFilename}`;
   section.mastered_count = mastered.length;
 
-  // Strip activity history from compressed concepts
+  // Strip activity history from compressed concepts (mastered already filtered above)
+  const masteredNames = new Set(mastered.map(c => c.name));
   section.concepts = section.concepts.map(concept => {
-    if ((concept.level || 0) >= 5 && !concept.compressed) {
+    if (masteredNames.has(concept.name)) {
       return {
         name: concept.name,
         level: concept.level,

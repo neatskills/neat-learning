@@ -5,6 +5,7 @@
 **Key principle:** Understanding first, vocabulary second
 
 **When to run:**
+
 - After Discover activity shows strong understanding (4/5+ correct)
 - User asks "What's this called?"
 - Before Practice (can't practice without knowing the terms)
@@ -12,11 +13,13 @@
 ## Why Understanding Before Vocabulary
 
 **Wrong order (traditional teaching):**
+
 1. "A Pod is the smallest deployable unit in Kubernetes..."
 2. User memorizes definition
 3. User doesn't really understand WHY it exists
 
 **Right order (discovery-based):**
+
 1. Discover: "If container crashes, what should happen?" → User builds understanding
 2. Name: "That wrapper is called a Pod" → Vocabulary connects to existing understanding
 3. User knows both WHAT it is and WHY it exists
@@ -153,6 +156,7 @@ Terminology introduced after understanding established.
 ## Readiness to Move Forward
 
 **After Name activity:**
+
 - Update concept Level to 2 (can explain concepts)
 - User now ready for Practice activity (knows the terminology)
 - Can reference official docs (vocabulary matches industry terms)

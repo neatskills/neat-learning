@@ -1,15 +1,16 @@
 const matter = require('gray-matter');
 const fs = require('fs');
 const path = require('path');
+const { now: getNow } = require('./utils');
 
 function createNewMap(topic, goal, domain) {
-  const now = new Date().toISOString();
+  const timestamp = getNow();
 
   const data = {
     goal,
     domain,
-    started: now,
-    last_session: now,
+    started: timestamp,
+    last_session: timestamp,
     total_sessions: 0,
     progress: {
       mastered: 0,
@@ -24,8 +25,8 @@ function createNewMap(topic, goal, domain) {
 **Goal:** ${goal}
 **Domain:** ${domain}
 **Progress:** 0/0 concepts mastered | Level 0 overall
-**Started:** ${now}
-**Last session:** ${now}
+**Started:** ${timestamp}
+**Last session:** ${timestamp}
 **Total sessions:** 0
 
 ---

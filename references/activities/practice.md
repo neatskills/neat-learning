@@ -3,6 +3,7 @@
 **Purpose:** Apply knowledge through domain-appropriate exercises
 
 **When to run:**
+
 - After Name activity (user knows terminology)
 - Discover shows 4/5+ correct (strong understanding)
 - All prerequisites at Level 3+
@@ -10,11 +11,13 @@
 ## Readiness Gates
 
 **Practice unlocks when:**
+
 - ✅ Discover: 4/5+ questions correct
 - ✅ Name: Vocabulary introduced
 - ✅ Prerequisites: All "requires" dependencies at Level 3+
 
 **Blocked if:**
+
 - ❌ Discover weak (<4/5 correct)
 - ❌ Prerequisites missing or weak
 
@@ -180,16 +183,19 @@ Need more Discover on Deployment internals.
 ```
 
 **Level progression:**
+
 - Practice complete (2+ exercises, <30% errors) → Level 4 (can solve unfamiliar problems)
 
 ## Readiness for Calibrate
 
 **Move to Calibrate when:**
+
 - 2+ exercises completed successfully
 - Error rate <30%
 - Can work independently (minimal hints)
 
 **Stay in Practice if:**
+
 - High error rate (>30%)
 - Same mistakes repeated
 - Needs frequent hints

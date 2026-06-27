@@ -22,9 +22,8 @@ Then: "Teach me [topic]"
 
 ## Documentation
 
-See [`SKILL.md`](.claude/skills/neat-learning/SKILL.md) for complete system documentation.
+See [`SKILL.md`](SKILL.md) for complete system documentation.
 
 ## License
 
 MIT
-
