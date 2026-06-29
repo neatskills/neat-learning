@@ -40,14 +40,30 @@ Learn by thinking before AI explains.
    - Unambiguous: "This looks like [domain]. Is that right? [y/n]"
    - Ambiguous: Present options a/b/c
 
-3. **Create state**
-   - Call `scripts/state-manager.js createNewMap(topic, goal, domain)`
-   - Save to: `docs/neat_learning/<topic-slug>/map.md`
-   - Topic slug: lowercase, hyphens (e.g., "Machine Learning" → "machine-learning")
+3. **Generate and initialize map**
+   
+   a. **Use your knowledge to design the learning path:**
+      - Based on the topic, goal, and domain, generate a map structure
+      - Structure: `{ sections: [ { name, description?, concepts: [ { name, description, dependencies: { requires: [], enables: [] } } ] } ] }`
+      - Consider: Foundation → Core → Advanced or similar progression
+      - Set dependencies between concepts (what unlocks what)
+   
+   b. **Initialize the map:**
+      ```javascript
+      const { initMap } = require('/Users/ji.li/.claude/skills/neat-learning/scripts/init-map.js');
+      const mapData = {
+        sections: [
+          { name: 'Foundation', description: '...', concepts: [...] },
+          { name: 'Core', description: '...', concepts: [...] }
+        ]
+      };
+      const { mapPath } = initMap(topic, goal, domain, mapData);
+      ```
+   
+   c. **Topic slug:** lowercase, hyphens (e.g., "Machine Learning" → "machine-learning")
 
-4. **Build initial map**
-   - Call `scripts/map-builder.js buildInitialMap(topic, goal, domain)`
-   - Display sections and concepts
+4. **Display and begin**
+   - Show sections and concepts from the created map
    - Begin Learn activity on first concept
 
 ### Returning Session: Load and Review
@@ -87,9 +103,8 @@ Learn by thinking before AI explains.
 
 After domain confirmation:
 
-- Call `scripts/map-builder.js buildInitialMap(topic, goal, domain)`
-- Display sections (Foundation, Core, Advanced)
-- Update state, save map.md
+- Map is already initialized via `init-map.js` in step 3
+- Display sections from the map
 - Run Learn on first concept
 
 ### Adding Concepts
