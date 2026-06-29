@@ -45,6 +45,21 @@ AI-guided discovery-based learning system that makes you think before it explain
 - **Mastery levels:** 0-7 progression from "never heard of it" to "can design systems"
 - **Compression checkpoints:** Archive mastered concepts to keep maps focused
 
+## Install
+
+```bash
+git clone https://github.com/neatskills/neat-learning.git
+cd neat-learning
+npm install
+./scripts/manage-skills.sh install
+```
+
+To uninstall:
+
+```bash
+./scripts/manage-skills.sh uninstall
+```
+
 ## Quick Start
 
 ```bash
