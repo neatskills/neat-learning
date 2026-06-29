@@ -5,8 +5,8 @@
  */
 
 const matter = require('gray-matter');
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { isMastered, daysSince, now: getNow } = require('./utils');
 
 /**
@@ -54,61 +54,47 @@ function shouldOfferCompression(sections, started) {
  * @param {Array<Object>} concepts - Concepts to archive
  * @returns {string} Markdown content for archive
  */
-function formatLearnActivity(activity) {
-  let content = `#### Learn ✓\n`;
-  content += `date: ${activity.date}\n`;
-  content += `questions:\n`;
-  content += `  correct: ${activity.questions.correct}\n`;
-  content += `  total: ${activity.questions.total}\n`;
-  content += `hints_needed: ${activity.hints_needed}\n`;
-  if (activity.signals?.strengths?.length > 0) {
-    content += `signals:\n`;
-    content += `  strengths: [${activity.signals.strengths.join(', ')}]\n`;
-  }
-  return content + `\n`;
-}
+const ACTIVITY_FORMATS = {
+  learn: { dateField: 'date', fields: ['questions', 'hints_needed', 'signals'] },
+  synthesize: { dateField: 'completed', fields: ['terms', 'mental_model'] },
+  practice: { dateField: 'date', fields: ['independence', 'exercises'] },
+  calibrate: { dateField: 'date', fields: ['tradeoffs', 'expert_thinking'] }
+};
 
-function formatSynthesizeActivity(activity) {
-  let content = `#### Synthesize ✓\n`;
-  content += `completed: ${activity.date}\n`;
-  content += `terms:\n`;
-  activity.terms.forEach(term => {
-    content += `  - ${term}\n`;
+function formatActivity(activityType, activity) {
+  const config = ACTIVITY_FORMATS[activityType];
+  const typeName = activityType.charAt(0).toUpperCase() + activityType.slice(1);
+  let content = `#### ${typeName} ✓\n`;
+
+  content += `${config.dateField}: ${activity[config.dateField] || activity.date}\n`;
+
+  config.fields.forEach(field => {
+    if (!activity[field]) return;
+
+    const value = activity[field];
+    if (field === 'questions') {
+      content += `questions:\n  correct: ${value.correct}\n  total: ${value.total}\n`;
+    } else if (field === 'tradeoffs') {
+      content += `tradeoffs:\n  correct: ${value.correct}\n  total: ${value.total}\n`;
+    } else if (field === 'terms' && Array.isArray(value)) {
+      content += 'terms:\n' + value.map(t => '  - ' + t).join('\n') + '\n';
+    } else if (field === 'exercises' && Array.isArray(value)) {
+      const exerciseLines = value.map(e => '  - name: ' + e.name + '\n    status: ' + e.status + '\n    errors: ' + e.errors).join('\n');
+      content += 'exercises:\n' + exerciseLines + '\n';
+    } else if (field === 'expert_thinking' && Array.isArray(value) && value.length > 0) {
+      content += 'expert_thinking:\n' + value.map(t => '  - ' + t).join('\n') + '\n';
+    } else if (field === 'signals' && value.strengths?.length > 0) {
+      content += `signals:\n  strengths: [${value.strengths.join(', ')}]\n`;
+    } else if (typeof value === 'string') {
+      content += `${field}: "${value}"\n`;
+    } else if (typeof value === 'boolean') {
+      content += `${field}: ${value}\n`;
+    } else {
+      content += `${field}: ${value}\n`;
+    }
   });
-  if (activity.mental_model) {
-    content += `mental_model: "${activity.mental_model}"\n`;
-  }
-  return content + `\n`;
-}
 
-function formatPracticeActivity(activity) {
-  let content = `#### Practice ✓\n`;
-  content += `date: ${activity.date}\n`;
-  content += `independence: ${activity.independence}\n`;
-  if (activity.exercises) {
-    content += `exercises:\n`;
-    activity.exercises.forEach(ex => {
-      content += `  - name: ${ex.name}\n`;
-      content += `    status: ${ex.status}\n`;
-      content += `    errors: ${ex.errors}\n`;
-    });
-  }
-  return content + `\n`;
-}
-
-function formatCalibrateActivity(activity) {
-  let content = `#### Calibrate ✓\n`;
-  content += `date: ${activity.date}\n`;
-  content += `tradeoffs:\n`;
-  content += `  correct: ${activity.tradeoffs.correct}\n`;
-  content += `  total: ${activity.tradeoffs.total}\n`;
-  if (activity.expert_thinking?.length > 0) {
-    content += `expert_thinking:\n`;
-    activity.expert_thinking.forEach(thought => {
-      content += `  - ${thought}\n`;
-    });
-  }
-  return content + `\n`;
+  return content + '\n';
 }
 
 function generateArchive(sectionName, concepts) {
@@ -126,18 +112,11 @@ function generateArchive(sectionName, concepts) {
     content += `**Status:** ${concept.activity?.status || 'mastered'}\n\n`;
 
     if (concept.activity) {
-      if (concept.activity.learn) {
-        content += formatLearnActivity(concept.activity.learn);
-      }
-      if (concept.activity.synthesize) {
-        content += formatSynthesizeActivity(concept.activity.synthesize);
-      }
-      if (concept.activity.practice) {
-        content += formatPracticeActivity(concept.activity.practice);
-      }
-      if (concept.activity.calibrate) {
-        content += formatCalibrateActivity(concept.activity.calibrate);
-      }
+      ['learn', 'synthesize', 'practice', 'calibrate'].forEach(activityType => {
+        if (concept.activity[activityType]) {
+          content += formatActivity(activityType, concept.activity[activityType]);
+        }
+      });
     }
 
     content += `**Review interval:** ${concept.review_interval} seconds\n`;

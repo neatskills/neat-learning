@@ -75,6 +75,15 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
+/**
+ * Flatten sections array into concepts array
+ * @param {Array<Object>} sections - Sections with concepts
+ * @returns {Array<Object>} Flattened array of all concepts
+ */
+function flattenConcepts(sections) {
+  return sections.flatMap(section => section.concepts);
+}
+
 module.exports = {
   MASTERY_LEVEL,
   INITIAL_REVIEW_INTERVAL,
@@ -86,5 +95,6 @@ module.exports = {
   daysSince,
   isMastered,
   ensureActivity,
-  clamp
+  clamp,
+  flattenConcepts
 };

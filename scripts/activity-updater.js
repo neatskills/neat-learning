@@ -7,7 +7,7 @@
 const matter = require('gray-matter');
 const fs = require('fs');
 const path = require('path');
-const { ensureActivity, now: getNow, INITIAL_REVIEW_INTERVAL, OPPORTUNITIES_PER_EXERCISE, clamp, MASTERY_LEVEL } = require('./utils');
+const { ensureActivity, now: getNow, INITIAL_REVIEW_INTERVAL, OPPORTUNITIES_PER_EXERCISE, clamp, MASTERY_LEVEL, isMastered, flattenConcepts } = require('./utils');
 
 /**
  * Record Learn activity results
@@ -169,9 +169,7 @@ function updateReviewInterval(concept, correct, total) {
   }
 
   // Clamp to min 1 day, max 60 days
-  const MIN_INTERVAL = 86400;
-  const MAX_INTERVAL = 5184000;
-  concept.review_interval = Math.round(clamp(currentInterval, MIN_INTERVAL, MAX_INTERVAL));
+  concept.review_interval = Math.round(clamp(currentInterval, 86400, 5184000));
   concept.last_activity = timestamp;
 
   ensureActivity(concept).date = timestamp;
@@ -185,25 +183,21 @@ function updateReviewInterval(concept, correct, total) {
  * @returns {Object} Progress object {mastered, total, overall_level}
  */
 function calculateProgress(sections) {
-  let totalConcepts = 0;
-  let masteredConcepts = 0;
+  const concepts = flattenConcepts(sections);
   let totalLevel = 0;
+  let masteredConcepts = 0;
 
-  sections.forEach(section => {
-    section.concepts.forEach(concept => {
-      totalConcepts++;
-      totalLevel += concept.level || 0;
-
-      if ((concept.level || 0) >= MASTERY_LEVEL) {
-        masteredConcepts++;
-      }
-    });
+  concepts.forEach(concept => {
+    totalLevel += concept.level || 0;
+    if (isMastered(concept)) {
+      masteredConcepts++;
+    }
   });
 
   return {
     mastered: masteredConcepts,
-    total: totalConcepts,
-    overall_level: totalConcepts > 0 ? Math.round((totalLevel / totalConcepts) * 10) / 10 : 0
+    total: concepts.length,
+    overall_level: concepts.length > 0 ? Math.round((totalLevel / concepts.length) * 10) / 10 : 0
   };
 }
 

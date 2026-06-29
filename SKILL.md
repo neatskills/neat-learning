@@ -10,17 +10,13 @@ description: Use when user wants to learn a topic through AI-guided discovery - 
 ## Overview
 
 - Builds customized concept maps based on user goals
-- Guides through 5 learning activities per concept (Plan → Learn → Synthesize → Practice → Calibrate)
-- Tracks progress across sessions with spaced repetition
+- Guides through 5 activities per concept (Plan → Learn → Synthesize → Practice → Calibrate)
+- Tracks progress with spaced repetition
 - Adapts to any domain: technical, business, theoretical, soft skills
 
 ## When to Use
 
-User wants to learn a topic:
-
-- "Teach me Kubernetes"
-- "Help me understand negotiation"
-- "Continue my [topic] learning"
+User wants to learn a topic: "Teach me Kubernetes", "Help me understand negotiation", "Continue my learning"
 
 **Skip:** Quick factual answers, one-time explanations, debugging
 
@@ -32,55 +28,56 @@ Learn by thinking before AI explains.
 
 ### First Session: Initialize
 
-1. **Capture topic and goal**
-   - User: "Teach me [topic]"
-   - AI: "What's your goal? (Examples: deploy apps, pass cert, understand fundamentals)"
+**Linear workflow:**
 
-2. **Detect domain**
-   - Unambiguous: "This looks like [domain]. Is that right? [y/n]"
-   - Ambiguous: Present options a/b/c
+1. **Get topic** - If not provided: ask "What topic would you like to learn?"
+   If goal provided: infer topic from keywords, confirm
 
-3. **Generate and initialize map**
-   
-   a. **Use your knowledge to design the learning path:**
-      - Based on the topic, goal, and domain, generate a map structure
-      - Structure: `{ sections: [ { name, description?, concepts: [ { name, description, dependencies: { requires: [], enables: [] } } ] } ] }`
-      - Consider: Foundation → Core → Advanced or similar progression
-      - Set dependencies between concepts (what unlocks what)
-   
-   b. **Initialize the map:**
-      ```javascript
-      const { initMap } = require('/Users/ji.li/.claude/skills/neat-learning/scripts/init-map.js');
-      const mapData = {
-        sections: [
-          { name: 'Foundation', description: '...', concepts: [...] },
-          { name: 'Core', description: '...', concepts: [...] }
-        ]
-      };
-      const { mapPath } = initMap(topic, goal, domain, mapData);
-      ```
-   
-   c. **Topic slug:** lowercase, hyphens (e.g., "Machine Learning" → "machine-learning")
+2. **Get goal** - If not provided: ask "What's your goal for learning [topic]?"
+   Examples: deploy apps, pass cert, review code, build projects
 
-4. **Display and begin**
-   - Show sections and concepts from the created map
-   - Begin Learn activity on first concept
+3. **Detect compound goals** - Split if contains "and"/"or"/"/"
+   - "Review AI code **and** prepare for interviews" → 2 goals
+   - Ask: [a] Focus on goal 1, [b] Focus on goal 2, [c] Keep both (separate paths, shared progress)
+
+4. **Check existing goals** - For each goal:
+   - Exact match → Load existing
+   - Similar match → Ask: "Use existing '[existing goal]' or create new? [existing/new]"
+   - No match → Continue to step 5
+
+5. **Detect domain** - Unambiguous: "This looks like [domain]. Is that right? [y/n]"
+   Ambiguous: Present options a/b/c
+
+6. **Generate map** - Use your knowledge to design learning path:
+
+   ```javascript
+   const { initMap } = require('/Users/ji.li/.claude/skills/neat-learning/scripts/init-map.js');
+   const mapData = {
+     sections: [
+       { name: 'Foundation', description: '...', concepts: [...] },
+       { name: 'Core', description: '...', concepts: [...] }
+     ]
+   };
+   const { mapPath } = initMap(topic, goal, domain, mapData);
+   ```
+
+   Structure: Foundation → Core → Advanced, set dependencies (requires/enables)
+   Topic slug: lowercase-hyphens
+
+7. **Display and begin** - Show sections/concepts, begin Learn on first concept
 
 ### Returning Session: Load and Review
 
-1. **Load state**
-   - Call `scripts/state-manager.js loadState(mapPath)`
-   - If not exists → run first session flow
+1. **Load state** - `loadState(mapPath)`, if not exists → first session flow
 
-2. **Calculate reviews**
+2. **Calculate reviews**:
 
    ```javascript
    days_since = (today - concept.activity.date) / 86400
    isDue = days_since >= review_interval / 86400
-   isOverdue = days_since > review_interval / 86400
    ```
 
-3. **Present status**
+3. **Present status**:
 
    ```
    Welcome back! Last session: [N] days ago
@@ -91,175 +88,159 @@ Learn by thinking before AI explains.
    Want to review before continuing? [y/n/menu]
    ```
 
-   - [y] → Run Learn review
-   - [n] → Continue next activity
-   - [menu] → Show full map
+### Goal Change: Multiple Goals
 
-## Activity 1: Plan
+**Trigger:** User returns with different goal
 
-**Purpose:** Build/expand concept map - planning what to learn
+**If 3+ existing goals, warn:**
 
-### Initial Map Building
+```
+"You have [N] active goals for [Topic]:
+ 1. [Goal 1] ([X]/[Y] concepts mastered)
+ ...
+ 
+ ⚠️ Multiple goals can spread focus thin.
+ 
+ [a] Continue with existing goal
+ [b] Add new goal anyway
+ [c] Replace one goal
+ [d] Review and consolidate"
+```
 
-After domain confirmation:
+**Standard (< 3 goals):**
 
-- Map is already initialized via `init-map.js` in step 3
-- Display sections from the map
-- Run Learn on first concept
+```
+"You already have [Topic] with goal: '[existing]'
+ You've now said: '[new goal]'
+ 
+ [a] Continue with existing
+ [b] Add new goal (both active, shared progress)
+ [c] Switch to new goal (archive existing)"
+```
 
-### Adding Concepts
+**Handle choice:**
 
-User: "What's [X]?"
+- [a] Load selected goal
+- [b] Add goal, generate priorities, create goal filter, ask which to work on
+- [c] Archive existing, replace with new
 
-If X not in map:
+### Goal Filters: Strategy C
 
-- Give brief explanation (1-2 sentences)
-- "Should I add [X] to your map? [y/n]"
-- If yes: Determine section, set dependencies, add at Level 0, run Learn
+**File structure:**
 
-## Activity 2: Learn
+```
+docs/neat_learning/python/
+  map.md                    # Master map, shared progress
+  goals/
+    review-ai-code.json     # Goal filter
+    interview-prep.json     # Goal filter
+```
+
+**Filter schema:**
+
+```json
+{
+  "goal": "Review AI-generated code",
+  "created": "2026-06-29T12:00:00.000Z",
+  "last_active": "2026-06-29T14:30:00.000Z",
+  "priority_concepts": ["Variables and Types", "Control Flow", "Functions"],
+  "skip_concepts": ["Problem Solving Patterns"],
+  "custom_concepts": []
+}
+```
+
+**Map frontmatter:**
+
+```yaml
+goals:
+  - name: "Review AI-generated code"
+    created: "2026-06-29T12:00:00.000Z"
+  - name: "Backend development"
+    created: "2026-06-29T13:00:00.000Z"
+active_goal: "Review AI-generated code"
+```
+
+**Usage:** Filter when displaying progress, selecting next activity, calculating mastery, scheduling reviews. All progress stored in master map, shared across goals.
+
+## Activities
+
+### 1. Plan
+
+**Purpose:** Build/expand concept map
+
+**Initial map:** Generated via `init-map.js` in step 6 above
+
+**Adding concepts:** User asks "What's [X]?"
+
+- If not in map: explain briefly, ask "Add [X] to map? [y/n]"
+- If yes: determine section, set dependencies, add at Level 0, run Learn
+
+See `references/activities/plan.md`
+
+### 2. Learn
 
 **Purpose:** Learn through questions/predictions, not explanations
 
-See `references/activities/learn.md`
+**Tree-based strategy:**
 
-### Tree-Based Question Strategy
-
-**AI controls both depth and breadth of exploration:**
-
-**Core questions (variable N):**
-- Start with N top-level questions covering main aspects
-- N varies by concept complexity (simple: 3-4, medium: 5-7, complex: 8-10)
-- Determined by concept's natural structure, not hardcoded count
-
-**Then branch in two directions:**
-
-**1. Depth (vertical) - Drill deeper when:**
-- User shows confusion or wrong answer (reactive)
-- Topic is critical for user's goal (proactive)
-- Concept has important nuances to grasp
-- Example: "What happens when container crashes?" → "What's a restart policy?" → "When use 'Never'?"
-
-**2. Breadth (horizontal) - Explore wider when:**
-- User understands core well
-- Related concepts are relevant to goal (proactive)
-- Edge cases matter for their use case
-- Example: Pod basics understood → init containers → sidecars → lifecycle phases
-
-**Stop when:**
-- User demonstrates sufficient understanding for their goal
-- Covered essential aspects (core + goal-relevant depth/breadth)
-- Diminishing returns (more questions won't help)
+- Core questions (variable N based on complexity: 3-10)
+- Depth (vertical): drill deeper when confused or critical for goal
+- Breadth (horizontal): explore wider when understanding strong and relevant to goal
+- Stop when: sufficient understanding, covered core + goal-relevant depth/breadth, diminishing returns
 
 **Per-question cycle:**
+
 1. Ask predictive question
-2. User predicts/guesses
-3. Confirm or clarify (don't explain everything)
-4. Track: correct/incorrect, hints needed, confusion patterns
-5. Decide: next core question, go deeper, go wider, or stop
+2. User predicts
+3. Confirm or clarify
+4. Track: correct/incorrect, hints, confusion patterns
+5. Decide: next core, deeper, wider, or stop
 
-### Performance Tracking
+**Performance tracking:**
 
-**Strong (80%+ correct, minimal hints):**
+Strong (80%+ correct, minimal hints):
 
 ```markdown
 #### Learn ✓
 questions: {correct: 12, total: 14, date: [ISO8601]}
 hints_needed: 1
 coverage:
-  core: [lifecycle, restart-policy, health-checks, networking, volumes]
-  depth: [restart-policy-nuances, crashloopbackoff]
+  core: [lifecycle, restart-policy, health-checks]
+  depth: [restart-policy-nuances]
   breadth: [init-containers, sidecars]
 signals:
   confusion: []
-  strengths: [lifecycle, restart-policy, container-relationship]
+  strengths: [lifecycle, restart-policy]
 
-Strong understanding across core + goal-relevant depth/breadth. Ready for Synthesize.
+Strong understanding. Ready for Synthesize.
 ```
 
-**Weak (<60% correct, frequent hints):**
+**Readiness gates:**
 
-```markdown
-#### Learn →
-questions: {correct: 4, total: 8, date: [ISO8601]}
-hints_needed: 5
-coverage:
-  core: [lifecycle, restart-policy, health-checks]
-  stuck_on: [restart-policy, health-checks]
-signals:
-  confusion:
-    - pattern: "Mixing up liveness vs readiness probes"
-    - specific: "When does readiness probe matter?" (wrong 3x)
-  needs: "More depth on health-checks before moving on"
+- Move to Synthesize: 80%+ correct, minimal hints, no confusion patterns
+- Stay in Learn: <60% correct, confusion detected, frequent hints
 
-Confusion detected. Need reinforcement before Practice.
-```
+**Domain adaptation:**
 
-### Readiness Gates
+| Domain | Question Type | Example |
+|--------|---------------|---------|
+| Technical | Predictive | "Container crashes?" → "Restart policy?" |
+| Soft Skills | Scenario-based | "They offer $90k?" → "What do you say?" |
+| Business | Estimation | "DCF valuation?" → "Discount rate?" |
+| Theoretical | Pattern recognition | "Confirmation bias?" → "How does it form?" |
 
-**Move to Synthesize when:**
+See `references/activities/learn.md`
 
-- 80%+ questions correct overall
-- Minimal hints needed (varies by question count)
-- No major confusion patterns
-- Covered core aspects + goal-relevant depth/breadth
-- User can predict behavior across scenarios
+### 3. Synthesize
 
-**Stay in Learn if:**
+**Purpose:** Consolidate insights, introduce terminology, build mental model
 
-- <60% correct overall
-- Confusion pattern detected (same mistake repeatedly)
-- Many hints needed (user not inferring independently)
-- Core aspects not yet covered
-- User struggles with predictions
-
-### Domain Adaptation
-
-| Domain | Question Type | Tree Example |
-|--------|---------------|--------------|
-| **Technical** | Predictive ("What happens if...?") | **Core:** "Container crashes?" → **Depth:** "What's restart policy?" → **Breadth:** "Init containers?" |
-| **Soft Skills** | Scenario-based ("In this situation...?") | **Core:** "They offer $90k?" → **Depth:** "Why accept their anchor?" → **Breadth:** "Multiple offers scenario?" |
-| **Business** | Estimation ("Calculate/predict...") | **Core:** "DCF valuation?" → **Depth:** "Discount rate choice?" → **Breadth:** "Terminal value methods?" |
-| **Theoretical** | Pattern recognition ("Which? Why?") | **Core:** "Confirmation bias?" → **Depth:** "How does it form?" → **Breadth:** "Other cognitive biases?" |
-
-### Example: Kubernetes Pod (Technical)
-
-**Core questions (7):**
-1. What happens when container crashes?
-2. Can Pod have multiple containers?
-3. Who creates Pods?
-4. What happens when you delete a Pod?
-5. How does Kubernetes know Pod is healthy?
-6. Where do Pods run?
-7. How do containers communicate?
-
-**Depth on Q5 (health checks) - goal: "deploy apps":**
-- What's liveness probe?
-- What's readiness probe?
-- What happens when liveness fails?
-- What happens when readiness fails?
-- When to use startup probe?
-
-**Breadth from Q2 (multiple containers) - goal: "pass CKA":**
-- What are init containers?
-- What are sidecar containers?
-- What's localhost networking?
-- How do they share volumes?
-- Pod container patterns?
-
-## Activity 3: Synthesize
-
-**Purpose:** Consolidate scattered insights, introduce terminology, build mental model
-
-See `references/activities/synthesize.md`
-
-### Format
+**Format:**
 
 ```
 AI: "You now understand:
-     - [Key insight 1 from Learn]
-     - [Key insight 2 from Learn]
-     - [Key insight 3 from Learn]
+     - [Insight 1 from Learn]
+     - [Insight 2 from Learn]
      
      This is called **[Term]**.
      
@@ -269,59 +250,44 @@ AI: "You now understand:
      - [Term 1]: [Brief explanation]
      - [Term 2]: [Brief explanation]
      
-     Here's how these concepts connect: [Mental model]
-     
-     When you see '[Term]' in docs, you now know what it means."
+     Here's how these connect: [Mental model]"
 ```
 
-### State Update
+**State update:**
 
 ```markdown
 #### Synthesize ✓
 completed: [ISO8601]
 terms: [Pod, Pod spec, Pod lifecycle, Pod status]
 mental_model: "Pod wraps containers → spec defines desired state → lifecycle manages runtime → status shows current state"
-
-Insights consolidated, terminology introduced, mental model established.
 ```
 
-**Level update:** Concept → Level 2 (can explain concepts with proper terminology)
+**Level update:** Concept → Level 2 (can explain with proper terminology)
 
-## Activity 4: Practice
+See `references/activities/synthesize.md`
+
+### 4. Practice
 
 **Purpose:** Apply knowledge through domain-appropriate exercises
 
-See `references/activities/practice.md`
+**Readiness gates:**
 
-### Readiness Gates
-
-Practice unlocks when:
-
-- ✅ Learn: 4/5+ questions correct
-- ✅ Synthesize: Vocabulary and mental model established
+- ✅ Learn: 4/5+ correct
+- ✅ Synthesize: Vocabulary established
 - ✅ Prerequisites: All dependencies at Level 3+
 
-### Domain Adaptation
+**Domain adaptation:**
 
 | Domain | Exercise Type | Example |
 |--------|---------------|---------|
 | Technical | Code/config writing | "Write Pod manifest" |
 | Soft Skills | Role-play scenarios | "Practice salary negotiation" |
-| Business | Case studies, models | "Build DCF model" |
-| Theoretical | Analysis, pattern ID | "Identify biases in scenarios" |
+| Business | Case studies | "Build DCF model" |
+| Theoretical | Analysis | "Identify biases in scenarios" |
 
-### Performance Tracking
+**Track per exercise:** Completion, errors (count/type), independence (hints needed), error patterns
 
-Track per exercise:
-
-- **Completion:** Finished or not
-- **Errors:** Count and type (conceptual vs syntax)
-- **Independence:** Hints needed or not
-- **Error patterns:** What kind of mistakes
-
-### State Update
-
-**After successful practice:**
+**State update:**
 
 ```markdown
 #### Practice ✓
@@ -331,21 +297,17 @@ exercises:
   - name: Write Pod manifest
     status: complete
     errors: 0
-
-Can work independently. All exercises completed.
 ```
 
 **Level progression:** Practice complete → Level 4 (can solve unfamiliar problems)
 
-## Activity 5: Calibrate
+See `references/activities/practice.md`
+
+### 5. Calibrate
 
 **Purpose:** Develop expert judgment - when rules break, tradeoffs, common mistakes
 
-See `references/activities/refine.md`
-
-### Expert Judgment: 3-Question Pattern
-
-Ask 3 types, user must pass 2/3:
+**3-question pattern (pass 2/3):**
 
 | Question Type | Purpose | Example |
 |---------------|---------|---------|
@@ -353,22 +315,12 @@ Ask 3 types, user must pass 2/3:
 | Tradeoff | X vs Y - when each? | "Deployment vs StatefulSet - when?" |
 | Common mistake | Beginners mess up? | "What error do beginners make?" |
 
-### Pass Criteria
+**Pass criteria:**
 
-**Pass 2/3:**
+- Pass 2/3: Concept → Level 5-7 (expert judgment), marked "mastered", ready for spaced repetition
+- Pass 0-1/3: Stay at Level 4, more refinement needed
 
-- Concept → Level 5-7 (expert judgment)
-- Marked as "mastered"
-- Ready for spaced repetition
-
-**Pass 0-1/3:**
-
-- Stay at Level 4
-- More refinement or Practice needed
-
-### State Update
-
-**Passed refinement:**
+**State update:**
 
 ```markdown
 #### Calibrate ✓
@@ -378,19 +330,13 @@ expert_thinking:
   - Knows when NOT to use Deployments
   - Understands Deployment vs StatefulSet tradeoffs
   - Identified common beginner mistakes
-
-Expert judgment demonstrated. Concept mastered.
 ```
 
-**Level progression:** Calibrate passed → Level 5-7
+See `references/activities/calibrate.md`
 
 ## Spaced Repetition
 
-**Purpose:** Prevent forgetting through timed reviews
-
-See `references/spaced-repetition.md`
-
-### Review Intervals
+**Review intervals:**
 
 | Performance | Next Interval | Reasoning |
 |-------------|---------------|-----------|
@@ -401,67 +347,44 @@ See `references/spaced-repetition.md`
 
 **Initial:** 2 days after Calibrate | **Max:** 60 days | **Min:** 1 day
 
-### Due Calculation
+**Due calculation:**
 
 ```javascript
-const now = Date.now()
-const lastActivity = new Date(concept.activity.date).getTime()
-const elapsed = now - lastActivity
+const elapsed = Date.now() - new Date(concept.activity.date).getTime()
 const isDue = elapsed >= concept.review_interval * 1000
-```
-
-**Present status:**
-
-```
-Welcome back! Last session: 3 days ago
-
-📌 Due for review (2 concepts):
-- Pod (mastered, due 1 day ago)
-- Deployment (mastered, overdue 3 days ago)
-
-Want to review before continuing? [y/n/menu]
 ```
 
 **Review activity:** Run Learn (5 questions), track performance, update interval
 
+See `references/spaced-repetition.md`
+
 ## Activity Selection Logic
 
-**Decision flow:**
-
 ```
-Is this a returning session?
+Returning session?
   YES → Calculate due reviews
     Any due? 
       YES → Offer review [y/n/menu]
-        [y] → Run Learn reviews
-        [n] → Continue to next activity
-        [menu] → Show full map
       NO → Continue to next activity
   NO → First session, build initial map
 
 Next activity for concept:
   Level 0 → Plan (add to map)
-  Level 0 + in map → Learn (learn through questions)
-  Level 1 + Learn done → Synthesize (consolidate + terminology)
-  Level 2 + Synthesize done → Practice (apply hands-on)
+  Level 0 + in map → Learn (questions)
+  Level 1 + Learn done → Synthesize (terminology)
+  Level 2 + Synthesize done → Practice (hands-on)
   Level 4 + Practice done → Calibrate (expert judgment)
-  Level 5+ + due for review → Learn (review)
-  Level 5+ + not due → Next concept or end session
+  Level 5+ + due → Learn (review)
+  Level 5+ + not due → Next concept or end
 ```
 
-**User navigation:**
-
-- Skip ahead: "Let's practice X"
-- Repeat: "More questions on Y"
-- Add concepts: "What's Z?"
+**User navigation:** Skip ahead ("practice X"), repeat ("more questions on Y"), add concepts ("What's Z?")
 
 ## Progress Tracking
 
-**Overall progress:**
-
 ```yaml
 progress:
-  mastered: 3   # concepts at Level 5+
+  mastered: 3   # Level 5+
   total: 8      # concepts in map
   overall_level: 2.5  # average level
 ```
@@ -479,84 +402,42 @@ Foundation (3/3 mastered):
 Core (0/3 mastered):
   → Deployment - Level 2 (in Synthesize)
   ○ StatefulSet - Level 0 (not started)
-  ○ Job - Level 0 (not started)
 
 Overall: 38% mastered (3/8 concepts)
 ```
 
 ## Usage Examples
 
-**Example 1: New learner**
+**New learner:**
 
 ```
 User: "Teach me Kubernetes"
-
-AI: "I'll help you learn Kubernetes through discovery-based learning.
-     
-     What's your goal?
-     (Examples: deploy applications, pass CKA cert, understand fundamentals)"
-
+AI: "What's your goal? (Examples: deploy apps, pass CKA cert)"
 User: "Deploy applications"
-
-AI: "This looks like a technical topic. Is that right? [y/n]"
-
+AI: "This looks like a technical topic. [y/n]"
 User: "y"
-
-AI: "For deploying applications, you'll need these core concepts:
-     
-     **Foundation:**
-     - Pod - Container wrapper
-     - Service - Network access
-     
-     **Core:**
-     - Deployment - Managing replicas
-     - ConfigMap - Configuration
-     
-     Let's start with Foundation: Pod.
-     
-     Before I explain Pods, let me ask:
-     If a container crashes, what should Kubernetes do?"
-     
-[Learn activity begins]
+AI: [Shows map with Foundation/Core sections]
+    "Let's start with Pod. If a container crashes, what should Kubernetes do?"
 ```
 
-**Example 2: Returning learner**
+**Returning learner:**
 
 ```
 User: "Continue my Kubernetes learning"
-
 AI: "Welcome back! Last session: 3 days ago
-     
-     📌 Due for review (1 concept):
-     - Pod (mastered, due 1 day ago)
-     
+     📌 Due for review (1 concept): Pod (due 1 day ago)
      Want to review before continuing? [y/n/menu]"
-
 User: "y"
-
-AI: "Let's review Pod.
-     
-     If a Pod crashes, what happens to its containers?"
-     
-[Learn review begins]
+AI: "Let's review Pod. If a Pod crashes, what happens to its containers?"
 ```
 
-**Example 3: User navigation**
+**User navigation:**
 
 ```
 User: "What's a StatefulSet?"
-
-AI: "StatefulSet is [brief explanation - 1-2 sentences].
-     
-     Should I add StatefulSet to your map? [y/n]"
-
+AI: [Brief explanation]
+    "Should I add StatefulSet to your map? [y/n]"
 User: "y"
-
-AI: "Added StatefulSet to Core section.
-     
-     Let's learn how it works.
-     
+AI: "Added StatefulSet to Core section. Let's learn how it works.
      StatefulSet vs Deployment - what's the key difference?"
-     
-[Learn activity begins for StatefulSet]
 ```

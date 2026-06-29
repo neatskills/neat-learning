@@ -9,11 +9,13 @@ AI-guided discovery-based learning system that makes you think before it explain
 ## How It Works
 
 ### 1. **Plan** - Map what to learn
+
 - AI builds customized concept map based on your goal
 - Organizes into Foundation → Core → Advanced sections
 - Sets dependencies between concepts
 
 ### 2. **Learn** - Discover through questions
+
 - **Tree-based exploration:** AI controls depth and breadth dynamically
 - Start with core questions (varies: 3-10 based on complexity)
 - Go **deeper** when confused or topic is critical
@@ -21,16 +23,19 @@ AI-guided discovery-based learning system that makes you think before it explain
 - Stop when you demonstrate sufficient understanding for your goal
 
 ### 3. **Synthesize** - Connect the dots
+
 - Consolidate scattered insights from learning
 - Introduce formal terminology AFTER you understand
 - Build mental models showing how concepts connect
 
 ### 4. **Practice** - Apply hands-on
+
 - Domain-adapted exercises (code, scenarios, calculations, analysis)
 - Track independence, errors, patterns
 - Unlock when prerequisites met
 
 ### 5. **Calibrate** - Develop expert judgment
+
 - When NOT to use (negative cases)
 - Tradeoffs (when to choose X vs Y)
 - Common beginner mistakes
@@ -68,6 +73,7 @@ To uninstall:
 ```
 
 **Then:**
+
 ```
 "Teach me Kubernetes" 
 "Help me understand negotiation"
@@ -80,7 +86,8 @@ AI will ask your goal, detect domain, build initial map, and start with Learn qu
 
 **Plan:** 7 core aspects identified (crashes, containers, creation, deletion, health, placement, networking)
 
-**Learn:** 
+**Learn:**
+
 - Core: "What happens when container crashes?" → You predict → AI confirms
 - Confused? Go **deeper**: "What's a restart policy?" → "When use 'Never'?"
 - Got it? Go **wider**: "Init containers?" → "Sidecar patterns?"

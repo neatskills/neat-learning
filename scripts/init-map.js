@@ -24,6 +24,16 @@ function initMap(topic, goal, domain, mapData = null) {
   // Step 1: Create initial state
   const { data } = createNewMap(topic, goal, domain);
 
+  // Step 1b: Initialize goals array and active_goal (Strategy C)
+  data.goals = [
+    {
+      name: goal,
+      created: new Date().toISOString(),
+      last_active: new Date().toISOString()
+    }
+  ];
+  data.active_goal = goal;
+
   // Step 2: Build concept map (use provided mapData or generate generic)
   if (!mapData) {
     mapData = buildInitialMap(topic, goal, domain);

@@ -4,141 +4,88 @@
 
 **When to run:**
 
-1. First time learning a concept (after Plan adds it to map)
+1. First time learning a concept (after Plan adds to map)
 2. Review session (test retention)
-3. User shows confusion in Practice (run more Learn to clarify)
+3. User shows confusion in Practice (clarify)
 
 ## Tree-Based Question Strategy
 
 **Core principle:** User thinks and predicts BEFORE AI explains
 
-**AI controls both depth and breadth:**
+**Structure:**
 
-### Structure
+1. **Core questions (variable N):**
+   - N varies by complexity: simple (3-4), medium (5-7), complex (8-10)
+   - Determined by concept's natural structure
 
-**1. Core questions (variable N):**
-- Start with N top-level questions covering main aspects
-- N varies by complexity: simple (3-4), medium (5-7), complex (8-10)
-- Determined by concept's natural structure
+2. **Depth (vertical):** Drill deeper when user confused OR topic critical for goal
+   - Example: "Container crashes?" → "Restart policy?" → "When use 'Never'?"
 
-**2. Depth (vertical):**
-- Drill deeper when user confused OR topic critical for goal
-- Example: "Container crashes?" → "Restart policy?" → "When use 'Never'?"
+3. **Breadth (horizontal):** Explore wider when user understands well AND related concepts matter for goal
+   - Example: Pod basics → init containers → sidecars → lifecycle phases
 
-**3. Breadth (horizontal):**
-- Explore wider when user understands well AND related concepts matter for goal
-- Example: Pod basics → init containers → sidecars → lifecycle phases
+4. **Stop when:** Sufficient understanding for goal, covered core + relevant depth/breadth, diminishing returns
 
-**4. Stop when:**
-- User demonstrates sufficient understanding for their goal
-- Covered core + goal-relevant depth/breadth
-- Diminishing returns
-
-### Per-Question Flow
+**Per-question flow:**
 
 ```
-AI asks predictive question
-    ↓
-User guesses/predicts
-    ↓
-AI confirms or clarifies (not full explanation yet)
-    ↓
-Track: correct/incorrect, hints needed, confusion patterns
-    ↓
-Decide: next core question, go deeper, go wider, or stop
+Ask predictive question → User predicts → Confirm or clarify → Track performance → Decide: next core / deeper / wider / stop
 ```
 
 ## Performance Tracking
 
-Track these signals for each concept:
-
 | Signal | What to Track | Example |
 |--------|---------------|---------|
-| **Correctness** | Questions correct / total | "5/5 correct" |
-| **Hints** | How many hints needed | "0 hints" or "3 hints (above average)" |
-| **Confusion patterns** | What specific misconception | "Confused Pod vs Container" |
+| **Correctness** | Correct / total | "5/5 correct" |
+| **Hints** | How many needed | "0 hints" or "3 hints (above average)" |
+| **Confusion patterns** | Specific misconception | "Confused Pod vs Container" |
 | **Strengths** | What user grasps well | "Understands lifecycle, restart-policy" |
 
 ## Question Types by Domain
 
-### Technical (Kubernetes example)
-
-**Predictive:**
-
-- "If a container crashes, what should Kubernetes do?"
-- "What if you need 3 identical copies running?"
-- "How would you expose a Pod to network traffic?"
-
-**Comparison:**
-
-- "What's the difference between a Pod and a Deployment?"
-- "When would you use ConfigMap vs Secret?"
-
-### Soft Skills (Negotiation example)
-
-**Scenario-based:**
-
-- "Seller says '$15k firm.' What happens if you counter $8k vs $12k?"
-- "You want $120k. Recruiter offers $90k. What do you say?"
-
-**Predictive:**
-
-- "If you anchor too aggressively, what happens?"
-
-### Business (Finance example)
-
-**Estimation:**
-
-- "Company generates $100K/year for 10 years. Worth more or less than $1M today? Why?"
-- "Startup grows 20%/year. Year 3 revenue?"
-
-### Theoretical (Psychology example)
-
-**Pattern recognition:**
-
-- "You believe coffee is healthy. Study A: reduces heart disease. Study B: no effect. Which do you remember better?"
-- "Why do you remember Study A more?"
+| Domain | Question Type | Example |
+|--------|---------------|---------|
+| **Technical** | Predictive ("What happens if...?") | "Container crashes?" → "3 identical copies?" |
+| **Soft Skills** | Scenario-based ("In this situation...?") | "Seller says '$15k firm.' Counter $8k vs $12k?" |
+| **Business** | Estimation ("Calculate/predict...") | "Company generates $100K/year for 10 years. Worth $1M today?" |
+| **Theoretical** | Pattern recognition ("Which? Why?") | "Study A: reduces heart disease. Study B: no effect. Which remember better?" |
 
 ## Readiness Criteria
 
-**Move to Synthesize activity when:**
+**Move to Synthesize when:**
 
 - 4/5+ questions correct (80%+ understanding)
-- Minimal hints needed (0-1 hints per question)
+- Minimal hints needed (0-1 per question)
 - No major confusion patterns
 
 **Stay in Learn if:**
 
 - <3/5 correct (need more learning)
-- Confusion pattern detected (specific misconception to address)
+- Confusion pattern detected (specific misconception)
 - Hints needed frequently (>2 per question)
 
 ## State Updates
 
-After Learn activity, update concept state:
+**Strong understanding:**
 
 ```markdown
 #### Learn ✓
 date: 2026-06-27T00:00:00Z
-questions:
-  correct: 5
-  total: 5
+questions: {correct: 5, total: 5}
 hints_needed: 0
 signals:
   confusion: []
   strengths: [lifecycle, container-relationship, restart-policy]
 
-Strong understanding demonstrated. Ready for Synthesize activity.
+Strong understanding demonstrated. Ready for Synthesize.
 ```
 
-Or if weak:
+**Weak understanding:**
 
 ```markdown
 #### Learn →
 date: 2026-06-27T00:00:00Z
-questions:
-  correct: 2
-  total: 5
+questions: {correct: 2, total: 5}
 hints_needed: 3
 signals:
   confusion:
@@ -146,41 +93,7 @@ signals:
     - specific: "What creates the ReplicaSet?" (wrong 2x)
   needs: "More discovery on Deployment internals"
 
-Confusion detected. Needs reinforcement before Practice.
-```
-
-## Example Session
-
-**Kubernetes - Pod concept:**
-
-```
-AI: "Before I explain Pods, let me ask: if a container crashes, what should Kubernetes do?
-     a) Restart it automatically
-     b) Leave it crashed
-     c) Delete the whole application
-     d) Alert but don't touch it"
-
-User: "a - Restart it"
-
-AI: [Track: correct, no hints]
-    "Exactly! Kubernetes handles failures automatically.
-     
-     Next: What if you need 3 identical copies running?"
-
-User: "Make 3 Pods?"
-
-AI: [Track: partially correct, needs clarification]
-    "Close! You COULD manually create 3 Pods, but what if one crashes?
-     You'd need to manually create a replacement. Any ideas for automating this?"
-
-User: "Some kind of manager?"
-
-AI: [Track: correct reasoning after hint]
-    "Perfect! That's exactly why Deployments exist.
-     
-     [After 5 questions total: 4 correct, 1 hint given]
-     
-     You've got a strong grasp of Pod concepts. Ready to learn the terminology?"
+Confusion detected. Needs reinforcement.
 ```
 
 ## Common Mistakes to Avoid
@@ -190,5 +103,5 @@ AI: [Track: correct reasoning after hint]
 | Explaining before asking | Always ask predictive question first |
 | Yes/no questions only | Use open-ended, scenario-based questions |
 | Not tracking performance | Record every answer for state updates |
-| Moving on too quickly | Need 4/5+ correct before Synthesize activity |
+| Moving on too quickly | Need 4/5+ correct before Synthesize |
 | Ignoring confusion patterns | Surface and address specific misconceptions |

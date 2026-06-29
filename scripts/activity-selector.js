@@ -4,7 +4,7 @@
  * Activity selector - determines what activity should run next for a concept
  */
 
-const { elapsed, isMastered, toDays, MS_PER_DAY } = require('./utils');
+const { elapsed, isMastered, toDays, MS_PER_DAY, flattenConcepts } = require('./utils');
 
 /**
  * Check if concept is due for review
@@ -151,13 +151,7 @@ function checkPracticePrerequisites(concept, sections) {
     return true; // No prerequisites
   }
 
-  // Flatten all concepts
-  const allConcepts = [];
-  sections.forEach(section => {
-    section.concepts.forEach(c => {
-      allConcepts.push(c);
-    });
-  });
+  const allConcepts = flattenConcepts(sections);
 
   // Check each prerequisite
   for (const reqName of concept.requires) {

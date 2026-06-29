@@ -22,7 +22,9 @@
 
 **Output:** Populated map with concepts at Level 0, dependencies set
 
-## Example: Kubernetes + "Deploy applications"
+## Examples
+
+**Kubernetes + "Deploy applications":**
 
 Sections:
 
@@ -36,7 +38,7 @@ Dependencies:
 - Deployment requires: pod; enables: scaling, rolling-updates
 - Service requires: pod; enables: ingress
 
-## Example: Negotiation + "Salary negotiation"
+**Negotiation + "Salary negotiation":**
 
 Sections:
 
