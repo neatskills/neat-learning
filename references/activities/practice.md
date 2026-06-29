@@ -20,7 +20,7 @@
 ## Domain Adaptation
 
 | Domain | Exercise Type | Example |
-|--------|---------------|---------|
+| -------- | --------------- | --------- |
 | **Technical** | Code/config writing, debugging | "Write Pod manifest", "Debug failing deployment" |
 | **Soft Skills** | Role-play scenarios | "Role-play salary negotiation", "Practice anchoring" |
 | **Business** | Case studies, models | "Build DCF model for startup", "Analyze company" |
@@ -29,7 +29,7 @@
 ## Performance Tracking
 
 | Signal | What | Example |
-|--------|------|---------|
+| -------- | ------ | --------- |
 | **Completion** | Finished or not | "3 exercises completed" |
 | **Errors** | Count and type | "2 errors: 1 conceptual, 1 syntax" |
 | **Independence** | Hints needed | "Can work independently" or "Needed 2 hints" |

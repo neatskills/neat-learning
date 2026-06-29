@@ -8,14 +8,14 @@
 
 **User prompt:**
 
-```
+```text
 You've mastered 12 concepts! 🎉
 Your map is getting long. Compress mastered concepts into summary?
 
 [y] Compress (focused)
 [n] Keep detailed
 [l] Later (ask in 7 days)
-```
+```text
 
 ## What Gets Compressed
 
@@ -29,7 +29,7 @@ Level: 7 | Status: Mastered | Review: 14 days
 ### Service
 Level: 6 | Status: Mastered | Review: 10 days
 [Full activity history...]
-```
+```text
 
 **After:**
 
@@ -42,7 +42,7 @@ Level: 6 | Status: Mastered | Review: 10 days
 - **Deployment** (Level 5) - Next review: 8 days
 
 *Mastered 2026-06-15 to 2026-07-10. Full history archived.*
-```
+```text
 
 ## Archive Location
 
@@ -69,7 +69,7 @@ sections:
         review_interval: 1209600
         last_activity: 2026-07-01T00:00:00Z
         compressed: true
-```
+```text
 
 **Kept:** Name, level, review scheduling, compression flag  
 **Removed:** Activity history, exercise records, performance signals

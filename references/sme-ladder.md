@@ -3,7 +3,7 @@
 Tracks concept mastery from complete unknown to expert.
 
 | Level | Label | Description |
-|-------|-------|-------------|
+| ------- | ------- | ------------- |
 | 0 | Never heard of it | Concept not yet explored |
 | 1 | Recognize terminology | Knows the words, vague understanding |
 | 2 | Can explain concepts | Understands WHAT it is and WHY it exists |

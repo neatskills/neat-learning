@@ -4,7 +4,8 @@ AI-guided discovery-based learning system that makes you think before it explain
 
 ## Core Principle
 
-**Learn by thinking first.** Every interaction uses questions and predictions to build understanding before introducing terminology or explanations.
+**Learn by thinking first.** Every interaction uses questions and predictions to build
+understanding before introducing terminology or explanations.
 
 ## How It Works
 
@@ -57,28 +58,28 @@ git clone https://github.com/neatskills/neat-learning.git
 cd neat-learning
 npm install
 ./scripts/manage-skills.sh install
-```
+```text
 
 To uninstall:
 
 ```bash
 ./scripts/manage-skills.sh uninstall
-```
+```text
 
 ## Quick Start
 
 ```bash
 # In Claude Code
 /neat-learning
-```
+```text
 
 **Then:**
 
-```
-"Teach me Kubernetes" 
+```text
+"Teach me Kubernetes"
 "Help me understand negotiation"
 "Continue my React learning"
-```
+```text
 
 AI will ask your goal, detect domain, build initial map, and start with Learn questions.
 
@@ -93,7 +94,9 @@ AI will ask your goal, detect domain, build initial map, and start with Learn qu
 - Got it? Go **wider**: "Init containers?" → "Sidecar patterns?"
 - Result: 12/14 questions correct, covered core + deployment-relevant depth
 
-**Synthesize:** "You discovered: containers restart, health checks matter, multiple containers share network. This is called a **Pod**. Mental model: Pod wraps containers → spec defines desired state → lifecycle manages runtime → status shows current state."
+**Synthesize:** "You discovered: containers restart, health checks matter, multiple containers
+share network. This is called a **Pod**. Mental model: Pod wraps containers → spec defines
+desired state → lifecycle manages runtime → status shows current state."
 
 **Practice:** "Write a Pod manifest running nginx with liveness probe"
 

@@ -1,19 +1,10 @@
 {
-  // Standard markdownlint config for neat-* skill projects
   "config": {
     "default": true,
-    // Disable cosmetic rules that don't affect functionality
-    "MD013": false,  // line-length - code examples often exceed 80 chars
-    "MD024": false,  // no-duplicate-heading - same heading in different sections is OK
-    "MD033": false,  // no-inline-html - sometimes needed for complex layouts
-    "MD036": false,  // no-emphasis-as-heading - **Step X:** patterns are common
-    "MD040": false,  // fenced-code-language - examples/output may not have language
-    "MD060": false   // table-column-style - consistent formatting but doesn't match "compact"
+    "MD013": {
+      "line_length": 120
+    }
   },
-  "globs": [
-    "**/*.md"
-  ],
-  "ignores": [
-    "node_modules/**"
-  ]
+  "globs": ["**/*.md"],
+  "ignores": ["node_modules/**"]
 }

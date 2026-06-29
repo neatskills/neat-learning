@@ -3,7 +3,7 @@
 ## Four Primary Domains
 
 | Domain | Characteristics | Example Topics |
-|--------|----------------|----------------|
+| -------- | ---------------- | ---------------- |
 | **Technical** | Code, systems, tools, infrastructure | Kubernetes, React, SQL, Git, AWS |
 | **Business** | Strategy, analysis, modeling, operations | Financial modeling, Marketing, Product management |
 | **Theoretical** | Concepts, principles, research | Psychology, Economics, Philosophy, Statistics |

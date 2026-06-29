@@ -28,14 +28,15 @@
 
 **Per-question flow:**
 
-```
-Ask predictive question → User predicts → Confirm or clarify → Track performance → Decide: next core / deeper / wider / stop
-```
+```text
+Ask predictive question → User predicts → Confirm or clarify → 
+Track performance → Decide: next core / deeper / wider / stop
+```text
 
 ## Performance Tracking
 
 | Signal | What to Track | Example |
-|--------|---------------|---------|
+| -------- | --------------- | --------- |
 | **Correctness** | Correct / total | "5/5 correct" |
 | **Hints** | How many needed | "0 hints" or "3 hints (above average)" |
 | **Confusion patterns** | Specific misconception | "Confused Pod vs Container" |
@@ -44,11 +45,11 @@ Ask predictive question → User predicts → Confirm or clarify → Track perfo
 ## Question Types by Domain
 
 | Domain | Question Type | Example |
-|--------|---------------|---------|
+| -------- | --------------- | --------- |
 | **Technical** | Predictive ("What happens if...?") | "Container crashes?" → "3 identical copies?" |
-| **Soft Skills** | Scenario-based ("In this situation...?") | "Seller says '$15k firm.' Counter $8k vs $12k?" |
-| **Business** | Estimation ("Calculate/predict...") | "Company generates $100K/year for 10 years. Worth $1M today?" |
-| **Theoretical** | Pattern recognition ("Which? Why?") | "Study A: reduces heart disease. Study B: no effect. Which remember better?" |
+| **Soft Skills** | Scenario ("In this situation...?") | "Seller says '$15k firm.' Counter $8k vs $12k?" |
+| **Business** | Estimation ("Calculate...") | "Company generates $100K/year for 10 years. Worth $1M today?" |
+| **Theoretical** | Pattern ("Which? Why?") | "Study A cuts heart disease. Study B: none. Which remember better?" |
 
 ## Readiness Criteria
 
@@ -78,7 +79,7 @@ signals:
   strengths: [lifecycle, container-relationship, restart-policy]
 
 Strong understanding demonstrated. Ready for Synthesize.
-```
+```text
 
 **Weak understanding:**
 
@@ -94,12 +95,12 @@ signals:
   needs: "More discovery on Deployment internals"
 
 Confusion detected. Needs reinforcement.
-```
+```text
 
 ## Common Mistakes to Avoid
 
 | Mistake | Fix |
-|---------|-----|
+| --------- | ----- |
 | Explaining before asking | Always ask predictive question first |
 | Yes/no questions only | Use open-ended, scenario-based questions |
 | Not tracking performance | Record every answer for state updates |

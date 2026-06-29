@@ -9,7 +9,7 @@
 Ask 3 types, user must pass 2/3:
 
 | Question Type | Purpose | Example |
-|---------------|---------|---------|
+| --------------- | --------- | --------- |
 | **Negative case** | When NOT to use | "When would Deployment be WRONG?" |
 | **Tradeoff** | X vs Y - when each? | "Deployment vs StatefulSet - when each?" |
 | **Common mistake** | What do beginners mess up? | "What subtle error do beginners make with Pods?" |
@@ -64,7 +64,7 @@ Need more Practice or Calibrate attempts.
 ## Domain-Specific Calibration
 
 | Domain | Focus Areas |
-|--------|-------------|
+| -------- | ------------- |
 | **Technical** | When NOT to use, architecture tradeoffs, production mistakes |
 | **Soft Skills** | When approach fails, context-dependent tactics, interpersonal pitfalls |
 | **Business** | When method wrong, assumptions to question, analytical mistakes |

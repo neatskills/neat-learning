@@ -2,9 +2,11 @@
 
 **Purpose:** Consolidate scattered insights, introduce terminology, build mental model
 
-**Key principle:** Synthesis after understanding - pull together insights, add vocabulary, show how concepts connect
+**Key principle:** Synthesis after understanding - pull together insights, add vocabulary,
+show how concepts connect
 
-**When to run:** After Learn shows strong understanding (4/5+ correct), before Practice (need consolidated understanding + vocabulary)
+**When to run:** After Learn shows strong understanding (4/5+ correct), before Practice
+(need consolidated understanding + vocabulary)
 
 ## Why Understanding Before Vocabulary
 
@@ -20,23 +22,23 @@
 
 ## Format
 
-```
+```text
 AI: "You now understand:
      - [Key insight 1 from Learn]
      - [Key insight 2 from Learn]
      - [Key insight 3 from Learn]
-     
+
      This [thing] is called **[Term]**.
-     
+
      One sentence: [Concise definition]
-     
+
      Key vocabulary:
      - [Term 1]: [Brief explanation]
      - [Term 2]: [Brief explanation]
      - [Term 3]: [Brief explanation]
-     
+
      When you see '[Term]' in docs, you now know what it means."
-```
+```text
 
 ## State Updates
 
@@ -47,7 +49,7 @@ terms: [Pod, Pod spec, Pod lifecycle, Pod status, restart policy]
 mental_model: "Pod wraps containers → spec defines desired state → lifecycle manages runtime → status shows current state"
 
 Insights consolidated, terminology introduced, mental model established.
-```
+```text
 
 ## Readiness to Move Forward
 
@@ -60,7 +62,7 @@ Insights consolidated, terminology introduced, mental model established.
 ## Common Mistakes to Avoid
 
 | Mistake | Fix |
-|---------|-----|
+| --------- | ----- |
 | Introducing terms too early | Wait until Learn shows understanding |
 | Info dumping vocabulary | Keep it to 3-5 key terms |
 | Not connecting to understanding | Always recap what user discovered first |
