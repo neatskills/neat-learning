@@ -36,7 +36,7 @@ Your map is getting long. Want to compress mastered concepts into a summary?
 **Status:** Mastered
 **Review:** Next review in 14 days
 
-[Full activity history: Discover, Name, Practice, Calibrate]
+[Full activity history: Learn, Synthesize, Practice, Calibrate]
 
 ---
 
@@ -45,7 +45,7 @@ Your map is getting long. Want to compress mastered concepts into a summary?
 **Status:** Mastered
 **Review:** Next review in 10 days
 
-[Full activity history: Discover, Name, Practice, Calibrate]
+[Full activity history: Learn, Synthesize, Practice, Calibrate]
 
 ---
 
@@ -54,7 +54,7 @@ Your map is getting long. Want to compress mastered concepts into a summary?
 **Status:** Mastered
 **Review:** Next review in 8 days
 
-[Full activity history: Discover, Name, Practice, Calibrate]
+[Full activity history: Learn, Synthesize, Practice, Calibrate]
 ```
 
 **After compression:**
@@ -142,7 +142,7 @@ sections:
 
 **What's removed:**
 
-- Full activity history (Discover, Name, Practice, Calibrate details)
+- Full activity history (Learn, Synthesize, Practice, Calibrate details)
 - Exercise records
 - Performance signals
 
@@ -206,7 +206,7 @@ Core (9 mastered, compressed)
   → 9 concepts mastered
 
 Advanced (6 active):
-  → StatefulSet - Level 2 (in Name)
+  → StatefulSet - Level 2 (in Synthesize)
   ○ CronJob - Level 0 (not started)
   ...
 ```

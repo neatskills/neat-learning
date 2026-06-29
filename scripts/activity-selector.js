@@ -62,7 +62,7 @@ function getConceptsDueForReview(sections) {
 /**
  * Determine next activity for a concept
  * @param {Object} concept - Concept object with level and activity status
- * @returns {string} Next activity name: 'explore', 'discover', 'name', 'practice', 'calibrate', 'review', 'done'
+ * @returns {string} Next activity name: 'plan', 'learn', 'synthesize', 'practice', 'calibrate', 'review', 'done'
  */
 function getNextActivity(concept) {
   const level = concept.level || 0;
@@ -77,14 +77,14 @@ function getNextActivity(concept) {
     return 'done';
   }
 
-  // Level 0: Not started or needs more discovery
+  // Level 0: Not started or needs more learning
   if (level === 0) {
-    return status === 'needs_more_discovery' ? 'discover' : 'explore';
+    return status === 'needs_more_learning' ? 'learn' : 'plan';
   }
 
-  // Level 1: Discover done, ready for Name
-  if (level === 1 || status === 'ready_for_name') {
-    return 'name';
+  // Level 1: Learn done, ready for Synthesize
+  if (level === 1 || status === 'ready_for_synthesize') {
+    return 'synthesize';
   }
 
   // Level 2-3: Practice
@@ -98,7 +98,7 @@ function getNextActivity(concept) {
   }
 
   // Fallback
-  return 'discover';
+  return 'learn';
 }
 
 /**

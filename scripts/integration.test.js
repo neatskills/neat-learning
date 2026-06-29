@@ -10,7 +10,7 @@ const path = require('path');
 const matter = require('gray-matter');
 const { createNewMap, saveState, loadState } = require('./state-manager');
 const { buildInitialMap } = require('./map-builder');
-const { recordDiscover, recordName, recordPractice, recordCalibrate, updateReviewInterval, calculateProgress } = require('./activity-updater');
+const { recordLearn, recordSynthesize, recordPractice, recordCalibrate, updateReviewInterval, calculateProgress } = require('./activity-updater');
 const { getNextActivity, getNextConcept, getConceptsDueForReview } = require('./activity-selector');
 
 console.log('Integration Test: Full Learning Session Flow\n');
@@ -43,34 +43,34 @@ assert(state.data.sections.length > 0, 'Should have sections');
 assert.strictEqual(state.data.goal, 'Deploy applications');
 console.log(`✓ State loaded: ${state.data.sections.length} sections\n`);
 
-// Test: First concept - Discover activity
-console.log('3. Running Discover activity on Pod...');
+// Test: First concept - Learn activity
+console.log('3. Running Learn activity on Pod...');
 let podConcept = state.data.sections[0].concepts[0];
 assert.strictEqual(podConcept.name, 'Pod');
-assert.strictEqual(getNextActivity(podConcept), 'explore'); // Level 0, not started
+assert.strictEqual(getNextActivity(podConcept), 'plan'); // Level 0, not started
 
 // Simulate user completing Discover
-podConcept = recordDiscover(podConcept, 5, 5, 0, [], ['lifecycle', 'restart-policy']);
+podConcept = recordLearn(podConcept, 5, 5, 0, [], ['lifecycle', 'restart-policy']);
 assert.strictEqual(podConcept.level, 1);
-assert.strictEqual(getNextActivity(podConcept), 'name');
+assert.strictEqual(getNextActivity(podConcept), 'synthesize');
 
 state.data.sections[0].concepts[0] = podConcept;
 state.data.progress = calculateProgress(state.data.sections);
 saveState(mapPath, state.data, state.content);
-console.log('✓ Discover completed, level 1, ready for Name\n');
+console.log('✓ Learn completed, level 1, ready for Synthesize\n');
 
-// Test: Name activity
-console.log('4. Running Name activity on Pod...');
+// Test: Synthesize activity
+console.log('4. Running Synthesize activity on Pod...');
 state = loadState(mapPath);
 podConcept = state.data.sections[0].concepts[0];
-podConcept = recordName(podConcept, ['Pod', 'Pod spec', 'Pod lifecycle']);
+podConcept = recordSynthesize(podConcept, ['Pod', 'Pod spec', 'Pod lifecycle']);
 assert.strictEqual(podConcept.level, 2);
 assert.strictEqual(getNextActivity(podConcept), 'practice');
 
 state.data.sections[0].concepts[0] = podConcept;
 state.data.progress = calculateProgress(state.data.sections);
 saveState(mapPath, state.data, state.content);
-console.log('✓ Name completed, level 2, ready for Practice\n');
+console.log('✓ Synthesize completed, level 2, ready for Practice\n');
 
 // Test: Practice activity
 console.log('5. Running Practice activity on Pod...');
@@ -151,7 +151,7 @@ fs.rmSync(testDir, { recursive: true });
 console.log('All integration tests passed! ✓');
 console.log('\nFull flow verified:');
 console.log('  1. Create map');
-console.log('  2. Discover → Name → Practice → Calibrate → Mastered');
+console.log('  2. Learn → Synthesize → Practice → Calibrate → Mastered');
 console.log('  3. Spaced repetition scheduling');
 console.log('  4. Review interval updates');
 console.log('  5. Progress tracking');

@@ -10,21 +10,21 @@ const path = require('path');
 const { ensureActivity, now: getNow, INITIAL_REVIEW_INTERVAL, OPPORTUNITIES_PER_EXERCISE, clamp, MASTERY_LEVEL } = require('./utils');
 
 /**
- * Record Discover activity results
+ * Record Learn activity results
  * @param {Object} concept - Current concept object from state
  * @param {number} correct - Number of correct answers
  * @param {number} total - Total questions asked
  * @param {number} hintsNeeded - Hints given
  * @param {Array<string>} confusionPatterns - Detected confusion patterns
  * @param {Array<string>} strengths - Identified strengths
- * @returns {Object} Updated concept with Discover results
+ * @returns {Object} Updated concept with Learn results
  */
-function recordDiscover(concept, correct, total, hintsNeeded, confusionPatterns = [], strengths = []) {
+function recordLearn(concept, correct, total, hintsNeeded, confusionPatterns = [], strengths = []) {
   const performance = correct / total;
   const timestamp = getNow();
   const activity = ensureActivity(concept);
 
-  activity.discover = {
+  activity.learn = {
     date: timestamp,
     questions: { correct, total },
     hints_needed: hintsNeeded,
@@ -37,10 +37,10 @@ function recordDiscover(concept, correct, total, hintsNeeded, confusionPatterns 
   // Update level based on performance
   if (performance >= 0.8 && hintsNeeded <= 1) {
     concept.level = Math.max(concept.level || 0, 1);
-    activity.status = 'ready_for_name';
+    activity.status = 'ready_for_synthesize';
   } else {
     concept.level = 0;
-    activity.status = 'needs_more_discovery';
+    activity.status = 'needs_more_learning';
   }
 
   activity.date = timestamp;
@@ -49,18 +49,20 @@ function recordDiscover(concept, correct, total, hintsNeeded, confusionPatterns 
 }
 
 /**
- * Record Name activity results
+ * Record Synthesize activity results
  * @param {Object} concept - Current concept object
  * @param {Array<string>} termsIntroduced - List of terms introduced
- * @returns {Object} Updated concept with Name results
+ * @param {string} mentalModel - Brief mental model description
+ * @returns {Object} Updated concept with Synthesize results
  */
-function recordName(concept, termsIntroduced) {
+function recordSynthesize(concept, termsIntroduced, mentalModel = '') {
   const timestamp = getNow();
   const activity = ensureActivity(concept);
 
-  activity.name = {
+  activity.synthesize = {
     date: timestamp,
-    terms: termsIntroduced
+    terms: termsIntroduced,
+    mental_model: mentalModel
   };
 
   concept.level = 2;
@@ -206,8 +208,8 @@ function calculateProgress(sections) {
 }
 
 module.exports = {
-  recordDiscover,
-  recordName,
+  recordLearn,
+  recordSynthesize,
   recordPractice,
   recordCalibrate,
   updateReviewInterval,
@@ -217,5 +219,5 @@ module.exports = {
 // CLI usage
 if (require.main === module) {
   console.log('Activity updater functions loaded');
-  console.log('Import and use: recordDiscover, recordName, recordPractice, recordCalibrate, updateReviewInterval, calculateProgress');
+  console.log('Import and use: recordLearn, recordSynthesize, recordPractice, recordCalibrate, updateReviewInterval, calculateProgress');
 }

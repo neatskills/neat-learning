@@ -4,7 +4,7 @@ AI-guided discovery-based learning system. Build customized learning maps, track
 
 ## Features
 
-- **5 Learning Activities:** Explore → Discover → Name → Practice → Calibrate
+- **5 Learning Activities:** Plan → Learn → Synthesize → Practice → Calibrate
 - **4 Domain Support:** Technical, soft skills, business, theoretical
 - **Spaced Repetition:** 2-60 day intervals based on performance
 - **Multi-session State:** YAML frontmatter + Markdown

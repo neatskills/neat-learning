@@ -4,21 +4,21 @@
 
 **When to run:**
 
-- After Name activity (user knows terminology)
-- Discover shows 4/5+ correct (strong understanding)
+- After Synthesize activity (user knows terminology)
+- Learn shows 4/5+ correct (strong understanding)
 - All prerequisites at Level 3+
 
 ## Readiness Gates
 
 **Practice unlocks when:**
 
-- ✅ Discover: 4/5+ questions correct
-- ✅ Name: Vocabulary introduced
+- ✅ Learn: 4/5+ questions correct
+- ✅ Synthesize: Vocabulary introduced
 - ✅ Prerequisites: All "requires" dependencies at Level 3+
 
 **Blocked if:**
 
-- ❌ Discover weak (<4/5 correct)
+- ❌ Learn weak (<4/5 correct)
 - ❌ Prerequisites missing or weak
 
 ## Domain Adaptation
@@ -179,7 +179,7 @@ error_patterns:
   - Conceptual: confused replicas vs Pod count
   - Keeps making same mistake
 
-Need more Discover on Deployment internals.
+Need more Learn on Deployment internals.
 ```
 
 **Level progression:**

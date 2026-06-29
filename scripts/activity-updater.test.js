@@ -2,8 +2,8 @@
 
 const assert = require('assert');
 const {
-  recordDiscover,
-  recordName,
+  recordLearn,
+  recordSynthesize,
   recordPractice,
   recordCalibrate,
   updateReviewInterval,
@@ -12,33 +12,33 @@ const {
 
 console.log('Testing activity-updater.js...\n');
 
-// Test 1: recordDiscover with strong performance
-console.log('Test 1: recordDiscover - strong performance');
+// Test 1: recordLearn with strong performance
+console.log('Test 1: recordLearn - strong performance');
 let concept = { level: 0 };
-concept = recordDiscover(concept, 5, 5, 0, [], ['lifecycle', 'restart-policy']);
-assert.strictEqual(concept.level, 1, 'Level should be 1 after strong discover');
-assert.strictEqual(concept.activity.status, 'ready_for_name');
-assert.strictEqual(concept.activity.discover.questions.correct, 5);
-assert.strictEqual(concept.activity.discover.hints_needed, 0);
-console.log('✓ Strong discover performance recorded correctly\n');
+concept = recordLearn(concept, 5, 5, 0, [], ['lifecycle', 'restart-policy']);
+assert.strictEqual(concept.level, 1, 'Level should be 1 after strong learn');
+assert.strictEqual(concept.activity.status, 'ready_for_synthesize');
+assert.strictEqual(concept.activity.learn.questions.correct, 5);
+assert.strictEqual(concept.activity.learn.hints_needed, 0);
+console.log('✓ Strong learn performance recorded correctly\n');
 
-// Test 2: recordDiscover with weak performance
-console.log('Test 2: recordDiscover - weak performance');
+// Test 2: recordLearn with weak performance
+console.log('Test 2: recordLearn - weak performance');
 concept = { level: 0 };
-concept = recordDiscover(concept, 2, 5, 3, ['confused Pod vs Container'], []);
-assert.strictEqual(concept.level, 0, 'Level should stay 0 after weak discover');
-assert.strictEqual(concept.activity.status, 'needs_more_discovery');
-assert.strictEqual(concept.activity.discover.signals.confusion.length, 1);
-console.log('✓ Weak discover performance recorded correctly\n');
+concept = recordLearn(concept, 2, 5, 3, ['confused Pod vs Container'], []);
+assert.strictEqual(concept.level, 0, 'Level should stay 0 after weak learn');
+assert.strictEqual(concept.activity.status, 'needs_more_learny');
+assert.strictEqual(concept.activity.learn.signals.confusion.length, 1);
+console.log('✓ Weak learn performance recorded correctly\n');
 
-// Test 3: recordName
-console.log('Test 3: recordName');
-concept = { level: 1, activity: { status: 'ready_for_name' } };
-concept = recordName(concept, ['Pod', 'Pod spec', 'Pod lifecycle']);
-assert.strictEqual(concept.level, 2, 'Level should be 2 after Name');
+// Test 3: recordSynthesize
+console.log('Test 3: recordSynthesize');
+concept = { level: 1, activity: { status: 'ready_for_synthesize' } };
+concept = recordSynthesize(concept, ['Pod', 'Pod spec', 'Pod lifecycle'], 'Pod wraps containers');
+assert.strictEqual(concept.level, 2, 'Level should be 2 after Synthesize');
 assert.strictEqual(concept.activity.status, 'ready_for_practice');
-assert.strictEqual(concept.activity.name.terms.length, 3);
-console.log('✓ Name activity recorded correctly\n');
+assert.strictEqual(concept.activity.synthesize.terms.length, 3);
+console.log('✓ Synthesize activity recorded correctly\n');
 
 // Test 4: recordPractice - successful
 console.log('Test 4: recordPractice - successful');

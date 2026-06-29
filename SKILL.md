@@ -10,7 +10,7 @@ description: Use when user wants to learn a topic through AI-guided discovery - 
 ## Overview
 
 - Builds customized concept maps based on user goals
-- Guides through 5 learning activities per concept (Explore → Discover → Name → Practice → Calibrate)
+- Guides through 5 learning activities per concept (Plan → Learn → Synthesize → Practice → Calibrate)
 - Tracks progress across sessions with spaced repetition
 - Adapts to any domain: technical, business, theoretical, soft skills
 
@@ -48,7 +48,7 @@ Learn by thinking before AI explains.
 4. **Build initial map**
    - Call `scripts/map-builder.js buildInitialMap(topic, goal, domain)`
    - Display sections and concepts
-   - Begin Discover activity on first concept
+   - Begin Learn activity on first concept
 
 ### Returning Session: Load and Review
 
@@ -75,13 +75,13 @@ Learn by thinking before AI explains.
    Want to review before continuing? [y/n/menu]
    ```
 
-   - [y] → Run Discover review
+   - [y] → Run Learn review
    - [n] → Continue next activity
    - [menu] → Show full map
 
-## Activity 1: Explore
+## Activity 1: Plan
 
-**Purpose:** Build/expand concept map
+**Purpose:** Build/expand concept map - planning what to learn
 
 ### Initial Map Building
 
@@ -90,7 +90,7 @@ After domain confirmation:
 - Call `scripts/map-builder.js buildInitialMap(topic, goal, domain)`
 - Display sections (Foundation, Core, Advanced)
 - Update state, save map.md
-- Run Discover on first concept
+- Run Learn on first concept
 
 ### Adding Concepts
 
@@ -100,88 +100,151 @@ If X not in map:
 
 - Give brief explanation (1-2 sentences)
 - "Should I add [X] to your map? [y/n]"
-- If yes: Determine section, set dependencies, add at Level 0, run Explore
+- If yes: Determine section, set dependencies, add at Level 0, run Learn
 
-## Activity 2: Discover
+## Activity 2: Learn
 
 **Purpose:** Learn through questions/predictions, not explanations
 
-See `references/activities/discover.md`
+See `references/activities/learn.md`
 
-### Question-Based Learning Flow
+### Tree-Based Question Strategy
 
+**AI controls both depth and breadth of exploration:**
+
+**Core questions (variable N):**
+- Start with N top-level questions covering main aspects
+- N varies by concept complexity (simple: 3-4, medium: 5-7, complex: 8-10)
+- Determined by concept's natural structure, not hardcoded count
+
+**Then branch in two directions:**
+
+**1. Depth (vertical) - Drill deeper when:**
+- User shows confusion or wrong answer (reactive)
+- Topic is critical for user's goal (proactive)
+- Concept has important nuances to grasp
+- Example: "What happens when container crashes?" → "What's a restart policy?" → "When use 'Never'?"
+
+**2. Breadth (horizontal) - Explore wider when:**
+- User understands core well
+- Related concepts are relevant to goal (proactive)
+- Edge cases matter for their use case
+- Example: Pod basics understood → init containers → sidecars → lifecycle phases
+
+**Stop when:**
+- User demonstrates sufficient understanding for their goal
+- Covered essential aspects (core + goal-relevant depth/breadth)
+- Diminishing returns (more questions won't help)
+
+**Per-question cycle:**
 1. Ask predictive question
 2. User predicts/guesses
 3. Confirm or clarify (don't explain everything)
 4. Track: correct/incorrect, hints needed, confusion patterns
-5. Repeat for 5 questions total
+5. Decide: next core question, go deeper, go wider, or stop
 
 ### Performance Tracking
 
-**Strong (4-5 correct, 0-1 hints):**
+**Strong (80%+ correct, minimal hints):**
 
 ```markdown
-#### Discover ✓
-questions: {correct: 5, total: 5, date: [ISO8601]}
-hints_needed: 0
+#### Learn ✓
+questions: {correct: 12, total: 14, date: [ISO8601]}
+hints_needed: 1
+coverage:
+  core: [lifecycle, restart-policy, health-checks, networking, volumes]
+  depth: [restart-policy-nuances, crashloopbackoff]
+  breadth: [init-containers, sidecars]
 signals:
   confusion: []
   strengths: [lifecycle, restart-policy, container-relationship]
 
-Strong understanding. Ready for Name activity.
+Strong understanding across core + goal-relevant depth/breadth. Ready for Synthesize.
 ```
 
-**Weak (2-3 correct, 2+ hints):**
+**Weak (<60% correct, frequent hints):**
 
 ```markdown
-#### Discover →
-questions: {correct: 2, total: 5, date: [ISO8601]}
-hints_needed: 3
+#### Learn →
+questions: {correct: 4, total: 8, date: [ISO8601]}
+hints_needed: 5
+coverage:
+  core: [lifecycle, restart-policy, health-checks]
+  stuck_on: [restart-policy, health-checks]
 signals:
   confusion:
-    - pattern: "Mixing up Deployment vs ReplicaSet"
-    - specific: "What creates ReplicaSet?" (wrong 2x)
-  needs: "More discovery on Deployment internals"
+    - pattern: "Mixing up liveness vs readiness probes"
+    - specific: "When does readiness probe matter?" (wrong 3x)
+  needs: "More depth on health-checks before moving on"
 
 Confusion detected. Need reinforcement before Practice.
 ```
 
 ### Readiness Gates
 
-**Move to Name when:**
+**Move to Synthesize when:**
 
-- 4/5+ questions correct (80%+)
-- Minimal hints (0-1 per question)
+- 80%+ questions correct overall
+- Minimal hints needed (varies by question count)
 - No major confusion patterns
+- Covered core aspects + goal-relevant depth/breadth
+- User can predict behavior across scenarios
 
-**Stay in Discover if:**
+**Stay in Learn if:**
 
-- <3/5 correct
-- Confusion pattern detected
-- Many hints needed (>2/question)
+- <60% correct overall
+- Confusion pattern detected (same mistake repeatedly)
+- Many hints needed (user not inferring independently)
+- Core aspects not yet covered
+- User struggles with predictions
 
 ### Domain Adaptation
 
-| Domain | Question Type |
-|--------|---------------|
-| Technical | Predictive ("What happens if...?") |
-| Soft Skills | Scenario-based ("In this situation...?") |
-| Business | Estimation ("Calculate/predict...") |
-| Theoretical | Pattern recognition ("Which? Why?") |
+| Domain | Question Type | Tree Example |
+|--------|---------------|--------------|
+| **Technical** | Predictive ("What happens if...?") | **Core:** "Container crashes?" → **Depth:** "What's restart policy?" → **Breadth:** "Init containers?" |
+| **Soft Skills** | Scenario-based ("In this situation...?") | **Core:** "They offer $90k?" → **Depth:** "Why accept their anchor?" → **Breadth:** "Multiple offers scenario?" |
+| **Business** | Estimation ("Calculate/predict...") | **Core:** "DCF valuation?" → **Depth:** "Discount rate choice?" → **Breadth:** "Terminal value methods?" |
+| **Theoretical** | Pattern recognition ("Which? Why?") | **Core:** "Confirmation bias?" → **Depth:** "How does it form?" → **Breadth:** "Other cognitive biases?" |
 
-## Activity 3: Name
+### Example: Kubernetes Pod (Technical)
 
-**Purpose:** Introduce terminology AFTER understanding exists
+**Core questions (7):**
+1. What happens when container crashes?
+2. Can Pod have multiple containers?
+3. Who creates Pods?
+4. What happens when you delete a Pod?
+5. How does Kubernetes know Pod is healthy?
+6. Where do Pods run?
+7. How do containers communicate?
 
-See `references/activities/name.md`
+**Depth on Q5 (health checks) - goal: "deploy apps":**
+- What's liveness probe?
+- What's readiness probe?
+- What happens when liveness fails?
+- What happens when readiness fails?
+- When to use startup probe?
+
+**Breadth from Q2 (multiple containers) - goal: "pass CKA":**
+- What are init containers?
+- What are sidecar containers?
+- What's localhost networking?
+- How do they share volumes?
+- Pod container patterns?
+
+## Activity 3: Synthesize
+
+**Purpose:** Consolidate scattered insights, introduce terminology, build mental model
+
+See `references/activities/synthesize.md`
 
 ### Format
 
 ```
 AI: "You now understand:
-     - [Key insight 1 from Discover]
-     - [Key insight 2 from Discover]
-     - [Key insight 3 from Discover]
+     - [Key insight 1 from Learn]
+     - [Key insight 2 from Learn]
+     - [Key insight 3 from Learn]
      
      This is called **[Term]**.
      
@@ -191,20 +254,23 @@ AI: "You now understand:
      - [Term 1]: [Brief explanation]
      - [Term 2]: [Brief explanation]
      
+     Here's how these concepts connect: [Mental model]
+     
      When you see '[Term]' in docs, you now know what it means."
 ```
 
 ### State Update
 
 ```markdown
-#### Name ✓
-vocabulary_introduced: [ISO8601]
+#### Synthesize ✓
+completed: [ISO8601]
 terms: [Pod, Pod spec, Pod lifecycle, Pod status]
+mental_model: "Pod wraps containers → spec defines desired state → lifecycle manages runtime → status shows current state"
 
-Terminology introduced after understanding.
+Insights consolidated, terminology introduced, mental model established.
 ```
 
-**Level update:** Concept → Level 2 (can explain concepts)
+**Level update:** Concept → Level 2 (can explain concepts with proper terminology)
 
 ## Activity 4: Practice
 
@@ -216,8 +282,8 @@ See `references/activities/practice.md`
 
 Practice unlocks when:
 
-- ✅ Discover: 4/5+ questions correct
-- ✅ Name: Vocabulary introduced
+- ✅ Learn: 4/5+ questions correct
+- ✅ Synthesize: Vocabulary and mental model established
 - ✅ Prerequisites: All dependencies at Level 3+
 
 ### Domain Adaptation
@@ -258,11 +324,11 @@ Can work independently. All exercises completed.
 
 ## Activity 5: Calibrate
 
-**Purpose:** Teach expert thinking - when rules break, tradeoffs, common mistakes
+**Purpose:** Develop expert judgment - when rules break, tradeoffs, common mistakes
 
-See `references/activities/calibrate.md`
+See `references/activities/refine.md`
 
-### Expert Thinking: 3-Question Pattern
+### Expert Judgment: 3-Question Pattern
 
 Ask 3 types, user must pass 2/3:
 
@@ -276,29 +342,29 @@ Ask 3 types, user must pass 2/3:
 
 **Pass 2/3:**
 
-- Concept → Level 5-7 (expert thinking)
+- Concept → Level 5-7 (expert judgment)
 - Marked as "mastered"
 - Ready for spaced repetition
 
 **Pass 0-1/3:**
 
 - Stay at Level 4
-- More calibration or Practice needed
+- More refinement or Practice needed
 
 ### State Update
 
-**Passed calibration:**
+**Passed refinement:**
 
 ```markdown
 #### Calibrate ✓
 date: [ISO8601]
-tradeoffs: {correct: 3, total: 3}
+judgment: {correct: 3, total: 3}
 expert_thinking:
   - Knows when NOT to use Deployments
-  - Understands Deployment vs StatefulSet contexts
-  - Identified common mistakes
+  - Understands Deployment vs StatefulSet tradeoffs
+  - Identified common beginner mistakes
 
-Expert thinking demonstrated. Concept mastered.
+Expert judgment demonstrated. Concept mastered.
 ```
 
 **Level progression:** Calibrate passed → Level 5-7
@@ -341,7 +407,7 @@ Welcome back! Last session: 3 days ago
 Want to review before continuing? [y/n/menu]
 ```
 
-**Review activity:** Run Discover (5 questions), track performance, update interval
+**Review activity:** Run Learn (5 questions), track performance, update interval
 
 ## Activity Selection Logic
 
@@ -352,26 +418,26 @@ Is this a returning session?
   YES → Calculate due reviews
     Any due? 
       YES → Offer review [y/n/menu]
-        [y] → Run Discover reviews
+        [y] → Run Learn reviews
         [n] → Continue to next activity
         [menu] → Show full map
       NO → Continue to next activity
   NO → First session, build initial map
 
 Next activity for concept:
-  Level 0 → Explore (add to map)
-  Level 0 + in map → Discover (learn)
-  Level 1 + Discover done → Name (terminology)
-  Level 2 + Name done → Practice (apply)
-  Level 4 + Practice done → Calibrate (expert thinking)
-  Level 5+ + due for review → Discover (review)
+  Level 0 → Plan (add to map)
+  Level 0 + in map → Learn (learn through questions)
+  Level 1 + Learn done → Synthesize (consolidate + terminology)
+  Level 2 + Synthesize done → Practice (apply hands-on)
+  Level 4 + Practice done → Calibrate (expert judgment)
+  Level 5+ + due for review → Learn (review)
   Level 5+ + not due → Next concept or end session
 ```
 
 **User navigation:**
 
 - Skip ahead: "Let's practice X"
-- Repeat: "More discovery on Y"
+- Repeat: "More questions on Y"
 - Add concepts: "What's Z?"
 
 ## Progress Tracking
@@ -396,7 +462,7 @@ Foundation (3/3 mastered):
   → ConfigMap - Level 3 (in Practice)
 
 Core (0/3 mastered):
-  → Deployment - Level 2 (in Name)
+  → Deployment - Level 2 (in Synthesize)
   ○ StatefulSet - Level 0 (not started)
   ○ Job - Level 0 (not started)
 
@@ -436,7 +502,7 @@ AI: "For deploying applications, you'll need these core concepts:
      Before I explain Pods, let me ask:
      If a container crashes, what should Kubernetes do?"
      
-[Discover activity begins]
+[Learn activity begins]
 ```
 
 **Example 2: Returning learner**
@@ -457,7 +523,7 @@ AI: "Let's review Pod.
      
      If a Pod crashes, what happens to its containers?"
      
-[Discover review begins]
+[Learn review begins]
 ```
 
 **Example 3: User navigation**
@@ -473,9 +539,9 @@ User: "y"
 
 AI: "Added StatefulSet to Core section.
      
-     Let's discover how it works.
+     Let's learn how it works.
      
      StatefulSet vs Deployment - what's the key difference?"
      
-[Discover activity begins for StatefulSet]
+[Learn activity begins for StatefulSet]
 ```

@@ -15,7 +15,7 @@ Tracks concept mastery from complete unknown to expert.
 
 ## Activity → Level Progression
 
-- Explore complete → Level 1
-- Discover complete (5/5) → Level 2-3
+- Plan complete → Level 1
+- Learn complete (5/5) → Level 2-3
 - Practice complete (2+ exercises, <30% errors) → Level 4
 - Calibrate complete (understands tradeoffs) → Level 5-7

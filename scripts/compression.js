@@ -54,8 +54,8 @@ function shouldOfferCompression(sections, started) {
  * @param {Array<Object>} concepts - Concepts to archive
  * @returns {string} Markdown content for archive
  */
-function formatDiscoverActivity(activity) {
-  let content = `#### Discover ✓\n`;
+function formatLearnActivity(activity) {
+  let content = `#### Learn ✓\n`;
   content += `date: ${activity.date}\n`;
   content += `questions:\n`;
   content += `  correct: ${activity.questions.correct}\n`;
@@ -68,13 +68,16 @@ function formatDiscoverActivity(activity) {
   return content + `\n`;
 }
 
-function formatNameActivity(activity) {
-  let content = `#### Name ✓\n`;
-  content += `vocabulary_introduced: ${activity.date}\n`;
+function formatSynthesizeActivity(activity) {
+  let content = `#### Synthesize ✓\n`;
+  content += `completed: ${activity.date}\n`;
   content += `terms:\n`;
   activity.terms.forEach(term => {
     content += `  - ${term}\n`;
   });
+  if (activity.mental_model) {
+    content += `mental_model: "${activity.mental_model}"\n`;
+  }
   return content + `\n`;
 }
 
@@ -123,11 +126,11 @@ function generateArchive(sectionName, concepts) {
     content += `**Status:** ${concept.activity?.status || 'mastered'}\n\n`;
 
     if (concept.activity) {
-      if (concept.activity.discover) {
-        content += formatDiscoverActivity(concept.activity.discover);
+      if (concept.activity.learn) {
+        content += formatLearnActivity(concept.activity.learn);
       }
-      if (concept.activity.name) {
-        content += formatNameActivity(concept.activity.name);
+      if (concept.activity.synthesize) {
+        content += formatSynthesizeActivity(concept.activity.synthesize);
       }
       if (concept.activity.practice) {
         content += formatPracticeActivity(concept.activity.practice);

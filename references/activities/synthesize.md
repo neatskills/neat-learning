@@ -1,14 +1,14 @@
-# Name Activity
+# Synthesize Activity
 
-**Purpose:** Introduce terminology AFTER understanding exists from Discover
+**Purpose:** Consolidate scattered insights, introduce terminology, build mental model
 
-**Key principle:** Understanding first, vocabulary second
+**Key principle:** Synthesis after understanding - pull together insights, add vocabulary, show how concepts connect
 
 **When to run:**
 
-- After Discover activity shows strong understanding (4/5+ correct)
-- User asks "What's this called?"
-- Before Practice (can't practice without knowing the terms)
+- After Learn activity shows strong understanding (4/5+ correct)
+- User asks "What's this called?" or "How does this all fit together?"
+- Before Practice (need consolidated understanding and vocabulary to practice)
 
 ## Why Understanding Before Vocabulary
 
@@ -20,7 +20,7 @@
 
 **Right order (discovery-based):**
 
-1. Discover: "If container crashes, what should happen?" → User builds understanding
+1. Learn: "If container crashes, what should happen?" → User builds understanding
 2. Name: "That wrapper is called a Pod" → Vocabulary connects to existing understanding
 3. User knows both WHAT it is and WHY it exists
 
@@ -30,9 +30,9 @@
 
 ```
 AI: "You now understand:
-     - [Key insight 1 from Discover]
-     - [Key insight 2 from Discover]
-     - [Key insight 3 from Discover]
+     - [Key insight 1 from Learn]
+     - [Key insight 2 from Learn]
+     - [Key insight 3 from Learn]
      
      This [thing] is called **[Term]**.
      
@@ -138,34 +138,35 @@ AI: "You now understand:
 
 ## State Updates
 
-After Name activity:
+After Synthesize activity:
 
 ```markdown
-#### Name ✓
-vocabulary_introduced: 2026-06-27T00:00:00Z
+#### Synthesize ✓
+completed: 2026-06-27T00:00:00Z
 terms:
   - Pod
   - Pod spec
   - Pod lifecycle
   - Pod status
   - container restart policy
+mental_model: "Pod wraps containers → spec defines desired state → lifecycle manages runtime → status shows current state"
 
-Terminology introduced after understanding established.
+Insights consolidated, terminology introduced, mental model established.
 ```
 
 ## Readiness to Move Forward
 
-**After Name activity:**
+**After Synthesize activity:**
 
-- Update concept Level to 2 (can explain concepts)
-- User now ready for Practice activity (knows the terminology)
+- Update concept Level to 2 (can explain concepts with proper terminology)
+- User now ready for Practice activity (has consolidated understanding and terminology)
 - Can reference official docs (vocabulary matches industry terms)
 
 ## Common Mistakes to Avoid
 
 | Mistake | Fix |
 |---------|-----|
-| Introducing terms too early | Wait until Discover shows understanding |
+| Introducing terms too early | Wait until Learn shows understanding |
 | Info dumping vocabulary | Keep it to 3-5 key terms |
 | Not connecting to understanding | Always recap what user discovered first |
 | Skipping the "one sentence" | User needs a memorable summary |

@@ -1,18 +1,40 @@
-# Discover Activity
+# Learn Activity
 
 **Purpose:** Learn through questions and predictions, not explanations
 
 **When to run:**
 
-1. First time learning a concept (after Explore adds it to map)
+1. First time learning a concept (after Plan adds it to map)
 2. Review session (test retention)
-3. User shows confusion in Practice (run more Discover to clarify)
+3. User shows confusion in Practice (run more Learn to clarify)
 
-## Question-Based Learning Pattern
+## Tree-Based Question Strategy
 
 **Core principle:** User thinks and predicts BEFORE AI explains
 
-**Flow:**
+**AI controls both depth and breadth:**
+
+### Structure
+
+**1. Core questions (variable N):**
+- Start with N top-level questions covering main aspects
+- N varies by complexity: simple (3-4), medium (5-7), complex (8-10)
+- Determined by concept's natural structure
+
+**2. Depth (vertical):**
+- Drill deeper when user confused OR topic critical for goal
+- Example: "Container crashes?" → "Restart policy?" → "When use 'Never'?"
+
+**3. Breadth (horizontal):**
+- Explore wider when user understands well AND related concepts matter for goal
+- Example: Pod basics → init containers → sidecars → lifecycle phases
+
+**4. Stop when:**
+- User demonstrates sufficient understanding for their goal
+- Covered core + goal-relevant depth/breadth
+- Diminishing returns
+
+### Per-Question Flow
 
 ```
 AI asks predictive question
@@ -21,9 +43,9 @@ User guesses/predicts
     ↓
 AI confirms or clarifies (not full explanation yet)
     ↓
-Track signal: correct/incorrect, hints needed
+Track: correct/incorrect, hints needed, confusion patterns
     ↓
-Next question or move to Name activity
+Decide: next core question, go deeper, go wider, or stop
 ```
 
 ## Performance Tracking
@@ -79,24 +101,24 @@ Track these signals for each concept:
 
 ## Readiness Criteria
 
-**Move to Name activity when:**
+**Move to Synthesize activity when:**
 
 - 4/5+ questions correct (80%+ understanding)
 - Minimal hints needed (0-1 hints per question)
 - No major confusion patterns
 
-**Stay in Discover if:**
+**Stay in Learn if:**
 
-- <3/5 correct (need more discovery)
+- <3/5 correct (need more learning)
 - Confusion pattern detected (specific misconception to address)
 - Hints needed frequently (>2 per question)
 
 ## State Updates
 
-After Discover activity, update concept state:
+After Learn activity, update concept state:
 
 ```markdown
-#### Discover ✓
+#### Learn ✓
 date: 2026-06-27T00:00:00Z
 questions:
   correct: 5
@@ -106,13 +128,13 @@ signals:
   confusion: []
   strengths: [lifecycle, container-relationship, restart-policy]
 
-Strong understanding demonstrated. Ready for Name activity.
+Strong understanding demonstrated. Ready for Synthesize activity.
 ```
 
 Or if weak:
 
 ```markdown
-#### Discover →
+#### Learn →
 date: 2026-06-27T00:00:00Z
 questions:
   correct: 2
@@ -168,5 +190,5 @@ AI: [Track: correct reasoning after hint]
 | Explaining before asking | Always ask predictive question first |
 | Yes/no questions only | Use open-ended, scenario-based questions |
 | Not tracking performance | Record every answer for state updates |
-| Moving on too quickly | Need 4/5+ correct before Name activity |
+| Moving on too quickly | Need 4/5+ correct before Synthesize activity |
 | Ignoring confusion patterns | Surface and address specific misconceptions |

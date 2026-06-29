@@ -24,10 +24,10 @@ fs.mkdirSync(testDir, { recursive: true });
 console.log('Test 1: shouldOfferCompression - not enough mastered');
 let sections = [
   {
-    name: 'Foundation',
+    synthesize: 'Foundation',
     concepts: [
-      { name: 'Pod', level: 6, last_activity: '2026-06-01T00:00:00Z' },
-      { name: 'Service', level: 5, last_activity: '2026-06-05T00:00:00Z' }
+      { synthesize: 'Pod', level: 6, last_activity: '2026-06-01T00:00:00Z' },
+      { synthesize: 'Service', level: 5, last_activity: '2026-06-05T00:00:00Z' }
     ]
   }
 ];
@@ -41,9 +41,9 @@ console.log('Test 2: shouldOfferCompression - should offer');
 const thirtyOneDaysAgo = new Date(Date.now() - 31 * 86400000).toISOString();
 sections = [
   {
-    name: 'Foundation',
+    synthesize: 'Foundation',
     concepts: Array.from({ length: 10 }, (_, i) => ({
-      name: `Concept${i}`,
+      synthesize: `Concept${i}`,
       level: 6,
       activity: { calibrate: { date: thirtyOneDaysAgo } }
     }))
@@ -59,19 +59,19 @@ console.log('✓ Correctly offers compression (10 mastered, 30+ days)\n');
 console.log('Test 3: generateArchive');
 const concepts = [
   {
-    name: 'Pod',
+    synthesize: 'Pod',
     level: 6,
     review_interval: 345600,
     last_activity: '2026-06-27T00:00:00Z',
     activity: {
       status: 'mastered',
-      discover: {
+      learn: {
         date: '2026-06-20T10:00:00Z',
         questions: { correct: 5, total: 5 },
         hints_needed: 0,
         signals: { strengths: ['lifecycle', 'restart-policy'] }
       },
-      name: {
+      synthesize: {
         date: '2026-06-20T10:30:00Z',
         terms: ['Pod', 'Pod spec']
       },
@@ -79,7 +79,7 @@ const concepts = [
         date: '2026-06-20T11:00:00Z',
         independence: true,
         exercises: [
-          { name: 'Write Pod manifest', status: 'complete', errors: 0 }
+          { synthesize: 'Write Pod manifest', status: 'complete', errors: 0 }
         ]
       },
       calibrate: {
@@ -94,7 +94,7 @@ const archive = generateArchive('Foundation', concepts);
 assert(archive.includes('Foundation - Mastered Concepts Archive'));
 assert(archive.includes('### Pod'));
 assert(archive.includes('Discover ✓'));
-assert(archive.includes('Name ✓'));
+assert(archive.includes('Synthesize ✓'));
 assert(archive.includes('Practice ✓'));
 assert(archive.includes('Calibrate ✓'));
 console.log('✓ Archive generated with full history\n');
@@ -102,23 +102,23 @@ console.log('✓ Archive generated with full history\n');
 // Test 4: compressSection
 console.log('Test 4: compressSection');
 const section = {
-  name: 'Foundation',
+  synthesize: 'Foundation',
   concepts: [
     {
-      name: 'Pod',
+      synthesize: 'Pod',
       level: 6,
       review_interval: 345600,
       last_activity: '2026-06-27T00:00:00Z',
       activity: {
         status: 'mastered',
-        discover: { date: '2026-06-20T00:00:00Z', questions: { correct: 5, total: 5 }, hints_needed: 0 },
-        name: { date: '2026-06-20T00:00:00Z', terms: ['Pod'] },
+        learn: { date: '2026-06-20T00:00:00Z', questions: { correct: 5, total: 5 }, hints_needed: 0 },
+        synthesize: { date: '2026-06-20T00:00:00Z', terms: ['Pod'] },
         practice: { date: '2026-06-20T00:00:00Z', independence: true, exercises: [] },
         calibrate: { date: '2026-06-20T00:00:00Z', tradeoffs: { correct: 3, total: 3 } }
       }
     },
     {
-      name: 'Service',
+      synthesize: 'Service',
       level: 2 // Not mastered
     }
   ]

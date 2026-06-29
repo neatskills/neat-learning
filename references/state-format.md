@@ -39,14 +39,14 @@ dependencies:
 
 [One sentence description]
 
-#### Explore ✓
+#### Plan ✓
 added: 2026-06-26T00:00:00Z
 relationships:
   - [Relationship description]
 
 [Narrative notes]
 
-#### Discover ✓
+#### Learn ✓
 questions:
   correct: 5
   total: 5
@@ -57,11 +57,12 @@ signals:
 
 [Narrative notes]
 
-#### Name ✓
-vocabulary_introduced: 2026-06-26T00:00:00Z
+#### Synthesize ✓
+completed: 2026-06-26T00:00:00Z
 terms:
   - Term 1
   - Term 2
+mental_model: "[Brief description of how concepts connect]"
 
 [Narrative notes]
 

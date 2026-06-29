@@ -65,7 +65,7 @@ const isOverdue = elapsed > reviewInterval * 1.2  // 20% grace period
 
 ## Review Types
 
-**Due for review:** Run Discover activity (5 questions)
+**Due for review:** Run Learn activity (5 questions)
 
 **Not due:** Continue with next concept or Practice/Calibrate
 
@@ -109,7 +109,7 @@ Welcome back! Last session: 3 days ago
 Want to review before continuing? [y/n/menu]
 ```
 
-**If user selects [y]:** Run Discover review for each concept in order
+**If user selects [y]:** Run Learn review for each concept in order
 
 **If user selects [n]:** Continue with next learning activity
 
@@ -117,7 +117,7 @@ Want to review before continuing? [y/n/menu]
 
 ## Review Activity
 
-**Same as Discover activity:**
+**Same as Learn activity:**
 
 1. Ask 5 predictive questions
 2. Track performance (correct/total)
@@ -127,7 +127,7 @@ Want to review before continuing? [y/n/menu]
 **State update after review:**
 
 ```markdown
-#### Review (Discover)
+#### Review (Learn)
 date: 2026-06-27T00:00:00Z
 questions:
   correct: 5
@@ -186,8 +186,8 @@ last_activity: 2026-06-27T00:00:00Z
 
 ## Notes
 
-- Reviews always use Discover activity (questions)
-- Never use Name/Practice/Calibrate for reviews
+- Reviews always use Learn activity (questions)
+- Never use Synthesize/Practice/Calibrate for reviews
 - Review interval stored in seconds for precision
 - Dates stored in ISO 8601 format
 - Max interval (60 days) prevents indefinite gaps

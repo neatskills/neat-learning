@@ -1,6 +1,6 @@
-# Explore Activity
+# Plan Activity
 
-**Purpose:** Build/expand concept map, understand relationships
+**Purpose:** Build/expand concept map - planning what to learn
 
 **When to run:**
 
@@ -55,7 +55,7 @@ Dependencies:
 
 **Process:**
 
-1. Check if X in current map → skip Explore, run Discover
+1. Check if X in current map → skip Plan, run Learn
 2. If not in map: explain X briefly
 3. Ask: "Should I add [X] to your map?"
 4. If yes: determine section, set dependencies, add to state

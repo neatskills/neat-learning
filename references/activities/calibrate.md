@@ -1,6 +1,6 @@
 # Calibrate Activity
 
-**Purpose:** Teach expert thinking patterns - when rules break, tradeoffs, common mistakes
+**Purpose:** Develop expert judgment - when rules break, tradeoffs, common mistakes
 
 **When to run:**
 

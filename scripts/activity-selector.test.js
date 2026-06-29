@@ -52,14 +52,14 @@ console.log('✓ Overdue for review detected correctly\n');
 // Test 4: getNextActivity - Level 0, not started
 console.log('Test 4: getNextActivity - Level 0 (not started)');
 concept = { level: 0 };
-assert.strictEqual(getNextActivity(concept), 'explore');
-console.log('✓ Level 0 → explore\n');
+assert.strictEqual(getNextActivity(concept), 'plan');
+console.log('✓ Level 0 → plan\n');
 
-// Test 5: getNextActivity - Level 1, ready for name
-console.log('Test 5: getNextActivity - Level 1 (ready for name)');
-concept = { level: 1, activity: { status: 'ready_for_name' } };
-assert.strictEqual(getNextActivity(concept), 'name');
-console.log('✓ Level 1 → name\n');
+// Test 5: getNextActivity - Level 1, ready for synthesize
+console.log('Test 5: getNextActivity - Level 1 (ready for synthesize)');
+concept = { level: 1, activity: { status: 'ready_for_synthesize' } };
+assert.strictEqual(getNextActivity(concept), 'synthesize');
+console.log('✓ Level 1 → synthesize\n');
 
 // Test 6: getNextActivity - Level 2, ready for practice
 console.log('Test 6: getNextActivity - Level 2 (ready for practice)');
