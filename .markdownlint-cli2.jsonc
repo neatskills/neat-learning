@@ -6,5 +6,5 @@
     }
   },
   "globs": ["**/*.md"],
-  "ignores": ["node_modules/**", "docs/**"]
+  "ignores": ["docs/**", "node_modules/**"]
 }
