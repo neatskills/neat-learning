@@ -54,14 +54,36 @@ Learn by thinking before AI explains.
    const { initMap } = require('/Users/ji.li/.claude/skills/neat-learning/scripts/init-map.js');
    const mapData = {
      sections: [
-       { name: 'Foundation', description: '...', concepts: [...] },
+       {
+         name: 'Foundation',
+         description: 'Core building blocks',
+         concepts: [
+           {
+             name: 'Concept Name',
+             description: 'What this concept covers',
+             level: 0,
+             dependencies: {
+               requires: [],  // Concepts that must be learned first
+               enables: ['Next Concept']  // Concepts this unlocks
+             }
+           }
+         ]
+       },
        { name: 'Core', description: '...', concepts: [...] }
      ]
    };
    const { mapPath } = initMap(topic, goal, domain, mapData);
-   ```text
+   ```
 
-   Structure: Foundation → Core → Advanced, set dependencies (requires/enables)
+   Structure: Foundation → Core → Advanced
+   
+   **Concept schema:**
+   - `name`: Concept title
+   - `description`: Brief explanation of what it covers
+   - `level`: Always 0 for new concepts
+   - `dependencies`: Object with two arrays:
+     - `requires`: Array of concept names that must be learned first
+     - `enables`: Array of concept names this concept unlocks
    Topic slug: lowercase-hyphens
 
 7. **Display and begin** - Show sections/concepts, begin Learn on first concept

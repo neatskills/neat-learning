@@ -14,6 +14,7 @@
 
 const { createNewMap, saveState } = require('./state-manager');
 const { buildInitialMap } = require('./map-builder');
+const { createGoalFilter } = require('./goal-manager');
 const path = require('node:path');
 
 function initMap(topic, goal, domain, mapData = null) {
@@ -42,6 +43,10 @@ function initMap(topic, goal, domain, mapData = null) {
   // Step 3: Merge map data into state
   data.sections = mapData.sections;
   data.progress.total = mapData.sections.reduce((sum, section) => sum + section.concepts.length, 0);
+
+  // Step 3b: Create goal filter (always create goals/ folder, even for single goal)
+  const allConcepts = mapData.sections.flatMap(s => s.concepts.map(c => c.name));
+  createGoalFilter(mapPath, goal, allConcepts, [], []);
 
   // Step 4: Generate content with map
   const sectionsMarkdown = mapData.sections.map(section => {

@@ -16,7 +16,13 @@
 
 1. AI generates concept list customized to goal
 2. Organizes into sections (Foundation → Core → Advanced)
-3. Sets dependencies (requires/enables)
+3. Sets dependencies for each concept:
+   ```javascript
+   dependencies: {
+     requires: ['Prerequisite Concept'],  // must learn first
+     enables: ['Next Concept']            // this unlocks
+   }
+   ```
 4. Shows map to user for confirmation
 5. Updates state with sections and concepts
 
@@ -32,11 +38,31 @@ Sections:
 - Core: Deployment, Service, ConfigMap, Secret
 - Advanced: Volume
 
-Dependencies:
+Dependencies structure:
 
-- Pod requires: container-basics
-- Deployment requires: pod; enables: scaling, rolling-updates
-- Service requires: pod; enables: ingress
+```javascript
+{
+  name: 'Pod',
+  dependencies: {
+    requires: [],
+    enables: ['Deployment', 'Service']
+  }
+},
+{
+  name: 'Deployment',
+  dependencies: {
+    requires: ['Pod'],
+    enables: ['Scaling', 'Rolling Updates']
+  }
+},
+{
+  name: 'Service',
+  dependencies: {
+    requires: ['Pod'],
+    enables: ['Ingress']
+  }
+}
+```
 
 **Negotiation + "Salary negotiation":**
 
