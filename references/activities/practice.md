@@ -21,10 +21,60 @@
 
 | Domain | Exercise Type | Example |
 | -------- | --------------- | --------- |
-| **Technical** | Code/config writing, debugging | "Write Pod manifest", "Debug failing deployment" |
+| **Technical** | Bug spotting, decision-making, code review | "Find errors in this code", "Choose right primitive", "Which implementation is better?" |
 | **Soft Skills** | Role-play scenarios | "Role-play salary negotiation", "Practice anchoring" |
 | **Business** | Case studies, models | "Build DCF model for startup", "Analyze company" |
 | **Theoretical** | Analysis, pattern ID | "Identify cognitive biases in scenarios" |
+
+### Technical Domain: Critical Evaluation vs Code Writing
+
+**Prefer critical evaluation over code writing:**
+
+Practice should be about **applying understanding**, not repeating what was covered in Learn/Synthesize.
+
+**Critical evaluation exercises:**
+
+1. **Bug spotting** - Show buggy code, user identifies errors and explains why
+2. **Decision-making** - Present scenario, user chooses right approach with reasoning
+3. **Code review** - Compare implementations, user evaluates which follows best practices
+4. **Requirement → Design** - Give requirement, user outlines solution structure (not full code)
+
+**Avoid:**
+- Full project setup (clutters working directory)
+- Writing code from scratch (redundant with Learn phase)
+- Repetitive exercises explaining what code does (already covered in Synthesize)
+
+**Implementation notes:**
+- Use code snippets in conversation (no files created)
+- For critical concepts, optionally use `/tmp` for throwaway verification
+- Focus on evaluation skills that prepare for Calibrate (expert judgment)
+
+#### Bug Spotting Exercise Strategy
+
+**Hybrid Approach (Density + Adaptive):**
+
+**Structure:**
+- **2-3 bug spotting exercises** per concept (not just 1)
+- Each exercise contains **2-3 bugs** covering different error categories
+- **Adapt:** If learner catches all bugs easily → move on. If learner misses many → add targeted exercises.
+
+**Error categories to cover (for technical concepts):**
+- Transport/communication issues
+- Lifecycle errors (startup, shutdown, cleanup)
+- Async/sync handling
+- Error handling and logging
+- Security issues (validation, injection, path traversal)
+- Resource management (memory leaks, connection pools)
+
+**Example progression:**
+1. Exercise 1: 3 bugs (transport conflict, async handling, error handling)
+2. Exercise 2: 3 bugs (lifecycle cleanup, memory leaks, validation)
+3. If 5/6 caught → move to next activity type
+4. If 2/6 caught → add Exercise 3 focusing on weak areas
+
+**For simpler concepts:** 1 bug spotting exercise may be sufficient
+
+**For critical/complex concepts:** 2-3 exercises ensure comprehensive coverage of common traps
 
 ## Performance Tracking
 

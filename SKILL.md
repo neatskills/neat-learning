@@ -33,8 +33,41 @@ Learn by thinking before AI explains.
 1. **Get topic** - If not provided: ask "What topic would you like to learn?"
    If goal provided: infer topic from keywords, confirm
 
+1a. **Normalize topic** - Standardize to prevent duplicates (see `references/topic-normalization.md`)
+   
+   **Apply transformations:**
+   - Lowercase with hyphens: "Model Context Protocol" → `model-context-protocol`
+   - Check aliases: "MCP" → `model-context-protocol`, "k8s" → `kubernetes`
+   - Strip versions unless explicit: "Python 3" → `python`
+   - Singular form: "negotiations" → `negotiation`
+   
+   **Check for existing map:** `docs/neat_learning/{normalized-topic}/map.md`
+   - If exists: load state, offer to continue
+   - If not: confirm canonical name with user, proceed
+   
+   **Confirm:** "I'll help you learn [Canonical Name]. Is that correct? [y/n]"
+
 2. **Get goal** - If not provided: ask "What's your goal for learning [topic]?"
    Examples: deploy apps, pass cert, review code, build projects
+
+2a. **Refine goal** - Check quality and help sharpen if vague (see `references/goal-refinement.md`)
+   
+   **Red flags (need refinement):**
+   - Abstract verbs: "understand", "learn deeply", "know advanced"
+   - Missing scope: no specific application or context
+   - Multiple unrelated outcomes mixed together
+   
+   **Refinement questions:**
+   - Too broad: "Are you building/using/reviewing [topic]? Specific use case?"
+   - Multiple outcomes: "Are these related? Same priority? Split or combine?"
+   - No context: "What will you do with this? Specific project/situation?"
+   
+   **Propose refined goal:** "So your goal is: '[refined]'?" → User confirms
+   
+   **Examples:**
+   - "Learn MCP deeply" → "Build production-ready MCP servers"
+   - "Understand negotiation" → "Negotiate salary offers"
+   - "Review code and interview prep" → Split into 2 goals
 
 3. **Detect compound goals** - Split if contains "and"/"or"/"/"
    - "Review AI code **and** prepare for interviews" → 2 goals
