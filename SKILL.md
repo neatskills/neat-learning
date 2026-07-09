@@ -138,19 +138,32 @@ Learn by thinking before AI explains.
    isDue = days_since >= review_interval / 86400
    ```
 
-4. **Present status**:
+4. **Present status** - Show comprehensive overview:
 
    ```
-   Welcome back! Last session: [N] days ago
-   Progress: [X]/[Y] concepts ([Z]%) • [A]h per concept avg • ~[D] days remaining
+   [Topic] Learning: [Goal in one line]
+   
+   Process: Learn → Synthesize → Practice → Calibrate → Spaced Review
+   
+   Progress: [X]/[Y] concepts ([Z]%)
+   Learning Speed: [A]h per concept avg
+   Estimated Time Remaining: ~[D] days ([E] sessions at [F]h each)
+   Last session: [N] days ago
    
    Due for review ([N] concepts):
    - [Concept 1] ([status], [due/overdue])
    
+   Current: [Section] → [Concept] ([status])
+   Next: [Activity] on [Concept]
+   
    Want to review before continuing? [y/n/stats]
    ```
    
-   - Show progress summary with learning speed and estimate
+   **Format rules:**
+   - One-line summary: "[Topic] Learning: [Goal]" at top
+   - Process reminder: Always show the 4-step workflow
+   - Stats: Progress %, hours/concept, days remaining in separate lines (not condensed)
+   - Context: Current concept, next activity clearly stated
    - Include "stats" option to see detailed breakdown
 
 ### Goal Change: Multiple Goals
@@ -164,7 +177,7 @@ Learn by thinking before AI explains.
  1. [Goal 1] ([X]/[Y] concepts mastered)
  ...
  
- ⚠️ Multiple goals can spread focus thin.
+ WARNING: Multiple goals can spread focus thin.
  
  [a] Continue with existing goal
  [b] Add new goal anyway
@@ -254,7 +267,7 @@ scheduling reviews. All progress stored in master map, shared across goals.
 Strong (80%+ correct, minimal hints):
 
 ```markdown
-#### Learn ✓
+#### Learn [DONE]
 questions: {correct: 12, total: 14, date: [ISO8601]}
 hints_needed: 1
 coverage:
@@ -311,7 +324,7 @@ AI: "You now understand:
 **State update:**
 
 ```markdown
-#### Synthesize ✓
+#### Synthesize [DONE]
 completed: [ISO8601]
 terms: [Pod, Pod spec, Pod lifecycle, Pod status]
 mental_model: "Pod wraps containers → spec defines desired state → lifecycle manages runtime → status shows current state"
@@ -327,9 +340,9 @@ See `references/activities/synthesize.md`
 
 **Readiness gates:**
 
-- ✅ Learn: 4/5+ correct
-- ✅ Synthesize: Vocabulary established
-- ✅ Prerequisites: All dependencies mastered
+- Learn: 4/5+ correct
+- Synthesize: Vocabulary established
+- Prerequisites: All dependencies mastered
 
 **Domain adaptation:**
 
@@ -345,7 +358,7 @@ See `references/activities/synthesize.md`
 **State update:**
 
 ```markdown
-#### Practice ✓
+#### Practice [DONE]
 date: [ISO8601]
 independence: true
 exercises:
@@ -378,7 +391,7 @@ See `references/activities/practice.md`
 **State update:**
 
 ```markdown
-#### Calibrate ✓
+#### Calibrate [DONE]
 date: [ISO8601]
 judgment: {correct: 3, total: 3}
 expert_thinking:
@@ -456,13 +469,13 @@ learning_stats:
 Kubernetes Learning Progress
 
 Foundation (3/3 mastered):
-  ✓ Pod (mastered, next review: 2 days)
-  ✓ Service (mastered, next review: tomorrow)
-  → ConfigMap (practicing)
+  [DONE] Pod (mastered, next review: 2 days)
+  [DONE] Service (mastered, next review: tomorrow)
+  [CURRENT] ConfigMap (practicing)
 
 Core (0/3 mastered):
-  → Deployment (learning)
-  ○ StatefulSet (not started)
+  [CURRENT] Deployment (learning)
+  [TODO] StatefulSet (not started)
 
 Overall: 38% mastered (3/8 concepts)
 ```
@@ -504,12 +517,18 @@ Confidence: Medium (5 concepts measured, advanced not yet tested)
 **After each concept completion:**
 1. Recalculate learning stats using `calculate-learning-stats.js`
 2. Update `learning_stats` in map frontmatter
-3. Show updated estimate:
+3. Show comprehensive progress update:
    ```
-   ✓ Lambda mastered!
+   Lambda mastered!
+   
+   [Topic] Learning: [Goal in one line]
+   Process: Learn → Synthesize → Practice → Calibrate → Spaced Review
    
    Progress: 6/17 concepts (35%)
-   Updated estimate: ~14 days remaining (was 16 - on track!)
+   Learning Speed: 2.1h per concept avg
+   Estimated Time Remaining: ~14 days (4 sessions at 3h each)
+   
+   (Updated from 16 days - on track!)
    ```
 
 **Stats stored in frontmatter:**
@@ -540,9 +559,22 @@ AI: [Shows map with Foundation/Core sections]
 
 ```
 User: "Continue my Kubernetes learning"
-AI: "Welcome back! Last session: 3 days ago
-     📌 Due for review (1 concept): Pod (overdue by 1 day)
-     Want to review before continuing? [y/n/menu]"
+AI: "Kubernetes Learning: Deploy production-ready applications
+     
+     Process: Learn → Synthesize → Practice → Calibrate → Spaced Review
+     
+     Progress: 3/8 concepts (38%)
+     Learning Speed: 2.1h per concept avg
+     Estimated Time Remaining: ~12 days (4 sessions at 3h each)
+     Last session: 3 days ago
+     
+     Due for review (1 concept):
+     - Pod (mastered, overdue by 1 day)
+     
+     Current: Core → Deployment (learning)
+     Next: Synthesize on Deployment
+     
+     Want to review before continuing? [y/n/stats]"
 User: "y"
 AI: "Let's review Pod. If a Pod crashes, what happens to its containers?"
 ```
