@@ -138,33 +138,37 @@ Learn by thinking before AI explains.
    isDue = days_since >= review_interval / 86400
    ```
 
-4. **Present status** - Show comprehensive overview:
+4. **Present status** - Show focused overview:
 
    ```
    [Topic] Learning: [Goal in one line]
    
-   Process: Learn → Synthesize → Practice → Calibrate → Spaced Review
-   
    Progress: [X]/[Y] concepts ([Z]%)
    Learning Speed: [A]h per concept avg
    Estimated Time Remaining: ~[D] days ([E] sessions at [F]h each)
-   Last session: [N] days ago
    
    Due for review ([N] concepts):
-   - [Concept 1] ([status], [due/overdue])
+   - [Concept 1] (overdue by [N] days)
    
-   Current: [Section] → [Concept] ([status])
+   [Section 1] ([M]/[T] mastered):
+   - ✓ [Concept] (mastered, overdue by 1 day)
+   - ✓ [Concept] (⚠ [X]/3 calibrate)
+   - ✗ [Concept] (not started)
+   
+   Current: [Section] → [Concept]
    Next: [Activity] on [Concept]
    
-   Want to review before continuing? [y/n/stats]
+   Want to continue with [Concept], or review/strengthen a concept first? [continue/review/stats]
    ```
    
    **Format rules:**
-   - One-line summary: "[Topic] Learning: [Goal]" at top
-   - Process reminder: Always show the 4-step workflow
-   - Stats: Progress %, hours/concept, days remaining in separate lines (not condensed)
-   - Context: Current concept, next activity clearly stated
-   - Include "stats" option to see detailed breakdown
+   - Title: "[Topic] Learning: [Goal]" 
+   - Stats: Progress count + %, speed, estimate (separate lines)
+   - Reviews: Only show "Due for review" section if count > 0
+   - Sections: Only show sections with unlocked/mastered concepts (hide all-blocked sections)
+   - Review timing: Only show if overdue/due today (not "in X days")
+   - Mastery notes: Simple status (⚠ X/3 calibrate), no verbose explanations
+   - Include "stats" option for detailed breakdown
 
 ### Goal Change: Multiple Goals
 
@@ -517,12 +521,9 @@ Confidence: Medium (5 concepts measured, advanced not yet tested)
 **After each concept completion:**
 1. Recalculate learning stats using `calculate-learning-stats.js`
 2. Update `learning_stats` in map frontmatter
-3. Show comprehensive progress update:
+3. Show focused progress update:
    ```
    Lambda mastered!
-   
-   [Topic] Learning: [Goal in one line]
-   Process: Learn → Synthesize → Practice → Calibrate → Spaced Review
    
    Progress: 6/17 concepts (35%)
    Learning Speed: 2.1h per concept avg
@@ -561,21 +562,27 @@ AI: [Shows map with Foundation/Core sections]
 User: "Continue my Kubernetes learning"
 AI: "Kubernetes Learning: Deploy production-ready applications
      
-     Process: Learn → Synthesize → Practice → Calibrate → Spaced Review
-     
      Progress: 3/8 concepts (38%)
      Learning Speed: 2.1h per concept avg
      Estimated Time Remaining: ~12 days (4 sessions at 3h each)
-     Last session: 3 days ago
      
      Due for review (1 concept):
-     - Pod (mastered, overdue by 1 day)
+     - Pod (overdue by 1 day)
      
-     Current: Core → Deployment (learning)
+     Foundation (2/3 mastered):
+     - ✓ Pod (mastered, overdue by 1 day)
+     - ✓ Service (mastered)
+     - ✗ ConfigMap (not started)
+     
+     Core (1/3 mastered):
+     - ✓ Deployment (learning)
+     - ✗ StatefulSet (not started)
+     
+     Current: Core → Deployment
      Next: Synthesize on Deployment
      
-     Want to review before continuing? [y/n/stats]"
-User: "y"
+     Want to continue with Deployment, or review Pod first? [continue/review/stats]"
+User: "review"
 AI: "Let's review Pod. If a Pod crashes, what happens to its containers?"
 ```
 
