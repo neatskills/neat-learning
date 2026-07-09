@@ -123,23 +123,35 @@ Learn by thinking before AI explains.
 
 1. **Load state** - `loadState(mapPath)`, if not exists → first session flow
 
-2. **Calculate reviews**:
+2. **Calculate learning stats**:
+
+   ```javascript
+   const { calculateStats } = require('./scripts/calculate-learning-stats.js');
+   const stats = calculateStats(mapData);
+   // Returns: avg_hours_per_concept, estimated_days_remaining, etc.
+   ```
+
+3. **Calculate reviews**:
 
    ```javascript
    days_since = (today - concept.activity.date) / 86400
    isDue = days_since >= review_interval / 86400
    ```
 
-3. **Present status**:
+4. **Present status**:
 
    ```
    Welcome back! Last session: [N] days ago
+   Progress: [X]/[Y] concepts ([Z]%) • [A]h per concept avg • ~[D] days remaining
    
-   📌 Due for review ([N] concepts):
+   Due for review ([N] concepts):
    - [Concept 1] ([status], [due/overdue])
    
-   Want to review before continuing? [y/n/menu]
+   Want to review before continuing? [y/n/stats]
    ```
+   
+   - Show progress summary with learning speed and estimate
+   - Include "stats" option to see detailed breakdown
 
 ### Goal Change: Multiple Goals
 
@@ -430,12 +442,18 @@ Next activity for concept:
 progress:
   mastered: 3
   total: 8
+learning_stats:
+  avg_hours_per_concept: 2.1
+  estimated_days_remaining: 12
+  sample_size: 5
+  confidence: medium
+  last_calculated: '2026-07-09T20:00:00.000Z'
 ```
 
 **Display:**
 
 ```
-📊 Kubernetes Learning Progress
+Kubernetes Learning Progress
 
 Foundation (3/3 mastered):
   ✓ Pod (mastered, next review: 2 days)
@@ -449,12 +467,60 @@ Core (0/3 mastered):
 Overall: 38% mastered (3/8 concepts)
 ```
 
+**Stats command:**
+
+When user types "stats" or asks "How long?" / "When will I finish?":
+
+```
+Learning Stats
+
+Speed:
+  - Average: 2.1h per concept (5 concepts measured)
+  - Foundation: 1.5h avg
+  - Core: 2.0h avg
+  - Advanced: 3.0h estimated (not measured yet)
+
+Remaining:
+  - Core: 2 concepts × 2h = 4h
+  - Advanced: 3 concepts × 3h = 9h
+  - Total: ~13h of active learning
+
+Timeline:
+  - Sessions needed: ~4 (at 3h each)
+  - Estimated: ~12 days (with breaks and reviews)
+
+Confidence: Medium (5 concepts measured, advanced not yet tested)
+```
+
 ## Concept Status Values
 
 - `not-started`: No Learn activity yet
 - `learning`: Learn and/or Synthesize complete
 - `practicing`: Practice complete, awaiting Calibrate
 - `mastered`: Calibrate passed (2/3+), in spaced repetition
+
+## Learning Stats Updates
+
+**After each concept completion:**
+1. Recalculate learning stats using `calculate-learning-stats.js`
+2. Update `learning_stats` in map frontmatter
+3. Show updated estimate:
+   ```
+   ✓ Lambda mastered!
+   
+   Progress: 6/17 concepts (35%)
+   Updated estimate: ~14 days remaining (was 16 - on track!)
+   ```
+
+**Stats stored in frontmatter:**
+```yaml
+learning_stats:
+  avg_hours_per_concept: 2.1        # Average time per concept
+  estimated_days_remaining: 14       # Days to complete
+  sample_size: 6                     # Concepts measured
+  confidence: medium                 # low/medium/high
+  last_calculated: '2026-07-09T...'  # Timestamp
+```
 
 ## Usage Examples
 
