@@ -10,7 +10,7 @@ description: Use when user wants to learn a topic through AI-guided discovery - 
 ## Overview
 
 - Builds customized concept maps based on user goals
-- Guides through 5 activities per concept (Plan → Learn → Synthesize → Practice → Calibrate)
+- Guides through 4 activities per concept (Learn → Synthesize → Practice → Calibrate)
 - Tracks progress with spaced repetition
 - Adapts to any domain: technical, business, theoretical, soft skills
 
@@ -94,7 +94,6 @@ Learn by thinking before AI explains.
            {
              name: 'Concept Name',
              description: 'What this concept covers',
-             level: 0,
              dependencies: {
                requires: [],  // Concepts that must be learned first
                enables: ['Next Concept']  // Concepts this unlocks
@@ -113,7 +112,6 @@ Learn by thinking before AI explains.
    **Concept schema:**
    - `name`: Concept title
    - `description`: Brief explanation of what it covers
-   - `level`: Always 0 for new concepts
    - `dependencies`: Object with two arrays:
      - `requires`: Array of concept names that must be learned first
      - `enables`: Array of concept names this concept unlocks
@@ -130,18 +128,18 @@ Learn by thinking before AI explains.
    ```javascript
    days_since = (today - concept.activity.date) / 86400
    isDue = days_since >= review_interval / 86400
-   ```text
+   ```
 
 3. **Present status**:
 
-   ```text
+   ```
    Welcome back! Last session: [N] days ago
    
    📌 Due for review ([N] concepts):
    - [Concept 1] ([status], [due/overdue])
    
    Want to review before continuing? [y/n/menu]
-   ```text
+   ```
 
 ### Goal Change: Multiple Goals
 
@@ -149,7 +147,7 @@ Learn by thinking before AI explains.
 
 **If 3+ existing goals, warn:**
 
-```text
+```
 "You have [N] active goals for [Topic]:
  1. [Goal 1] ([X]/[Y] concepts mastered)
  ...
@@ -160,18 +158,18 @@ Learn by thinking before AI explains.
  [b] Add new goal anyway
  [c] Replace one goal
  [d] Review and consolidate"
-```text
+```
 
 **Standard (< 3 goals):**
 
-```text
+```
 "You already have [Topic] with goal: '[existing]'
  You've now said: '[new goal]'
  
  [a] Continue with existing
  [b] Add new goal (both active, shared progress)
  [c] Switch to new goal (archive existing)"
-```text
+```
 
 **Handle choice:**
 
@@ -183,13 +181,13 @@ Learn by thinking before AI explains.
 
 **File structure:**
 
-```text
+```
 docs/neat_learning/python/
   map.md                    # Master map, shared progress
   goals/
     review-ai-code.json     # Goal filter
     interview-prep.json     # Goal filter
-```text
+```
 
 **Filter schema:**
 
@@ -202,7 +200,7 @@ docs/neat_learning/python/
   "skip_concepts": ["Problem Solving Patterns"],
   "custom_concepts": []
 }
-```text
+```
 
 **Map frontmatter:**
 
@@ -213,27 +211,14 @@ goals:
   - name: "Backend development"
     created: "2026-06-29T13:00:00.000Z"
 active_goal: "Review AI-generated code"
-```text
+```
 
 **Usage:** Filter when displaying progress, selecting next activity, calculating mastery, 
 scheduling reviews. All progress stored in master map, shared across goals.
 
 ## Activities
 
-### 1. Plan
-
-**Purpose:** Build/expand concept map
-
-**Initial map:** Generated via `init-map.js` in step 6 above
-
-**Adding concepts:** User asks "What's [X]?"
-
-- If not in map: explain briefly, ask "Add [X] to map? [y/n]"
-- If yes: determine section, set dependencies, add at Level 0, run Learn
-
-See `references/activities/plan.md`
-
-### 2. Learn
+### 1. Learn
 
 **Purpose:** Learn through questions/predictions, not explanations
 
@@ -269,7 +254,7 @@ signals:
   strengths: [lifecycle, restart-policy]
 
 Strong understanding. Ready for Synthesize.
-```text
+```
 
 **Readiness gates:**
 
@@ -285,15 +270,17 @@ Strong understanding. Ready for Synthesize.
 | Business | Estimation | "DCF valuation?" → "Discount rate?" |
 | Theoretical | Pattern recognition | "Confirmation bias?" → "How does it form?" |
 
+**Status update:** Concept → status: `learning`
+
 See `references/activities/learn.md`
 
-### 3. Synthesize
+### 2. Synthesize
 
 **Purpose:** Consolidate insights, introduce terminology, build mental model
 
 **Format:**
 
-```text
+```
 AI: "You now understand:
      - [Insight 1 from Learn]
      - [Insight 2 from Learn]
@@ -307,7 +294,7 @@ AI: "You now understand:
      - [Term 2]: [Brief explanation]
      
      Here's how these connect: [Mental model]"
-```text
+```
 
 **State update:**
 
@@ -316,13 +303,13 @@ AI: "You now understand:
 completed: [ISO8601]
 terms: [Pod, Pod spec, Pod lifecycle, Pod status]
 mental_model: "Pod wraps containers → spec defines desired state → lifecycle manages runtime → status shows current state"
-```text
+```
 
-**Level update:** Concept → Level 2 (can explain with proper terminology)
+**Status update:** Concept → status: `learning` (stays same until Practice)
 
 See `references/activities/synthesize.md`
 
-### 4. Practice
+### 3. Practice
 
 **Purpose:** Apply knowledge through domain-appropriate exercises
 
@@ -330,7 +317,7 @@ See `references/activities/synthesize.md`
 
 - ✅ Learn: 4/5+ correct
 - ✅ Synthesize: Vocabulary established
-- ✅ Prerequisites: All dependencies at Level 3+
+- ✅ Prerequisites: All dependencies mastered
 
 **Domain adaptation:**
 
@@ -353,13 +340,13 @@ exercises:
   - name: Write Pod manifest
     status: complete
     errors: 0
-```text
+```
 
-**Level progression:** Practice complete → Level 4 (can solve unfamiliar problems)
+**Status update:** Concept → status: `practicing`
 
 See `references/activities/practice.md`
 
-### 5. Calibrate
+### 4. Calibrate
 
 **Purpose:** Develop expert judgment - when rules break, tradeoffs, common mistakes
 
@@ -373,8 +360,8 @@ See `references/activities/practice.md`
 
 **Pass criteria:**
 
-- Pass 2/3: Concept → Level 5-7 (expert judgment), marked "mastered", ready for spaced repetition
-- Pass 0-1/3: Stay at Level 4, more refinement needed
+- Pass 2/3: Concept → status: `mastered`, ready for spaced repetition
+- Pass 0-1/3: status: `practicing`, more refinement needed
 
 **State update:**
 
@@ -386,7 +373,9 @@ expert_thinking:
   - Knows when NOT to use Deployments
   - Understands Deployment vs StatefulSet tradeoffs
   - Identified common beginner mistakes
-```text
+```
+
+**Status update:** Concept → status: `mastered` (if passed 2/3)
 
 See `references/activities/calibrate.md`
 
@@ -408,7 +397,7 @@ See `references/activities/calibrate.md`
 ```javascript
 const elapsed = Date.now() - new Date(concept.activity.date).getTime()
 const isDue = elapsed >= concept.review_interval * 1000
-```text
+```
 
 **Review activity:** Run Learn (5 questions), track performance, update interval
 
@@ -416,7 +405,7 @@ See `references/spaced-repetition.md`
 
 ## Activity Selection Logic
 
-```text
+```
 Returning session?
   YES → Calculate due reviews
     Any due? 
@@ -425,14 +414,13 @@ Returning session?
   NO → First session, build initial map
 
 Next activity for concept:
-  Level 0 → Plan (add to map)
-  Level 0 + in map → Learn (questions)
-  Level 1 + Learn done → Synthesize (terminology)
-  Level 2 + Synthesize done → Practice (hands-on)
-  Level 4 + Practice done → Calibrate (expert judgment)
-  Level 5+ + due → Learn (review)
-  Level 5+ + not due → Next concept or end
-```text
+  status: not-started → Learn (questions)
+  status: learning + Learn done → Synthesize (terminology)
+  status: learning + Synthesize done → Practice (hands-on)
+  status: practicing + Practice done → Calibrate (expert judgment)
+  status: mastered + due → Learn (review)
+  status: mastered + not due → Next concept or end
+```
 
 **User navigation:** Skip ahead ("practice X"), repeat ("more questions on Y"), add concepts ("What's Z?")
 
@@ -440,33 +428,39 @@ Next activity for concept:
 
 ```yaml
 progress:
-  mastered: 3   # Level 5+
-  total: 8      # concepts in map
-  overall_level: 2.5  # average level
-```text
+  mastered: 3
+  total: 8
+```
 
 **Display:**
 
-```text
+```
 📊 Kubernetes Learning Progress
 
 Foundation (3/3 mastered):
-  ✓ Pod - Level 6 (next review: 2 days)
-  ✓ Service - Level 5 (next review: tomorrow)
-  → ConfigMap - Level 3 (in Practice)
+  ✓ Pod (mastered, next review: 2 days)
+  ✓ Service (mastered, next review: tomorrow)
+  → ConfigMap (practicing)
 
 Core (0/3 mastered):
-  → Deployment - Level 2 (in Synthesize)
-  ○ StatefulSet - Level 0 (not started)
+  → Deployment (learning)
+  ○ StatefulSet (not started)
 
 Overall: 38% mastered (3/8 concepts)
-```text
+```
+
+## Concept Status Values
+
+- `not-started`: No Learn activity yet
+- `learning`: Learn and/or Synthesize complete
+- `practicing`: Practice complete, awaiting Calibrate
+- `mastered`: Calibrate passed (2/3+), in spaced repetition
 
 ## Usage Examples
 
 **New learner:**
 
-```text
+```
 User: "Teach me Kubernetes"
 AI: "What's your goal? (Examples: deploy apps, pass CKA cert)"
 User: "Deploy applications"
@@ -474,26 +468,26 @@ AI: "This looks like a technical topic. [y/n]"
 User: "y"
 AI: [Shows map with Foundation/Core sections]
     "Let's start with Pod. If a container crashes, what should Kubernetes do?"
-```text
+```
 
 **Returning learner:**
 
-```text
+```
 User: "Continue my Kubernetes learning"
 AI: "Welcome back! Last session: 3 days ago
-     📌 Due for review (1 concept): Pod (due 1 day ago)
+     📌 Due for review (1 concept): Pod (overdue by 1 day)
      Want to review before continuing? [y/n/menu]"
 User: "y"
 AI: "Let's review Pod. If a Pod crashes, what happens to its containers?"
-```text
+```
 
 **User navigation:**
 
-```text
+```
 User: "What's a StatefulSet?"
 AI: [Brief explanation]
     "Should I add StatefulSet to your map? [y/n]"
 User: "y"
 AI: "Added StatefulSet to Core section. Let's learn how it works.
      StatefulSet vs Deployment - what's the key difference?"
-```text
+```
