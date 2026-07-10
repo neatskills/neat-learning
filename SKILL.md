@@ -1,6 +1,6 @@
 ---
 name: neat-learning
-description: Use when user wants to learn a topic through AI-guided discovery - builds customized learning maps, tracks progress across sessions, uses spaced repetition
+description: Use when the user wants to learn a topic through AI-guided, discovery-based coaching, or asks to continue a learning session already in progress
 ---
 
 # Learning Companion
@@ -33,8 +33,11 @@ Learn by thinking before AI explains.
 1. **Get topic** - If not provided: ask "What topic would you like to learn?"
    If goal provided: infer topic from keywords, confirm
 
-1a. **Normalize topic** - Standardize to prevent duplicates (see `references/topic-normalization.md`)
-   
+1a. **Normalize topic** - Standardize to prevent duplicates
+
+   **REQUIRED:** Read `references/topic-normalization.md` before finalizing the normalized name -
+   it has the full alias registry and edge-case rules; the transformations below cover only the common cases.
+
    **Apply transformations:**
    - Lowercase with hyphens: "Model Context Protocol" → `model-context-protocol`
    - Check aliases: "MCP" → `model-context-protocol`, "k8s" → `kubernetes`
@@ -50,8 +53,11 @@ Learn by thinking before AI explains.
 2. **Get goal** - If not provided: ask "What's your goal for learning [topic]?"
    Examples: deploy apps, pass cert, review code, build projects
 
-2a. **Refine goal** - Check quality and help sharpen if vague (see `references/goal-refinement.md`)
-   
+2a. **Refine goal** - Check quality and help sharpen if vague
+
+   **REQUIRED:** Read `references/goal-refinement.md` before splitting or combining multiple goals -
+   it has the full split/combine criteria; the questions below cover only single-goal refinement.
+
    **Red flags (need refinement):**
    - Abstract verbs: "understand", "learn deeply", "know advanced"
    - Missing scope: no specific application or context
@@ -251,162 +257,37 @@ scheduling reviews. All progress stored in master map, shared across goals.
 
 **Purpose:** Learn through questions/predictions, not explanations
 
-**Tree-based strategy:**
-
-- Core questions (variable N based on complexity: 3-10)
-- Depth (vertical): drill deeper when confused or critical for goal
-- Breadth (horizontal): explore wider when understanding strong and relevant to goal
-- Stop when: sufficient understanding, covered core + goal-relevant depth/breadth, diminishing returns
-
-**Per-question cycle:**
-
-1. Ask predictive question
-2. User predicts
-3. Confirm or clarify
-4. Track: correct/incorrect, hints, confusion patterns
-5. Decide: next core, deeper, wider, or stop
-
-**Performance tracking:**
-
-Strong (80%+ correct, minimal hints):
-
-```markdown
-#### Learn [DONE]
-questions: {correct: 12, total: 14, date: [ISO8601]}
-hints_needed: 1
-coverage:
-  core: [lifecycle, restart-policy, health-checks]
-  depth: [restart-policy-nuances]
-  breadth: [init-containers, sidecars]
-signals:
-  confusion: []
-  strengths: [lifecycle, restart-policy]
-
-Strong understanding. Ready for Synthesize.
-```
-
-**Readiness gates:**
-
-- Move to Synthesize: 80%+ correct, minimal hints, no confusion patterns
-- Stay in Learn: <60% correct, confusion detected, frequent hints
-
-**Domain adaptation:**
-
-| Domain | Question Type | Example |
-| -------- | --------------- | --------- |
-| Technical | Predictive | "Container crashes?" → "Restart policy?" |
-| Soft Skills | Scenario-based | "They offer $90k?" → "What do you say?" |
-| Business | Estimation | "DCF valuation?" → "Discount rate?" |
-| Theoretical | Pattern recognition | "Confirmation bias?" → "How does it form?" |
-
 **Status update:** Concept → status: `learning`
 
-See `references/activities/learn.md`
+**REQUIRED:** Read `references/activities/learn.md` before running this activity - do not
+improvise the question strategy, readiness gates, or state-update format from the purpose line above.
 
 ### 2. Synthesize
 
 **Purpose:** Consolidate insights, introduce terminology, build mental model
 
-**Format:**
-
-```
-AI: "You now understand:
-     - [Insight 1 from Learn]
-     - [Insight 2 from Learn]
-     
-     This is called **[Term]**.
-     
-     One sentence: [Concise definition]
-     
-     Key vocabulary:
-     - [Term 1]: [Brief explanation]
-     - [Term 2]: [Brief explanation]
-     
-     Here's how these connect: [Mental model]"
-```
-
-**State update:**
-
-```markdown
-#### Synthesize [DONE]
-completed: [ISO8601]
-terms: [Pod, Pod spec, Pod lifecycle, Pod status]
-mental_model: "Pod wraps containers → spec defines desired state → lifecycle manages runtime → status shows current state"
-```
-
 **Status update:** Concept → status: `learning` (stays same until Practice)
 
-See `references/activities/synthesize.md`
+**REQUIRED:** Read `references/activities/synthesize.md` before running this activity -
+it defines the format and state-update structure.
 
 ### 3. Practice
 
 **Purpose:** Apply knowledge through domain-appropriate exercises
 
-**Readiness gates:**
-
-- Learn: 4/5+ correct
-- Synthesize: Vocabulary established
-- Prerequisites: All dependencies mastered
-
-**Domain adaptation:**
-
-| Domain | Exercise Type | Example |
-| -------- | --------------- | --------- |
-| Technical | Code/config writing | "Write Pod manifest" |
-| Soft Skills | Role-play scenarios | "Practice salary negotiation" |
-| Business | Case studies | "Build DCF model" |
-| Theoretical | Analysis | "Identify biases in scenarios" |
-
-**Track per exercise:** Completion, errors (count/type), independence (hints needed), error patterns
-
-**State update:**
-
-```markdown
-#### Practice [DONE]
-date: [ISO8601]
-independence: true
-exercises:
-  - name: Write Pod manifest
-    status: complete
-    errors: 0
-```
-
 **Status update:** Concept → status: `practicing`
 
-See `references/activities/practice.md`
+**REQUIRED:** Read `references/activities/practice.md` before running this activity -
+it defines readiness gates, domain adaptation, and state-update format.
 
 ### 4. Calibrate
 
 **Purpose:** Develop expert judgment - when rules break, tradeoffs, common mistakes
 
-**3-question pattern (pass 2/3):**
-
-| Question Type | Purpose | Example |
-| --------------- | --------- | --------- |
-| Negative case | When NOT to use | "When would Deployment be WRONG?" |
-| Tradeoff | X vs Y - when each? | "Deployment vs StatefulSet - when?" |
-| Common mistake | Beginners mess up? | "What error do beginners make?" |
-
-**Pass criteria:**
-
-- Pass 2/3: Concept → status: `mastered`, ready for spaced repetition
-- Pass 0-1/3: status: `practicing`, more refinement needed
-
-**State update:**
-
-```markdown
-#### Calibrate [DONE]
-date: [ISO8601]
-judgment: {correct: 3, total: 3}
-expert_thinking:
-  - Knows when NOT to use Deployments
-  - Understands Deployment vs StatefulSet tradeoffs
-  - Identified common beginner mistakes
-```
-
 **Status update:** Concept → status: `mastered` (if passed 2/3)
 
-See `references/activities/calibrate.md`
+**REQUIRED:** Read `references/activities/calibrate.md` before running this activity -
+it defines the question pattern, pass criteria, and state-update format.
 
 ## Spaced Repetition
 
@@ -430,7 +311,8 @@ const isDue = elapsed >= concept.review_interval * 1000
 
 **Review activity:** Run Learn (5 questions), track performance, update interval
 
-See `references/spaced-repetition.md`
+**REQUIRED:** Read `references/spaced-repetition.md` before calculating review intervals -
+it has the overdue-grace logic and exact clamp formulas beyond the table above.
 
 ## Activity Selection Logic
 
