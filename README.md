@@ -9,13 +9,11 @@ understanding before introducing terminology or explanations.
 
 ## How It Works
 
-### 1. **Plan** - Map what to learn
+First, the AI maps what to learn: it builds a customized concept map based on your
+goal, organized into Foundation → Core → Advanced sections with dependencies between
+concepts. Then each concept goes through four activities:
 
-- AI builds customized concept map based on your goal
-- Organizes into Foundation → Core → Advanced sections
-- Sets dependencies between concepts
-
-### 2. **Learn** - Discover through questions
+### 1. **Learn** - Discover through questions
 
 - **Tree-based exploration:** AI controls depth and breadth dynamically
 - Start with core questions (varies: 3-10 based on complexity)
@@ -23,19 +21,19 @@ understanding before introducing terminology or explanations.
 - Go **wider** when understood and related concepts matter
 - Stop when you demonstrate sufficient understanding for your goal
 
-### 3. **Synthesize** - Connect the dots
+### 2. **Synthesize** - Connect the dots
 
 - Consolidate scattered insights from learning
 - Introduce formal terminology AFTER you understand
 - Build mental models showing how concepts connect
 
-### 4. **Practice** - Apply hands-on
+### 3. **Practice** - Apply hands-on
 
 - Domain-adapted exercises (code, scenarios, calculations, analysis)
 - Track independence, errors, patterns
 - Unlock when prerequisites met
 
-### 5. **Calibrate** - Develop expert judgment
+### 4. **Calibrate** - Develop expert judgment
 
 - When NOT to use (negative cases)
 - Tradeoffs (when to choose X vs Y)
@@ -48,7 +46,7 @@ understanding before introducing terminology or explanations.
 - **4 domain support:** Technical, soft skills, business, theoretical
 - **Spaced repetition:** 2-60 day adaptive intervals prevent forgetting
 - **Multi-session state:** YAML frontmatter + Markdown for persistence
-- **Mastery levels:** 0-7 progression from "never heard of it" to "can design systems"
+- **Mastery tracking:** not-started, learning, practicing, mastered - per concept
 - **Compression checkpoints:** Archive mastered concepts to keep maps focused
 
 ## Install
@@ -58,20 +56,20 @@ git clone https://github.com/neatskills/neat-learning.git
 cd neat-learning
 npm install
 ./scripts/manage-skills.sh install
-```text
+```
 
 To uninstall:
 
 ```bash
 ./scripts/manage-skills.sh uninstall
-```text
+```
 
 ## Quick Start
 
 ```bash
 # In Claude Code
 /neat-learning
-```text
+```
 
 **Then:**
 
@@ -79,13 +77,13 @@ To uninstall:
 "Teach me Kubernetes"
 "Help me understand negotiation"
 "Continue my React learning"
-```text
+```
 
 AI will ask your goal, detect domain, build initial map, and start with Learn questions.
 
 ## Example: Learning Kubernetes Pods
 
-**Plan:** 7 core aspects identified (crashes, containers, creation, deletion, health, placement, networking)
+**Map:** 7 core aspects identified (crashes, containers, creation, deletion, health, placement, networking)
 
 **Learn:**
 

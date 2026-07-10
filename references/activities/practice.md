@@ -2,26 +2,27 @@
 
 **Purpose:** Apply knowledge through domain-appropriate exercises
 
-**When to run:** After Synthesize, Learn shows 4/5+ correct, all prerequisites at Level 3+
+**When to run:** After Synthesize, Learn shows 4/5+ correct, all prerequisites practicing or mastered
 
 ## Readiness Gates
 
 **Unlocks when:**
 
-- ✅ Learn: 4/5+ questions correct
-- ✅ Synthesize: Vocabulary introduced
-- ✅ Prerequisites: All "requires" dependencies at Level 3+
+- Learn: 4/5+ questions correct
+- Synthesize: Vocabulary introduced
+- Prerequisites: All "requires" dependencies at status `practicing` or `mastered`
+  (`checkPracticePrerequisites` in `scripts/activity-selector.js` checks this)
 
 **Blocked if:**
 
-- ❌ Learn weak (<4/5 correct)
-- ❌ Prerequisites missing or weak
+- Learn weak (<4/5 correct)
+- Prerequisites missing or weak
 
 ## Domain Adaptation
 
 | Domain | Exercise Type | Example |
 | -------- | --------------- | --------- |
-| **Technical** | Bug spotting, decision-making, code review | "Find errors in this code", "Choose right primitive", "Which implementation is better?" |
+| **Technical** | Bug spotting, decisions, code review | "Find errors in this code", "Which implementation is better?" |
 | **Soft Skills** | Role-play scenarios | "Role-play salary negotiation", "Practice anchoring" |
 | **Business** | Case studies, models | "Build DCF model for startup", "Analyze company" |
 | **Theoretical** | Analysis, pattern ID | "Identify cognitive biases in scenarios" |
@@ -40,11 +41,13 @@ Practice should be about **applying understanding**, not repeating what was cove
 4. **Requirement → Design** - Give requirement, user outlines solution structure (not full code)
 
 **Avoid:**
+
 - Full project setup (clutters working directory)
 - Writing code from scratch (redundant with Learn phase)
 - Repetitive exercises explaining what code does (already covered in Synthesize)
 
 **Implementation notes:**
+
 - Use code snippets in conversation (no files created)
 - For critical concepts, optionally use `/tmp` for throwaway verification
 - Focus on evaluation skills that prepare for Calibrate (expert judgment)
@@ -54,11 +57,13 @@ Practice should be about **applying understanding**, not repeating what was cove
 **Hybrid Approach (Density + Adaptive):**
 
 **Structure:**
+
 - **2-3 bug spotting exercises** per concept (not just 1)
 - Each exercise contains **2-3 bugs** covering different error categories
 - **Adapt:** If learner catches all bugs easily → move on. If learner misses many → add targeted exercises.
 
 **Error categories to cover (for technical concepts):**
+
 - Transport/communication issues
 - Lifecycle errors (startup, shutdown, cleanup)
 - Async/sync handling
@@ -67,6 +72,7 @@ Practice should be about **applying understanding**, not repeating what was cove
 - Resource management (memory leaks, connection pools)
 
 **Example progression:**
+
 1. Exercise 1: 3 bugs (transport conflict, async handling, error handling)
 2. Exercise 2: 3 bugs (lifecycle cleanup, memory leaks, validation)
 3. If 5/6 caught → move to next activity type
@@ -87,41 +93,35 @@ Practice should be about **applying understanding**, not repeating what was cove
 
 ## State Updates
 
-**Successful practice:**
+Record results with `recordPractice`, then save:
 
-```markdown
-#### Practice ✓
-date: 2026-06-27T00:00:00Z
-independence: true
-exercises:
-  - name: Write Pod manifest
-    status: complete
-    errors: 0
-  - name: Debug failing Pod
-    status: complete
-    errors: 0
+```javascript
+const { loadState, saveState } = require('./scripts/state-manager.js');
+const { recordPractice } = require('./scripts/activity-updater.js');
 
-Can work independently. All exercises completed.
+recordPractice(concept, exercises, independence, errorPatterns);
+saveState(mapPath, data, content);
 ```
 
-**Shows gaps:**
+This writes `activity.practice` and sets the concept status to `practicing`:
 
-```markdown
-#### Practice →
-date: 2026-06-27T00:00:00Z
-independence: false
-exercises:
-  - name: Write Deployment
-    status: attempted
-    errors: 2
-error_patterns:
-  - Conceptual: confused replicas vs Pod count
-  - Same mistake repeated
-
-Need more Learn on Deployment internals.
+```yaml
+practice:
+  date: '2026-06-27T00:00:00.000Z'
+  independence: true
+  exercises:
+    - name: Write Pod manifest
+      status: complete
+      errors: 0
+    - name: Debug failing Pod
+      status: complete
+      errors: 0
+  error_patterns: []
 ```
 
-**Level progression:** Practice complete (2+ exercises, <30% errors) → Level 4 (can solve unfamiliar problems)
+For weak practice, set `independence: false` and record `error_patterns`
+(e.g. `["Conceptual: confused replicas vs Pod count"]`) - they drive the
+readiness decision below.
 
 ## Readiness for Calibrate
 

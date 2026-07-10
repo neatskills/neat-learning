@@ -38,24 +38,33 @@ AI: "You now understand:
      - [Term 3]: [Brief explanation]
 
      When you see '[Term]' in docs, you now know what it means."
-```text
+```
 
 ## State Updates
 
-```markdown
-#### Synthesize ✓
-completed: 2026-06-27T00:00:00Z
-terms: [Pod, Pod spec, Pod lifecycle, Pod status, restart policy]
-mental_model: "Pod wraps containers → spec defines desired state → lifecycle manages runtime → status shows current state"
+Record results with `recordSynthesize`, then save:
 
-Insights consolidated, terminology introduced, mental model established.
-```text
+```javascript
+const { loadState, saveState } = require('./scripts/state-manager.js');
+const { recordSynthesize } = require('./scripts/activity-updater.js');
+
+recordSynthesize(concept, termsIntroduced, mentalModel);
+saveState(mapPath, data, content);
+```
+
+This writes `activity.synthesize` (status stays `learning`):
+
+```yaml
+synthesize:
+  completed: '2026-06-27T00:00:00.000Z'
+  terms: [Pod, Pod spec, Pod lifecycle, Pod status, restart policy]
+  mental_model: "Pod wraps containers, spec defines desired state, lifecycle manages runtime"
+```
 
 ## Readiness to Move Forward
 
 **After Synthesize:**
 
-- Update concept Level to 2 (can explain concepts with proper terminology)
 - Ready for Practice (has consolidated understanding and terminology)
 - Can reference official docs (vocabulary matches industry terms)
 

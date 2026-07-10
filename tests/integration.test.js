@@ -47,30 +47,30 @@ console.log(`✓ State loaded: ${state.data.sections.length} sections\n`);
 console.log('3. Running Learn activity on Kubernetes Basics...');
 let podConcept = state.data.sections[0].concepts[0];
 assert.strictEqual(podConcept.name, 'Kubernetes Basics');
-assert.strictEqual(getNextActivity(podConcept), 'plan'); // Level 0, not started
+assert.strictEqual(getNextActivity(podConcept), 'learn'); // Not started
 
-// Simulate user completing Discover
+// Simulate user completing Learn
 podConcept = recordLearn(podConcept, 5, 5, 0, [], ['lifecycle', 'restart-policy']);
-assert.strictEqual(podConcept.level, 1);
+assert.strictEqual(podConcept.status, 'learning');
 assert.strictEqual(getNextActivity(podConcept), 'synthesize');
 
 state.data.sections[0].concepts[0] = podConcept;
 state.data.progress = calculateProgress(state.data.sections);
 saveState(mapPath, state.data, state.content);
-console.log('✓ Learn completed, level 1, ready for Synthesize\n');
+console.log('✓ Learn completed, status learning, ready for Synthesize\n');
 
 // Test: Synthesize activity
 console.log('4. Running Synthesize activity on Kubernetes Basics...');
 state = loadState(mapPath);
 podConcept = state.data.sections[0].concepts[0];
 podConcept = recordSynthesize(podConcept, ['Pod', 'Pod spec', 'Pod lifecycle']);
-assert.strictEqual(podConcept.level, 2);
+assert.strictEqual(podConcept.status, 'learning');
 assert.strictEqual(getNextActivity(podConcept), 'practice');
 
 state.data.sections[0].concepts[0] = podConcept;
 state.data.progress = calculateProgress(state.data.sections);
 saveState(mapPath, state.data, state.content);
-console.log('✓ Synthesize completed, level 2, ready for Practice\n');
+console.log('✓ Synthesize completed, ready for Practice\n');
 
 // Test: Practice activity
 console.log('5. Running Practice activity on Kubernetes Basics...');
@@ -81,28 +81,28 @@ const exercises = [
   { name: 'Debug Pod', status: 'complete', errors: 0 }
 ];
 podConcept = recordPractice(podConcept, exercises, true, []);
-assert.strictEqual(podConcept.level, 4);
+assert.strictEqual(podConcept.status, 'practicing');
 assert.strictEqual(getNextActivity(podConcept), 'calibrate');
 
 state.data.sections[0].concepts[0] = podConcept;
 state.data.progress = calculateProgress(state.data.sections);
 saveState(mapPath, state.data, state.content);
-console.log('✓ Practice completed, level 4, ready for Calibrate\n');
+console.log('✓ Practice completed, status practicing, ready for Calibrate\n');
 
 // Test: Calibrate activity
 console.log('6. Running Calibrate activity on Kubernetes Basics...');
 state = loadState(mapPath);
 podConcept = state.data.sections[0].concepts[0];
 podConcept = recordCalibrate(podConcept, 3, ['knows tradeoffs', 'expert thinking']);
-assert.strictEqual(podConcept.level, 7);
-assert.strictEqual(podConcept.activity.status, 'mastered');
+assert.strictEqual(podConcept.status, 'mastered');
+assert.strictEqual(podConcept.activity.calibrate.judgment.correct, 3);
 assert.strictEqual(podConcept.review_interval, 172800); // 2 days
 
 state.data.sections[0].concepts[0] = podConcept;
 state.data.progress = calculateProgress(state.data.sections);
 assert.strictEqual(state.data.progress.mastered, 1);
 saveState(mapPath, state.data, state.content);
-console.log('✓ Calibrate completed, level 7, mastered\n');
+console.log('✓ Calibrate completed, mastered\n');
 
 // Test: Next concept selection
 console.log('7. Selecting next concept...');
@@ -141,7 +141,6 @@ console.log('10. Checking overall progress...');
 state = loadState(mapPath);
 const progress = calculateProgress(state.data.sections);
 console.log(`   Mastered: ${progress.mastered}/${progress.total} concepts`);
-console.log(`   Overall level: ${progress.overall_level}`);
 assert(progress.mastered >= 1, 'Should have at least 1 mastered');
 assert(progress.total >= 2, 'Should have at least 2 total concepts');
 console.log('✓ Progress tracked correctly\n');

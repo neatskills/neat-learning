@@ -4,51 +4,52 @@
 
 ## When to Compress
 
-**Trigger:** 10+ concepts mastered (Level 5+) AND 30+ days since first mastered AND no reviews due
+**Trigger:** 10+ concepts mastered AND 30+ days since first mastered AND no reviews due
+
+`shouldOfferCompression(sections, started)` in `scripts/compression.js` checks this:
+
+```javascript
+const { shouldOfferCompression, compressSection } = require('./scripts/compression.js');
+const { shouldOffer, masteredCount } = shouldOfferCompression(data.sections, data.started);
+```
 
 **User prompt:**
 
 ```text
-You've mastered 12 concepts! 🎉
+You've mastered 12 concepts!
 Your map is getting long. Compress mastered concepts into summary?
 
 [y] Compress (focused)
 [n] Keep detailed
 [l] Later (ask in 7 days)
-```text
+```
 
 ## What Gets Compressed
 
-**Before:**
+`compressSection(section, archivePath)` writes the full activity history to an
+archive file and strips compressed concepts down to review-scheduling fields.
 
-```markdown
-### Pod
-Level: 7 | Status: Mastered | Review: 14 days
-[Full activity history...]
+**Before:** each mastered concept carries its full `activity` history.
 
-### Service
-Level: 6 | Status: Mastered | Review: 10 days
-[Full activity history...]
-```text
-
-**After:**
+**After (map display):**
 
 ```markdown
 ## Foundation (3 mastered)
 
 **Mastered concepts:**
-- **Pod** (Level 7) - Next review: 14 days
-- **Service** (Level 6) - Next review: 10 days  
-- **Deployment** (Level 5) - Next review: 8 days
+
+- **Pod** (mastered) - Next review: 14 days
+- **Service** (mastered) - Next review: 10 days
+- **Deployment** (mastered) - Next review: 8 days
 
 *Mastered 2026-06-15 to 2026-07-10. Full history archived.*
-```text
+```
 
 ## Archive Location
 
-**Path:** `docs/neat_util_learning/<topic>/archive/<section-name>-mastered-<date>.md`
+**Path:** `docs/neat_learning/<topic>/archive/<section-name>-mastered-<date>.md`
 
-**Example:** `docs/neat_util_learning/kubernetes/archive/foundation-mastered-2026-07-15.md`
+**Example:** `docs/neat_learning/kubernetes/archive/foundation-mastered-2026-07-15.md`
 
 **Preserved:** Complete activity history for all compressed concepts
 
@@ -60,18 +61,18 @@ Level: 6 | Status: Mastered | Review: 10 days
 sections:
   - name: Foundation
     compressed: true
-    compressed_date: 2026-07-15T00:00:00Z
+    compressed_date: '2026-07-15T00:00:00.000Z'
     archive_path: archive/foundation-mastered-2026-07-15.md
     mastered_count: 3
     concepts:
       - name: Pod
-        level: 7
+        status: mastered
         review_interval: 1209600
-        last_activity: 2026-07-01T00:00:00Z
+        last_activity: '2026-07-01T00:00:00.000Z'
         compressed: true
-```text
+```
 
-**Kept:** Name, level, review scheduling, compression flag  
+**Kept:** Name, status, review scheduling, compression flag
 **Removed:** Activity history, exercise records, performance signals
 
 ## Review Handling
@@ -85,8 +86,10 @@ sections:
 
 ## Decompression
 
-**User request:** "Show me my Pod learning history"  
+**User request:** "Show me my Pod learning history"
 **AI:** "Pod is in the mastered archive. Want to restore it to active view? [y/n]"
+
+Use `decompressConcept(conceptName, archiveFullPath)` from `scripts/compression.js`.
 
 ## Implementation Notes
 

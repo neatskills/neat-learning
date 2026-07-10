@@ -58,7 +58,7 @@ const ACTIVITY_FORMATS = {
   learn: { dateField: 'date', fields: ['questions', 'hints_needed', 'signals'] },
   synthesize: { dateField: 'completed', fields: ['terms', 'mental_model'] },
   practice: { dateField: 'date', fields: ['independence', 'exercises'] },
-  calibrate: { dateField: 'date', fields: ['tradeoffs', 'expert_thinking'] }
+  calibrate: { dateField: 'date', fields: ['judgment', 'expert_thinking'] }
 };
 
 function formatActivity(activityType, activity) {
@@ -74,8 +74,8 @@ function formatActivity(activityType, activity) {
     const value = activity[field];
     if (field === 'questions') {
       content += `questions:\n  correct: ${value.correct}\n  total: ${value.total}\n`;
-    } else if (field === 'tradeoffs') {
-      content += `tradeoffs:\n  correct: ${value.correct}\n  total: ${value.total}\n`;
+    } else if (field === 'judgment') {
+      content += `judgment:\n  correct: ${value.correct}\n  total: ${value.total}\n`;
     } else if (field === 'terms' && Array.isArray(value)) {
       content += 'terms:\n' + value.map(t => '  - ' + t).join('\n') + '\n';
     } else if (field === 'exercises' && Array.isArray(value)) {
@@ -108,8 +108,7 @@ function generateArchive(sectionName, concepts) {
 
   concepts.forEach(concept => {
     content += `### ${concept.name}\n\n`;
-    content += `**Level:** ${concept.level}\n\n`;
-    content += `**Status:** ${concept.activity?.status || 'mastered'}\n\n`;
+    content += `**Status:** ${concept.status || 'mastered'}\n\n`;
 
     if (concept.activity) {
       ['learn', 'synthesize', 'practice', 'calibrate'].forEach(activityType => {
@@ -166,7 +165,7 @@ function compressSection(section, archivePath) {
     if (masteredNames.has(concept.name)) {
       return {
         name: concept.name,
-        level: concept.level,
+        status: concept.status,
         review_interval: concept.review_interval,
         last_activity: concept.last_activity,
         compressed: true

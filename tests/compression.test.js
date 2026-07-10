@@ -26,8 +26,8 @@ let sections = [
   {
     name: 'Foundation',
     concepts: [
-      { name: 'Pod', level: 6, last_activity: '2026-06-01T00:00:00Z' },
-      { name: 'Service', level: 5, last_activity: '2026-06-05T00:00:00Z' }
+      { name: 'Pod', status: 'mastered', last_activity: '2026-06-01T00:00:00Z' },
+      { name: 'Service', status: 'mastered', last_activity: '2026-06-05T00:00:00Z' }
     ]
   }
 ];
@@ -44,7 +44,7 @@ sections = [
     name: 'Foundation',
     concepts: Array.from({ length: 10 }, (_, i) => ({
       name: `Concept${i}`,
-      level: 6,
+      status: 'mastered',
       activity: { calibrate: { date: thirtyOneDaysAgo } }
     }))
   }
@@ -60,11 +60,10 @@ console.log('Test 3: generateArchive');
 const concepts = [
   {
     name: 'Pod',
-    level: 6,
+    status: 'mastered',
     review_interval: 345600,
     last_activity: '2026-06-27T00:00:00Z',
     activity: {
-      status: 'mastered',
       learn: {
         date: '2026-06-20T10:00:00Z',
         questions: { correct: 5, total: 5 },
@@ -84,7 +83,7 @@ const concepts = [
       },
       calibrate: {
         date: '2026-06-20T11:30:00Z',
-        tradeoffs: { correct: 3, total: 3 },
+        judgment: { correct: 3, total: 3 },
         expert_thinking: ['knows tradeoffs']
       }
     }
@@ -106,20 +105,19 @@ const section = {
   concepts: [
     {
       name: 'Pod',
-      level: 6,
+      status: 'mastered',
       review_interval: 345600,
       last_activity: '2026-06-27T00:00:00Z',
       activity: {
-        status: 'mastered',
         learn: { date: '2026-06-20T00:00:00Z', questions: { correct: 5, total: 5 }, hints_needed: 0 },
         synthesize: { date: '2026-06-20T00:00:00Z', terms: ['Pod'] },
         practice: { date: '2026-06-20T00:00:00Z', independence: true, exercises: [] },
-        calibrate: { date: '2026-06-20T00:00:00Z', tradeoffs: { correct: 3, total: 3 } }
+        calibrate: { date: '2026-06-20T00:00:00Z', judgment: { correct: 3, total: 3 } }
       }
     },
     {
       name: 'Service',
-      level: 2 // Not mastered
+      status: 'learning' // Not mastered
     }
   ]
 };
@@ -134,7 +132,7 @@ assert(fs.existsSync(path.join(testDir, compressed.archiveFile)));
 const podConcept = compressed.section.concepts.find(c => c.name === 'Pod');
 assert.strictEqual(podConcept.compressed, true);
 assert.strictEqual(podConcept.activity, undefined); // Activity history removed
-assert.strictEqual(podConcept.level, 6); // Level preserved
+assert.strictEqual(podConcept.status, 'mastered'); // Status preserved
 assert.strictEqual(podConcept.review_interval, 345600); // Review interval preserved
 
 console.log('✓ Section compressed, archive created, activity history stripped\n');

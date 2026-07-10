@@ -9,12 +9,14 @@
 ### Good Goals (Specific & Actionable)
 
 **Characteristics:**
+
 - Clear outcome ("build X", "deploy Y", "review Z")
 - Specific scope (not "learn everything")
 - Real-world application or constraint
 - Easy to prioritize concepts
 
 **Examples:**
+
 - "Build MCP servers"
 - "Deploy applications with Kubernetes"
 - "Review AI-generated code"
@@ -24,12 +26,14 @@
 ### Vague Goals (Need Refinement)
 
 **Red flags:**
+
 - Abstract verbs ("understand", "learn", "know")
 - Missing scope ("deeply", "advanced", "everything")
 - No application context
 - Multiple unrelated outcomes
 
 **Examples:**
+
 - "Learn MCP deeply"
 - "Understand advanced patterns"
 - "Know Kubernetes"
@@ -42,12 +46,14 @@
 **User says:** "Learn [topic] deeply/advanced/everything"
 
 **Ask:**
+
 1. "Are you building/using/reviewing [topic]?"
 2. "Do you have a specific project or use case?"
 3. "Which aspects matter most: [A], [B], or [C]?"
 
 **Example:**
-```
+
+```text
 User: "Learn MCP deeply"
 AI: "That's quite broad! Let me help narrow it:
      - Are you building MCP servers or using existing ones?
@@ -63,11 +69,13 @@ AI: "Great! So your goal is: 'Build production-ready MCP servers that scale'?"
 **User says:** "Learn [X] and [Y] and [Z]"
 
 **Analyze relationship:**
+
 - **Related (same workflow):** "Scale AND secure" → Keep combined
 - **Unrelated (different contexts):** "Code review AND interview prep" → Split
 
 **Ask:**
-```
+
+```text
 "I see two outcomes: [X] and [Y]
  - Are these for the same project/context?
  - Which is more urgent/important?
@@ -75,6 +83,7 @@ AI: "Great! So your goal is: 'Build production-ready MCP servers that scale'?"
 ```
 
 **Decision tree:**
+
 - Related + same priority → Combined goal with both aspects
 - Related + different priority → Separate goals, suggest sequence
 - Unrelated → Separate goals, ask which to start with
@@ -86,33 +95,25 @@ AI: "Great! So your goal is: 'Build production-ready MCP servers that scale'?"
 **Examples:** "Understand negotiation", "Learn React", "Know PostgreSQL"
 
 **Ask:**
+
 1. "What will you do with this knowledge?"
 2. "Is this for a specific project/job/situation?"
 3. "What's the outcome you want?"
 
 **Refine to action-oriented goal:**
+
 - "Understand negotiation" → "Negotiate salary offers"
 - "Learn React" → "Build React components for my app"
 - "Know PostgreSQL" → "Design database schemas" or "Optimize queries"
 
 ## Refinement Process
 
-**Step 1: Identify red flags**
-- Check against vague goal patterns
-- Look for abstract verbs, missing scope, multiple outcomes
-
-**Step 2: Ask clarifying questions**
-- Use pattern-specific questions above
-- Aim for: specific action + clear scope + real context
-
-**Step 3: Propose refined goal**
-- "So your goal is: '[refined goal]'?"
-- User confirms or adjusts
-
-**Step 4: Validate**
-- Specific outcome?
-- Clear what to prioritize?
-- Easy to know when achieved?
+1. **Identify red flags** - check against vague goal patterns: abstract verbs,
+   missing scope, multiple outcomes
+2. **Ask clarifying questions** - use pattern-specific questions above;
+   aim for specific action + clear scope + real context
+3. **Propose refined goal** - "So your goal is: '[refined goal]'?" - user confirms or adjusts
+4. **Validate** - specific outcome? clear what to prioritize? easy to know when achieved?
 
 **If still vague:** Ask one more round of questions
 
@@ -121,18 +122,21 @@ AI: "Great! So your goal is: 'Build production-ready MCP servers that scale'?"
 ## Multi-Goal Splitting Criteria
 
 **When to split:**
+
 - Different domains (technical vs soft skills vs business)
 - Different timelines (urgent vs later)
 - Unrelated contexts (work vs personal project vs certification)
 - User explicitly wants separate tracks
 
 **When to combine:**
+
 - Same workflow (scale + security for production)
 - Sequential steps (understand → build → deploy)
 - Mutually reinforcing (code review + best practices)
 - User wants holistic view
 
 **After splitting:**
+
 - Offer to focus on one first
 - Or manage both with separate goal filters (same map, different priorities)
 
@@ -143,7 +147,8 @@ AI: "Great! So your goal is: 'Build production-ready MCP servers that scale'?"
 **Before:** "I want to learn MCP deeply"
 
 **Refinement:**
-```
+
+```text
 AI: "That's broad! Let me help narrow it:
      - Building servers or using them?
      - Production deployment or just understanding?
@@ -162,7 +167,8 @@ User: "Yes"
 **Before:** "Scale MCP server to handle higher traffic while improving security"
 
 **Analysis:**
-```
+
+```text
 AI: "I see two concerns: scaling AND security.
      - Are these for the same production deployment?
      - Both equally important?"
@@ -175,6 +181,7 @@ AI: "Let's combine: 'Build production-ready MCP servers'
 ```
 
 **Options:**
+
 - Keep combined: "Scale MCP server for traffic while improving security"
 - Broaden: "Build production-ready MCP servers"
 - Split: "Scale MCP servers" + "Secure multi-user MCP servers"
@@ -184,11 +191,12 @@ AI: "Let's combine: 'Build production-ready MCP servers'
 **Before:** "Review AI-generated code and prepare for interviews"
 
 **Analysis:**
-```
+
+```text
 AI: "Two different goals here:
      [a] Review AI code (technical depth)
      [b] Interview prep (breadth + communication)
-     
+
      These use Python differently. Start with one, or tackle both?"
 
 User: "Interview is in 2 weeks, start there"
@@ -204,7 +212,8 @@ AI: "Got it. We'll focus on 'Prepare for Python interviews' now.
 **Before:** "Understand negotiation"
 
 **Refinement:**
-```
+
+```text
 AI: "What will you use negotiation for?
      - Salary/job offers?
      - Business deals?
@@ -217,21 +226,3 @@ AI: "Perfect! So: 'Negotiate salary offers'?"
 ```
 
 **After:** "Negotiate salary offers"
-
-## Integration with Skill Flow
-
-**Updated first session flow:**
-
-1. Get topic
-2. Get goal
-3. **→ Refine goal** (NEW - this document)
-   - Check quality
-   - Ask clarifying questions
-   - Confirm refined goal
-4. Detect compound goals (if multiple outcomes)
-5. Check existing goals
-6. Detect domain
-7. Generate map
-8. Begin Learn
-
-**Time investment:** 1-3 extra questions, saves hours of unfocused learning

@@ -4,8 +4,8 @@
 
 **When to run:**
 
-1. First time learning a concept (after Plan adds to map)
-2. Review session (test retention)
+1. First time learning a concept (after it's added to the map)
+2. Review session (test retention - fixed 5 questions, see `references/spaced-repetition.md`)
 3. User shows confusion in Practice (clarify)
 
 ## Tree-Based Question Strategy
@@ -29,9 +29,9 @@
 **Per-question flow:**
 
 ```text
-Ask predictive question → User predicts → Confirm or clarify → 
+Ask predictive question → User predicts → Confirm or clarify →
 Track performance → Decide: next core / deeper / wider / stop
-```text
+```
 
 ## Handling Pushback
 
@@ -88,35 +88,37 @@ handle it (frequent hints keeps the concept in Learn rather than advancing to Sy
 
 ## State Updates
 
-**Strong understanding:**
+Record results with `recordLearn`, then save:
 
-```markdown
-#### Learn ✓
-date: 2026-06-27T00:00:00Z
-questions: {correct: 5, total: 5}
-hints_needed: 0
-signals:
-  confusion: []
-  strengths: [lifecycle, container-relationship, restart-policy]
+```javascript
+const { loadState, saveState } = require('./scripts/state-manager.js');
+const { recordLearn } = require('./scripts/activity-updater.js');
 
-Strong understanding demonstrated. Ready for Synthesize.
-```text
+// concept is the entry in data.sections[i].concepts
+recordLearn(concept, correct, total, hintsNeeded, confusionPatterns, strengths, coverage);
+saveState(mapPath, data, content);
+```
 
-**Weak understanding:**
+This writes `activity.learn` and sets the concept status to `learning`:
 
-```markdown
-#### Learn →
-date: 2026-06-27T00:00:00Z
-questions: {correct: 2, total: 5}
-hints_needed: 3
-signals:
-  confusion:
-    - pattern: "Mixing up Deployment vs ReplicaSet"
-    - specific: "What creates the ReplicaSet?" (wrong 2x)
-  needs: "More discovery on Deployment internals"
+```yaml
+learn:
+  date: '2026-06-27T00:00:00.000Z'
+  questions:
+    correct: 5
+    total: 5
+  hints_needed: 0
+  coverage:
+    core: [lifecycle, restart-policy]
+    depth: [init-containers]
+    breadth: []
+  signals:
+    confusion: []
+    strengths: [lifecycle, container-relationship, restart-policy]
+```
 
-Confusion detected. Needs reinforcement.
-```text
+For weak understanding, record confusion patterns as strings, e.g.
+`["Mixing up Deployment vs ReplicaSet"]` - they drive the readiness criteria above.
 
 ## Common Mistakes to Avoid
 

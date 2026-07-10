@@ -51,7 +51,7 @@ function initMap(topic, goal, domain, mapData = null) {
   // Step 4: Generate content with map
   const sectionsMarkdown = mapData.sections.map(section => {
     const conceptsList = section.concepts.map(c =>
-      `- **${c.name}** (Level ${c.level || 0}) - ${c.description}`
+      `- **${c.name}** (${c.status || 'not-started'}) - ${c.description}`
     ).join('\n');
 
     return `### ${section.name}\n${section.description || ''}\n\n${conceptsList}`;
@@ -60,7 +60,7 @@ function initMap(topic, goal, domain, mapData = null) {
   const conceptsMarkdown = mapData.sections.flatMap(section =>
     section.concepts.map(c => `
 ### ${c.name}
-**Level:** ${c.level || 0} | **Status:** Not started
+**Status:** ${c.status || 'not-started'}
 
 **Description:** ${c.description}
 
@@ -76,7 +76,7 @@ function initMap(topic, goal, domain, mapData = null) {
 
 **Goal:** ${goal}
 **Domain:** ${domain}
-**Progress:** ${data.progress.mastered}/${data.progress.total} concepts mastered | Level ${data.progress.overall_level} overall
+**Progress:** ${data.progress.mastered}/${data.progress.total} concepts mastered
 **Started:** ${data.started}
 **Last session:** ${data.last_session}
 **Total sessions:** ${data.total_sessions}

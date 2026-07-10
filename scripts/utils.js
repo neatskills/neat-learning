@@ -3,9 +3,7 @@
  */
 
 // Constants
-const MASTERY_LEVEL = 5;
 const INITIAL_REVIEW_INTERVAL = 172800; // 2 days in seconds
-const OPPORTUNITIES_PER_EXERCISE = 3;
 const MS_PER_DAY = 86400000;
 
 /**
@@ -45,11 +43,11 @@ function daysSince(isoDate) {
 
 /**
  * Check if concept is mastered
- * @param {Object} concept - Concept with level property
- * @returns {boolean} True if concept at mastery level or higher
+ * @param {Object} concept - Concept with status property
+ * @returns {boolean} True if concept status is mastered
  */
 function isMastered(concept) {
-  return (concept.level || 0) >= MASTERY_LEVEL;
+  return concept.status === 'mastered';
 }
 
 /**
@@ -85,9 +83,7 @@ function flattenConcepts(sections) {
 }
 
 module.exports = {
-  MASTERY_LEVEL,
   INITIAL_REVIEW_INTERVAL,
-  OPPORTUNITIES_PER_EXERCISE,
   MS_PER_DAY,
   now,
   elapsed,

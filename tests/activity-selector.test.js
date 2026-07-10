@@ -6,8 +6,7 @@ const {
   getConceptsDueForReview,
   getNextActivity,
   getNextConcept,
-  checkPracticePrerequisites,
-  generateSessionStatus
+  checkPracticePrerequisites
 } = require('../scripts/activity-selector');
 
 console.log('Testing activity-selector.js...\n');
@@ -49,55 +48,73 @@ assert.strictEqual(reviewStatus.isDue, true);
 assert.strictEqual(reviewStatus.isOverdue, true);
 console.log('✓ Overdue for review detected correctly\n');
 
-// Test 4: getNextActivity - Level 0, not started
-console.log('Test 4: getNextActivity - Level 0 (not started)');
-concept = { level: 0 };
-assert.strictEqual(getNextActivity(concept), 'plan');
-console.log('✓ Level 0 → plan\n');
+// Test 4: getNextActivity - not started
+console.log('Test 4: getNextActivity - not started');
+concept = { status: 'not-started' };
+assert.strictEqual(getNextActivity(concept), 'learn');
+console.log('✓ not-started → learn\n');
 
-// Test 5: getNextActivity - Level 1, ready for synthesize
-console.log('Test 5: getNextActivity - Level 1 (ready for synthesize)');
-concept = { level: 1, activity: { status: 'ready_for_synthesize' } };
+// Test 5: getNextActivity - Learn done
+console.log('Test 5: getNextActivity - Learn done');
+concept = { status: 'learning', activity: { learn: { date: twoDaysAgo } } };
 assert.strictEqual(getNextActivity(concept), 'synthesize');
-console.log('✓ Level 1 → synthesize\n');
+console.log('✓ Learn done → synthesize\n');
 
-// Test 6: getNextActivity - Level 2, ready for practice
-console.log('Test 6: getNextActivity - Level 2 (ready for practice)');
-concept = { level: 2, activity: { status: 'ready_for_practice' } };
-assert.strictEqual(getNextActivity(concept), 'practice');
-console.log('✓ Level 2 → practice\n');
-
-// Test 7: getNextActivity - Level 3, needs more practice
-console.log('Test 7: getNextActivity - Level 3 (needs more practice)');
-concept = { level: 3, activity: { status: 'needs_more_practice' } };
-assert.strictEqual(getNextActivity(concept), 'practice');
-console.log('✓ Level 3 → practice\n');
-
-// Test 8: getNextActivity - Level 4, ready for calibrate
-console.log('Test 8: getNextActivity - Level 4 (ready for calibrate)');
-concept = { level: 4, activity: { status: 'ready_for_calibrate' } };
-assert.strictEqual(getNextActivity(concept), 'calibrate');
-console.log('✓ Level 4 → calibrate\n');
-
-// Test 9: getNextActivity - Level 5+, not due for review
-console.log('Test 9: getNextActivity - Level 5+ (mastered, not due)');
+// Test 6: getNextActivity - Synthesize done
+console.log('Test 6: getNextActivity - Synthesize done');
 concept = {
-  level: 6,
+  status: 'learning',
+  activity: { learn: { date: twoDaysAgo }, synthesize: { completed: twoDaysAgo } }
+};
+assert.strictEqual(getNextActivity(concept), 'practice');
+console.log('✓ Synthesize done → practice\n');
+
+// Test 7: getNextActivity - Practice done
+console.log('Test 7: getNextActivity - Practice done');
+concept = {
+  status: 'practicing',
+  activity: {
+    learn: { date: twoDaysAgo },
+    synthesize: { completed: twoDaysAgo },
+    practice: { date: twoDaysAgo }
+  }
+};
+assert.strictEqual(getNextActivity(concept), 'calibrate');
+console.log('✓ Practice done → calibrate\n');
+
+// Test 8: getNextActivity - failed Calibrate retries
+console.log('Test 8: getNextActivity - failed Calibrate');
+concept = {
+  status: 'practicing',
+  activity: {
+    learn: { date: twoDaysAgo },
+    synthesize: { completed: twoDaysAgo },
+    practice: { date: twoDaysAgo },
+    calibrate: { date: twoDaysAgo, judgment: { correct: 1, total: 3 } }
+  }
+};
+assert.strictEqual(getNextActivity(concept), 'calibrate');
+console.log('✓ Failed calibrate → calibrate again\n');
+
+// Test 9: getNextActivity - mastered, not due for review
+console.log('Test 9: getNextActivity - mastered, not due');
+concept = {
+  status: 'mastered',
   review_interval: 172800,
   last_activity: new Date().toISOString()
 };
 assert.strictEqual(getNextActivity(concept), 'done');
-console.log('✓ Level 5+ not due → done\n');
+console.log('✓ Mastered not due → done\n');
 
-// Test 10: getNextActivity - Level 5+, due for review
-console.log('Test 10: getNextActivity - Level 5+ (mastered, due)');
+// Test 10: getNextActivity - mastered, due for review
+console.log('Test 10: getNextActivity - mastered, due');
 concept = {
-  level: 6,
+  status: 'mastered',
   review_interval: 172800,
   last_activity: new Date(Date.now() - 3 * 86400000).toISOString()
 };
 assert.strictEqual(getNextActivity(concept), 'review');
-console.log('✓ Level 5+ due → review\n');
+console.log('✓ Mastered due → review\n');
 
 // Test 11: getConceptsDueForReview
 console.log('Test 11: getConceptsDueForReview');
@@ -107,19 +124,24 @@ const sections = [
     concepts: [
       {
         name: 'Pod',
-        level: 6,
+        status: 'mastered',
         review_interval: 345600, // 4 days
         last_activity: new Date(Date.now() - 2 * 86400000).toISOString()
       },
       {
         name: 'Service',
-        level: 5,
+        status: 'mastered',
         review_interval: 172800, // 2 days
         last_activity: new Date(Date.now() - 5 * 86400000).toISOString()
       },
       {
         name: 'ConfigMap',
-        level: 3
+        status: 'practicing',
+        activity: {
+          learn: { date: twoDaysAgo },
+          synthesize: { completed: twoDaysAgo },
+          practice: { date: twoDaysAgo }
+        }
       }
     ]
   }
@@ -141,7 +163,7 @@ console.log('✓ Reviews prioritized correctly\n');
 console.log('Test 13: getNextConcept - skip reviews');
 const nextNoReview = getNextConcept(sections, { skipReviews: true });
 assert.strictEqual(nextNoReview.concept.name, 'ConfigMap');
-assert.strictEqual(nextNoReview.activity, 'practice');
+assert.strictEqual(nextNoReview.activity, 'calibrate');
 console.log('✓ Skip reviews works correctly\n');
 
 // Test 14: checkPracticePrerequisites - all met
@@ -150,14 +172,14 @@ const sectionsWithDeps = [
   {
     name: 'Foundation',
     concepts: [
-      { name: 'Pod', level: 5 },
-      { name: 'Service', level: 4 }
+      { name: 'Pod', status: 'mastered' },
+      { name: 'Service', status: 'practicing' }
     ]
   },
   {
     name: 'Core',
     concepts: [
-      { name: 'Deployment', level: 2, dependencies: { requires: ['Pod', 'Service'], enables: [] } }
+      { name: 'Deployment', status: 'learning', dependencies: { requires: ['Pod', 'Service'], enables: [] } }
     ]
   }
 ];
@@ -171,27 +193,19 @@ const sectionsWithUnmetDeps = [
   {
     name: 'Foundation',
     concepts: [
-      { name: 'Pod', level: 5 },
-      { name: 'Service', level: 2 }
+      { name: 'Pod', status: 'mastered' },
+      { name: 'Service', status: 'learning' }
     ]
   },
   {
     name: 'Core',
     concepts: [
-      { name: 'Deployment', level: 2, dependencies: { requires: ['Pod', 'Service'], enables: [] } }
+      { name: 'Deployment', status: 'learning', dependencies: { requires: ['Pod', 'Service'], enables: [] } }
     ]
   }
 ];
 const deploymentUnmet = sectionsWithUnmetDeps[1].concepts[0];
 assert.strictEqual(checkPracticePrerequisites(deploymentUnmet, sectionsWithUnmetDeps), false);
 console.log('✓ Prerequisites check failed correctly\n');
-
-// Test 16: generateSessionStatus
-console.log('Test 16: generateSessionStatus');
-const message = generateSessionStatus(sections, 3);
-assert(message.includes('Welcome back'));
-assert(message.includes('Due for review'));
-assert(message.includes('Service'));
-console.log('✓ Session status generated correctly\n');
 
 console.log('All tests passed! ✓');

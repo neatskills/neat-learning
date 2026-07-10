@@ -2,7 +2,7 @@
 
 **Purpose:** Develop expert judgment - when rules break, tradeoffs, common mistakes
 
-**When to run:** After Practice (2+ exercises complete), user at Level 4+, final activity before mastery
+**When to run:** After Practice (2+ exercises complete, status `practicing`), final activity before mastery
 
 ## Expert Thinking: 3-Question Pattern
 
@@ -18,48 +18,45 @@ Ask 3 types, user must pass 2/3:
 
 **Pass 2/3 correctly:**
 
-- Concept → Level 5-7 (expert thinking)
-- Marked as "mastered" or "calibrated"
-- Ready for advanced topics or review schedule
+- Concept status → `mastered`
+- Review schedule starts (2-day initial interval)
+- Ready for advanced topics
 
 **Pass 0-1/3:**
 
-- Stay at Level 4
+- Status stays `practicing`
 - More calibration or return to Practice
 
 ## State Updates
 
-**Passed calibration (2/3+):**
+Record results with `recordCalibrate`, then save:
 
-```markdown
-#### Calibrate ✓
-date: 2026-06-27T00:00:00Z
-tradeoffs: {correct: 3, total: 3}
-expert_thinking:
-  - Knows when NOT to use Deployments (one-time tasks → Job)
-  - Understands Deployment vs StatefulSet vs Job contexts
-  - Identified common beginner mistakes (replicas=1)
+```javascript
+const { loadState, saveState } = require('./scripts/state-manager.js');
+const { recordCalibrate } = require('./scripts/activity-updater.js');
 
-Expert thinking demonstrated. Concept mastered.
+recordCalibrate(concept, correct, expertThinking);
+saveState(mapPath, data, content);
 ```
 
-**Failed calibration (0-1/3):**
+This writes `activity.calibrate`; on 2/3+ it sets status to `mastered` and starts
+the review schedule (`review_interval`, `last_activity`), otherwise status stays
+`practicing`:
 
-```markdown
-#### Calibrate →
-date: 2026-06-27T00:00:00Z
-tradeoffs: {correct: 1, total: 3}
-gaps:
-  - Couldn't identify when NOT to use concept
-  - Unclear on tradeoffs vs alternatives
-  
-Need more Practice or Calibrate attempts.
+```yaml
+calibrate:
+  date: '2026-06-27T00:00:00.000Z'
+  judgment:
+    correct: 3
+    total: 3
+  expert_thinking:
+    - Knows when NOT to use Deployments (one-time tasks need Job)
+    - Understands Deployment vs StatefulSet vs Job contexts
+    - Identified common beginner mistakes (replicas=1)
 ```
 
-**Level progression:**
-
-- Calibrate passed → Level 5-7 (can explain tradeoffs, teach others, design systems)
-- Calibrate failed → Stay at Level 4, retry after more practice
+On failure, record the gaps in `expert_thinking` as needs
+(e.g. `["Needs refinement: couldn't identify when NOT to use concept"]`).
 
 ## Domain-Specific Calibration
 

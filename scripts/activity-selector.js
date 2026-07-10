@@ -4,11 +4,11 @@
  * Activity selector - determines what activity should run next for a concept
  */
 
-const { elapsed, isMastered, toDays, MS_PER_DAY, flattenConcepts } = require('./utils');
+const { elapsed, isMastered, MS_PER_DAY, flattenConcepts } = require('./utils');
 
 /**
  * Check if concept is due for review
- * @param {Object} concept - Concept with review_interval and last_activity
+ * @param {Object} concept - Concept with review_interval (seconds) and last_activity
  * @returns {Object} {isDue, isOverdue, daysUntilDue}
  */
 function checkReviewDue(concept) {
@@ -61,44 +61,26 @@ function getConceptsDueForReview(sections) {
 
 /**
  * Determine next activity for a concept
- * @param {Object} concept - Concept object with level and activity status
- * @returns {string} Next activity name: 'plan', 'learn', 'synthesize', 'practice', 'calibrate', 'review', 'done'
+ *
+ * Based on which activities are already recorded. The coach may override
+ * this (e.g. repeat Learn when readiness gates fail - see
+ * references/activities/learn.md).
+ *
+ * @param {Object} concept - Concept object with status and activity data
+ * @returns {string} Next activity name: 'learn', 'synthesize', 'practice', 'calibrate', 'review', 'done'
  */
 function getNextActivity(concept) {
-  const level = concept.level || 0;
-  const status = concept.activity?.status;
-
-  // Check if mastered and due for review
   if (isMastered(concept)) {
     const reviewStatus = checkReviewDue(concept);
-    if (reviewStatus.isDue) {
-      return 'review';
-    }
-    return 'done';
+    return reviewStatus.isDue ? 'review' : 'done';
   }
 
-  // Level 0: Not started or needs more learning
-  if (level === 0) {
-    return status === 'needs_more_learning' ? 'learn' : 'plan';
-  }
+  const activity = concept.activity || {};
 
-  // Level 1: Learn done, ready for Synthesize
-  if (level === 1 || status === 'ready_for_synthesize') {
-    return 'synthesize';
-  }
-
-  // Level 2-3: Practice
-  if (level === 2 || level === 3 || status === 'ready_for_practice' || status === 'needs_more_practice') {
-    return 'practice';
-  }
-
-  // Level 4: Calibrate
-  if (level === 4) {
-    return 'calibrate';
-  }
-
-  // Fallback
-  return 'learn';
+  if (!activity.learn) return 'learn';
+  if (!activity.synthesize) return 'synthesize';
+  if (!activity.practice) return 'practice';
+  return 'calibrate';
 }
 
 /**
@@ -144,7 +126,7 @@ function getNextConcept(sections, options = {}) {
  * Check if all prerequisites are met for Practice activity
  * @param {Object} concept - Current concept
  * @param {Array<Object>} sections - All sections (to look up dependencies)
- * @returns {boolean} True if all prerequisites at Level 3+
+ * @returns {boolean} True if all prerequisites are practicing or mastered
  */
 function checkPracticePrerequisites(concept, sections) {
   const requires = concept.dependencies?.requires;
@@ -157,49 +139,12 @@ function checkPracticePrerequisites(concept, sections) {
   // Check each prerequisite
   for (const reqName of requires) {
     const prereq = allConcepts.find(c => c.name === reqName);
-    if (!prereq || (prereq.level || 0) < 3) {
-      return false; // Prerequisite not found or below Level 3
+    if (!prereq || !['practicing', 'mastered'].includes(prereq.status)) {
+      return false; // Prerequisite not found or not yet practiced
     }
   }
 
   return true;
-}
-
-/**
- * Generate session status message
- * @param {Array<Object>} sections - All sections from state
- * @param {number} daysSinceLastSession - Days since last session
- * @returns {string} Status message for user
- */
-function generateSessionStatus(sections, daysSinceLastSession) {
-  const dueReviews = getConceptsDueForReview(sections);
-  const next = getNextConcept(sections, { skipReviews: true });
-
-  let message = `Welcome back! Last session: ${daysSinceLastSession} days ago\n\n`;
-
-  if (dueReviews.length > 0) {
-    message += `📌 Due for review (${dueReviews.length} concept${dueReviews.length > 1 ? 's' : ''}):\n`;
-    dueReviews.slice(0, 3).forEach(concept => {
-      const daysOverdue = toDays(concept.elapsedMs) - Math.floor(concept.review_interval / 86400);
-      const overdueText = concept.isOverdue ? `, overdue ${daysOverdue} days` : ', due now';
-      message += `- ${concept.name} (mastered${overdueText})\n`;
-    });
-
-    if (dueReviews.length > 3) {
-      message += `- ... and ${dueReviews.length - 3} more\n`;
-    }
-
-    message += '\nWant to review before continuing? [y/n/menu]';
-  } else if (next) {
-    message += `No reviews due. Ready to continue with:\n`;
-    message += `${next.section}: ${next.concept.name} (${next.activity})\n\n`;
-    message += 'Continue? [y/menu]';
-  } else {
-    message += 'All concepts mastered, no reviews due!\n';
-    message += 'You can add more concepts or end the session.';
-  }
-
-  return message;
 }
 
 module.exports = {
@@ -207,12 +152,11 @@ module.exports = {
   getConceptsDueForReview,
   getNextActivity,
   getNextConcept,
-  checkPracticePrerequisites,
-  generateSessionStatus
+  checkPracticePrerequisites
 };
 
 // CLI usage
 if (require.main === module) {
   console.log('Activity selector functions loaded');
-  console.log('Import and use: checkReviewDue, getConceptsDueForReview, getNextActivity, getNextConcept, checkPracticePrerequisites, generateSessionStatus');
+  console.log('Import and use: checkReviewDue, getConceptsDueForReview, getNextActivity, getNextConcept, checkPracticePrerequisites');
 }

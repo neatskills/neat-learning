@@ -14,8 +14,7 @@ function createNewMap(topic, goal, domain) {
     total_sessions: 0,
     progress: {
       mastered: 0,
-      total: 0,
-      overall_level: 0
+      total: 0
     },
     sections: []
   };
@@ -24,7 +23,7 @@ function createNewMap(topic, goal, domain) {
 
 **Goal:** ${goal}
 **Domain:** ${domain}
-**Progress:** 0/0 concepts mastered | Level 0 overall
+**Progress:** 0/0 concepts mastered
 **Started:** ${timestamp}
 **Last session:** ${timestamp}
 **Total sessions:** 0
