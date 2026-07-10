@@ -84,7 +84,7 @@ Learn by thinking before AI explains.
 6. **Generate map** - Use your knowledge to design learning path:
 
    ```javascript
-   const { initMap } = require('/Users/ji.li/.claude/skills/neat-learning/scripts/init-map.js');
+   const { initMap } = require('./scripts/init-map.js');
    const mapData = {
      sections: [
        {

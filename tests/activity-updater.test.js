@@ -8,7 +8,7 @@ const {
   recordCalibrate,
   updateReviewInterval,
   calculateProgress
-} = require('./activity-updater');
+} = require('../scripts/activity-updater');
 
 console.log('Testing activity-updater.js...\n');
 
@@ -27,7 +27,7 @@ console.log('Test 2: recordLearn - weak performance');
 concept = { level: 0 };
 concept = recordLearn(concept, 2, 5, 3, ['confused Pod vs Container'], []);
 assert.strictEqual(concept.level, 0, 'Level should stay 0 after weak learn');
-assert.strictEqual(concept.activity.status, 'needs_more_learny');
+assert.strictEqual(concept.activity.status, 'needs_more_learning');
 assert.strictEqual(concept.activity.learn.signals.confusion.length, 1);
 console.log('✓ Weak learn performance recorded correctly\n');
 

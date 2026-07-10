@@ -8,7 +8,7 @@ const {
   getNextConcept,
   checkPracticePrerequisites,
   generateSessionStatus
-} = require('./activity-selector');
+} = require('../scripts/activity-selector');
 
 console.log('Testing activity-selector.js...\n');
 
@@ -157,7 +157,7 @@ const sectionsWithDeps = [
   {
     name: 'Core',
     concepts: [
-      { name: 'Deployment', level: 2, requires: ['Pod', 'Service'] }
+      { name: 'Deployment', level: 2, dependencies: { requires: ['Pod', 'Service'], enables: [] } }
     ]
   }
 ];
@@ -178,7 +178,7 @@ const sectionsWithUnmetDeps = [
   {
     name: 'Core',
     concepts: [
-      { name: 'Deployment', level: 2, requires: ['Pod', 'Service'] }
+      { name: 'Deployment', level: 2, dependencies: { requires: ['Pod', 'Service'], enables: [] } }
     ]
   }
 ];

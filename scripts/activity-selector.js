@@ -147,14 +147,15 @@ function getNextConcept(sections, options = {}) {
  * @returns {boolean} True if all prerequisites at Level 3+
  */
 function checkPracticePrerequisites(concept, sections) {
-  if (!concept.requires || concept.requires.length === 0) {
+  const requires = concept.dependencies?.requires;
+  if (!requires || requires.length === 0) {
     return true; // No prerequisites
   }
 
   const allConcepts = flattenConcepts(sections);
 
   // Check each prerequisite
-  for (const reqName of concept.requires) {
+  for (const reqName of requires) {
     const prereq = allConcepts.find(c => c.name === reqName);
     if (!prereq || (prereq.level || 0) < 3) {
       return false; // Prerequisite not found or below Level 3

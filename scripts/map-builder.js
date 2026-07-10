@@ -39,7 +39,7 @@ function buildGenericMap(topic, goal, domain) {
           {
             name: `${topic} Practice`,
             description: `Practical application of ${topic}`,
-            dependencies: { requires: [`${topic.toLowerCase()}-basics`], enables: [] }
+            dependencies: { requires: [`${topic} Basics`], enables: [] }
           }
         ]
       }

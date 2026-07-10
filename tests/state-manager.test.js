@@ -1,4 +1,4 @@
-const { loadState, saveState, createNewMap } = require('./state-manager');
+const { loadState, saveState, createNewMap } = require('../scripts/state-manager');
 const fs = require('fs');
 const path = require('path');
 

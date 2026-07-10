@@ -8,7 +8,7 @@ const {
   generateArchive,
   compressSection,
   decompressConcept
-} = require('./compression');
+} = require('../scripts/compression');
 
 console.log('Testing compression.js...\n');
 
@@ -24,10 +24,10 @@ fs.mkdirSync(testDir, { recursive: true });
 console.log('Test 1: shouldOfferCompression - not enough mastered');
 let sections = [
   {
-    synthesize: 'Foundation',
+    name: 'Foundation',
     concepts: [
-      { synthesize: 'Pod', level: 6, last_activity: '2026-06-01T00:00:00Z' },
-      { synthesize: 'Service', level: 5, last_activity: '2026-06-05T00:00:00Z' }
+      { name: 'Pod', level: 6, last_activity: '2026-06-01T00:00:00Z' },
+      { name: 'Service', level: 5, last_activity: '2026-06-05T00:00:00Z' }
     ]
   }
 ];
@@ -41,9 +41,9 @@ console.log('Test 2: shouldOfferCompression - should offer');
 const thirtyOneDaysAgo = new Date(Date.now() - 31 * 86400000).toISOString();
 sections = [
   {
-    synthesize: 'Foundation',
+    name: 'Foundation',
     concepts: Array.from({ length: 10 }, (_, i) => ({
-      synthesize: `Concept${i}`,
+      name: `Concept${i}`,
       level: 6,
       activity: { calibrate: { date: thirtyOneDaysAgo } }
     }))
@@ -59,7 +59,7 @@ console.log('✓ Correctly offers compression (10 mastered, 30+ days)\n');
 console.log('Test 3: generateArchive');
 const concepts = [
   {
-    synthesize: 'Pod',
+    name: 'Pod',
     level: 6,
     review_interval: 345600,
     last_activity: '2026-06-27T00:00:00Z',
@@ -79,7 +79,7 @@ const concepts = [
         date: '2026-06-20T11:00:00Z',
         independence: true,
         exercises: [
-          { synthesize: 'Write Pod manifest', status: 'complete', errors: 0 }
+          { name: 'Write Pod manifest', status: 'complete', errors: 0 }
         ]
       },
       calibrate: {
@@ -93,7 +93,7 @@ const concepts = [
 const archive = generateArchive('Foundation', concepts);
 assert(archive.includes('Foundation - Mastered Concepts Archive'));
 assert(archive.includes('### Pod'));
-assert(archive.includes('Discover ✓'));
+assert(archive.includes('Learn ✓'));
 assert(archive.includes('Synthesize ✓'));
 assert(archive.includes('Practice ✓'));
 assert(archive.includes('Calibrate ✓'));
@@ -102,10 +102,10 @@ console.log('✓ Archive generated with full history\n');
 // Test 4: compressSection
 console.log('Test 4: compressSection');
 const section = {
-  synthesize: 'Foundation',
+  name: 'Foundation',
   concepts: [
     {
-      synthesize: 'Pod',
+      name: 'Pod',
       level: 6,
       review_interval: 345600,
       last_activity: '2026-06-27T00:00:00Z',
@@ -118,7 +118,7 @@ const section = {
       }
     },
     {
-      synthesize: 'Service',
+      name: 'Service',
       level: 2 // Not mastered
     }
   ]

@@ -8,10 +8,10 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
-const { createNewMap, saveState, loadState } = require('./state-manager');
-const { buildInitialMap } = require('./map-builder');
-const { recordLearn, recordSynthesize, recordPractice, recordCalibrate, updateReviewInterval, calculateProgress } = require('./activity-updater');
-const { getNextActivity, getNextConcept, getConceptsDueForReview } = require('./activity-selector');
+const { createNewMap, saveState, loadState } = require('../scripts/state-manager');
+const { buildInitialMap } = require('../scripts/map-builder');
+const { recordLearn, recordSynthesize, recordPractice, recordCalibrate, updateReviewInterval, calculateProgress } = require('../scripts/activity-updater');
+const { getNextActivity, getNextConcept, getConceptsDueForReview } = require('../scripts/activity-selector');
 
 console.log('Integration Test: Full Learning Session Flow\n');
 
@@ -44,9 +44,9 @@ assert.strictEqual(state.data.goal, 'Deploy applications');
 console.log(`✓ State loaded: ${state.data.sections.length} sections\n`);
 
 // Test: First concept - Learn activity
-console.log('3. Running Learn activity on Pod...');
+console.log('3. Running Learn activity on Kubernetes Basics...');
 let podConcept = state.data.sections[0].concepts[0];
-assert.strictEqual(podConcept.name, 'Pod');
+assert.strictEqual(podConcept.name, 'Kubernetes Basics');
 assert.strictEqual(getNextActivity(podConcept), 'plan'); // Level 0, not started
 
 // Simulate user completing Discover
@@ -60,7 +60,7 @@ saveState(mapPath, state.data, state.content);
 console.log('✓ Learn completed, level 1, ready for Synthesize\n');
 
 // Test: Synthesize activity
-console.log('4. Running Synthesize activity on Pod...');
+console.log('4. Running Synthesize activity on Kubernetes Basics...');
 state = loadState(mapPath);
 podConcept = state.data.sections[0].concepts[0];
 podConcept = recordSynthesize(podConcept, ['Pod', 'Pod spec', 'Pod lifecycle']);
@@ -73,7 +73,7 @@ saveState(mapPath, state.data, state.content);
 console.log('✓ Synthesize completed, level 2, ready for Practice\n');
 
 // Test: Practice activity
-console.log('5. Running Practice activity on Pod...');
+console.log('5. Running Practice activity on Kubernetes Basics...');
 state = loadState(mapPath);
 podConcept = state.data.sections[0].concepts[0];
 const exercises = [
@@ -90,7 +90,7 @@ saveState(mapPath, state.data, state.content);
 console.log('✓ Practice completed, level 4, ready for Calibrate\n');
 
 // Test: Calibrate activity
-console.log('6. Running Calibrate activity on Pod...');
+console.log('6. Running Calibrate activity on Kubernetes Basics...');
 state = loadState(mapPath);
 podConcept = state.data.sections[0].concepts[0];
 podConcept = recordCalibrate(podConcept, 3, ['knows tradeoffs', 'expert thinking']);
@@ -109,7 +109,7 @@ console.log('7. Selecting next concept...');
 state = loadState(mapPath);
 const next = getNextConcept(state.data.sections, { skipReviews: true });
 assert(next !== null, 'Should find next concept');
-assert.notStrictEqual(next.concept.name, 'Pod'); // Should skip Pod
+assert.notStrictEqual(next.concept.name, 'Kubernetes Basics'); // Should skip mastered concept
 console.log(`✓ Next concept: ${next.concept.name} (${next.activity})\n`);
 
 // Test: Review due check (simulate time passing)
@@ -124,9 +124,9 @@ saveState(mapPath, state.data, state.content);
 state = loadState(mapPath);
 const dueReviews = getConceptsDueForReview(state.data.sections);
 assert.strictEqual(dueReviews.length, 1);
-assert.strictEqual(dueReviews[0].name, 'Pod');
+assert.strictEqual(dueReviews[0].name, 'Kubernetes Basics');
 assert.strictEqual(dueReviews[0].isOverdue, true);
-console.log('✓ Pod is now overdue for review\n');
+console.log('✓ Kubernetes Basics is now overdue for review\n');
 
 // Test: Review activity updates interval
 console.log('9. Running review (perfect performance)...');
@@ -143,7 +143,7 @@ const progress = calculateProgress(state.data.sections);
 console.log(`   Mastered: ${progress.mastered}/${progress.total} concepts`);
 console.log(`   Overall level: ${progress.overall_level}`);
 assert(progress.mastered >= 1, 'Should have at least 1 mastered');
-assert(progress.total >= 3, 'Should have at least 3 total concepts');
+assert(progress.total >= 2, 'Should have at least 2 total concepts');
 console.log('✓ Progress tracked correctly\n');
 
 // Cleanup

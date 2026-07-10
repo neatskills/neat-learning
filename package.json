@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "AI-guided discovery-based learning system",
   "scripts": {
-    "test": "node scripts/state-manager.test.js && node scripts/map-builder.test.js && node scripts/activity-updater.test.js && node scripts/activity-selector.test.js && node scripts/compression.test.js && node scripts/integration.test.js",
-    "test:integration": "node scripts/integration.test.js"
+    "test": "node tests/state-manager.test.js && node tests/map-builder.test.js && node tests/activity-updater.test.js && node tests/activity-selector.test.js && node tests/compression.test.js && node tests/integration.test.js",
+    "test:integration": "node tests/integration.test.js"
   },
   "keywords": [
     "learning",
