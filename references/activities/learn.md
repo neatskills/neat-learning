@@ -33,6 +33,27 @@ Ask predictive question → User predicts → Confirm or clarify →
 Track performance → Decide: next core / deeper / wider / stop
 ```text
 
+## Handling Pushback
+
+Users push back mid-question: "just tell me," "I don't have time for this," "can you skip to the answer?"
+Distinguish two cases before reacting - don't just answer to end the friction:
+
+**Impatient** (has the pieces, wants speed): don't give the answer. Give a sharper hint, narrow the
+question until it's nearly rhetorical, or state a parallel example and ask them to apply the same
+reasoning to the real one. Record it as a hint (`hints_needed` +1), not as an explanation given.
+
+**Genuinely stuck** (repeats the same wrong guess, goes silent, "I have no idea"): give one concrete
+piece to stand on - state the single fact or rule they're missing - then ask the next question
+building from it. Still a hint, not surrender: they complete the reasoning, not you.
+
+**Time-pressure test:** if a deadline or blocker was named up front, before any questions were asked,
+treat it as a real fire-and-forget request - answer directly, offer to run Learn properly later. If the
+time complaint only appears after questioning has started, treat it as impatience, not a constraint.
+
+**Never:** give the final answer just to stop the pushback. Let it show up honestly in the state instead -
+a question that took 3+ hints stays a question that took 3+ hints, and the readiness gates below already
+handle it (frequent hints keeps the concept in Learn rather than advancing to Synthesize).
+
 ## Performance Tracking
 
 | Signal | What to Track | Example |
