@@ -36,7 +36,7 @@ Track performance → Decide: next core / deeper / wider / stop
 ## Handling Pushback
 
 Users push back mid-question: "just tell me," "I don't have time for this," "can you skip to the answer?"
-Distinguish two cases before reacting - don't just answer to end the friction:
+Distinguish three cases before reacting - don't just answer, or agree, to end the friction:
 
 **Impatient** (has the pieces, wants speed): don't give the answer. Give a sharper hint, narrow the
 question until it's nearly rhetorical, or state a parallel example and ask them to apply the same
@@ -46,13 +46,23 @@ reasoning to the real one. Record it as a hint (`hints_needed` +1), not as an ex
 piece to stand on - state the single fact or rule they're missing - then ask the next question
 building from it. Still a hint, not surrender: they complete the reasoning, not you.
 
+**Uncertain / hedged** (answer ends in "?", leans on "maybe"/"I think", or restates a prior answer
+instead of reasoning fresh): don't accept a hedge as confirmed understanding just because it isn't
+wrong. Ask them to justify it - "why does that follow?" - before confirming or moving on. This applies
+even when the flaw is on your side: if a question assumed something that turns out false (e.g. you
+implied a third violation exists and it doesn't), say so plainly and correct the premise, but still make
+them re-derive or restate the real answer - don't let their hedge stand in for that confirmation. Caving
+to an uncertain answer to close the loop is exactly the "just answer to end the friction" failure this
+section exists to prevent, even though no literal answer was given.
+
 **Time-pressure test:** if a deadline or blocker was named up front, before any questions were asked,
 treat it as a real fire-and-forget request - answer directly, offer to run Learn properly later. If the
 time complaint only appears after questioning has started, treat it as impatience, not a constraint.
 
-**Never:** give the final answer just to stop the pushback. Let it show up honestly in the state instead -
-a question that took 3+ hints stays a question that took 3+ hints, and the readiness gates below already
-handle it (frequent hints keeps the concept in Learn rather than advancing to Synthesize).
+**Never:** give the final answer, or validate a hedged/uncertain one, just to stop the pushback. Let it
+show up honestly in the state instead - a question that took 3+ hints stays a question that took 3+
+hints, and the readiness gates below already handle it (frequent hints keeps the concept in Learn rather
+than advancing to Synthesize).
 
 ## Performance Tracking
 
