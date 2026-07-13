@@ -208,4 +208,24 @@ const deploymentUnmet = sectionsWithUnmetDeps[1].concepts[0];
 assert.strictEqual(checkPracticePrerequisites(deploymentUnmet, sectionsWithUnmetDeps), false);
 console.log('✓ Prerequisites check failed correctly\n');
 
+// Test 16: checkPracticePrerequisites - slug dependencies (bug fix)
+console.log('Test 16: checkPracticePrerequisites - slug dependencies');
+const sectionsWithSlugDeps = [
+  {
+    name: 'Foundation',
+    concepts: [
+      { name: 'MCP Protocol', status: 'mastered' }
+    ]
+  },
+  {
+    name: 'Core',
+    concepts: [
+      { name: 'Resources', status: 'learning', dependencies: { requires: ['mcp-protocol'], enables: [] } }
+    ]
+  }
+];
+const resources = sectionsWithSlugDeps[1].concepts[0];
+assert.strictEqual(checkPracticePrerequisites(resources, sectionsWithSlugDeps), true);
+console.log('✓ Slug dependencies matched correctly\n');
+
 console.log('All tests passed! ✓');

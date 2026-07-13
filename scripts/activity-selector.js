@@ -123,6 +123,15 @@ function getNextConcept(sections, options = {}) {
 }
 
 /**
+ * Convert concept name to slug format
+ * @param {string} name - Concept name
+ * @returns {string} Slug (lowercase, alphanumeric + hyphens)
+ */
+function toSlug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+/**
  * Check if all prerequisites are met for Practice activity
  * @param {Object} concept - Current concept
  * @param {Array<Object>} sections - All sections (to look up dependencies)
@@ -136,9 +145,17 @@ function checkPracticePrerequisites(concept, sections) {
 
   const allConcepts = flattenConcepts(sections);
 
-  // Check each prerequisite
+  // Check each prerequisite (supports both name and slug formats)
   for (const reqName of requires) {
-    const prereq = allConcepts.find(c => c.name === reqName);
+    // Try exact name match first
+    let prereq = allConcepts.find(c => c.name === reqName);
+
+    // If not found, try slug match
+    if (!prereq) {
+      const reqSlug = toSlug(reqName);
+      prereq = allConcepts.find(c => toSlug(c.name) === reqSlug);
+    }
+
     if (!prereq || !['practicing', 'mastered'].includes(prereq.status)) {
       return false; // Prerequisite not found or not yet practiced
     }
