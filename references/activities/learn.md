@@ -99,6 +99,32 @@ show up honestly in the state instead - a question that took 3+ hints stays a qu
 hints, and the readiness gates below already handle it (frequent hints keeps the concept in Learn rather
 than advancing to Synthesize).
 
+## Hint Budget and Re-ask
+
+**Max hints per question by type:**
+
+| Question type | Max hints | Then |
+|---------------|-----------|------|
+| Options (recognition) | 1 | Narrow to near-rhetorical |
+| Open / core | 1 | Narrow to near-rhetorical |
+| Open / depth or breadth | 2 | Narrow to near-rhetorical |
+
+**At threshold:** Never state the full answer. Instead, collapse the question to near-rhetorical — a
+fill-in-the-blank, a binary choice, or the answer with one word missing. Record hints in state, move
+to the next question.
+
+Example: "The container doesn't restart because the restart policy is set to ___."
+
+**End-of-session re-ask:** After all questions complete, re-ask any that hit the threshold — one fresh
+question per concept, different framing, same difficulty. One shot, no hints.
+
+- *"Let's try this from a different angle — one shot:"*
+- Correct → understanding confirmed, record reduced hints penalty
+- Wrong → state the answer directly, move on. No further attempts.
+
+The re-ask terminates cleanly either way. If they cannot answer even a fresh question, the concept
+hasn't landed — spaced repetition will bring it back sooner via high `hints_needed`.
+
 ## Performance Tracking
 
 | Signal | What to Track | Example |
