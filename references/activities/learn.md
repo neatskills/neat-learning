@@ -8,6 +8,41 @@
 2. Review session (test retention - fixed 5 questions, see `references/spaced-repetition.md`)
 3. User shows confusion in Practice (clarify)
 
+## Concept Overview
+
+**Always open with a brief orientation before the first question:**
+
+1. **Orient** (2-3 sentences): what this concept is, why it matters for the learner's goal, one concrete anchor — analogy, example, or image
+2. **First question:** always options (recognition, low-stakes) — gives the learner a foothold when they have no prior context
+
+**Template:**
+```
+[What this concept is]. [Why it matters for their goal]. [Concrete anchor].
+
+Which of these best describes [concept]?
+[a] ...
+[b] ...
+[c] ...
+```
+
+**Example (Pod, goal: deploy applications):**
+> A Pod is the smallest deployable unit in Kubernetes — a wrapper around one or more containers that share network and storage. For deploying applications, Pods are what Kubernetes actually schedules and runs.
+>
+> Which of these best describes a Pod?
+> [a] A container image stored in a registry
+> [b] A wrapper around one or more containers that share network and storage
+> [c] A virtual machine managed by Kubernetes
+
+**Adaptive escalation after each answer:**
+
+| Response | Next step |
+|----------|-----------|
+| Correct + confident | Escalate: harder options, then open question |
+| Correct + uncertain / hedged | Probe: ask them to justify before moving on |
+| Wrong | Give one insight, ask a related question at the same level |
+
+**Learner agency:** If the learner asks for "a hint" or "give me options" at any point, honor it immediately — it is part of the design, not an interruption.
+
 ## Tree-Based Question Strategy
 
 **Core principle:** User thinks and predicts BEFORE AI explains
@@ -134,7 +169,8 @@ For weak understanding, record confusion patterns as strings, e.g.
 
 | Mistake | Fix |
 | --------- | ----- |
-| Explaining before asking | Always ask predictive question first |
+| Skipping the concept overview | Always orient before asking — zero-context learners cannot predict anything meaningfully |
+| Starting with an open question | First question is always options (recognition) — escalate only after the learner has a foothold |
 | Yes/no questions only | Use open-ended, scenario-based questions |
 | Not tracking performance | Record every answer for state updates |
 | Moving on too quickly | Need 4/5+ correct before Synthesize |

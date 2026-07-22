@@ -152,7 +152,7 @@ Learn by thinking before AI explains.
 
    Topic slug: lowercase-hyphens
 
-9. **Display and begin** - Show sections/concepts, begin Learn on first concept
+9. **Display and begin** - Show sections/concepts. Add one line: *"If you ever get stuck or want options to choose from, just say so."* Begin Learn on first concept.
 
 ### Returning Session: Load and Review
 
@@ -505,7 +505,15 @@ User: "Deploy applications"
 AI: "This looks like a technical topic. [y/n]"
 User: "y"
 AI: [Shows map with Foundation/Core sections]
-    "Let's start with Pod. If a container crashes, what should Kubernetes do?"
+    "If you ever get stuck or want options to choose from, just say so."
+    "Let's start with Pod."
+    "A Pod is the smallest deployable unit in Kubernetes — a wrapper around
+     one or more containers that share network and storage. For deploying
+     applications, Pods are what Kubernetes actually schedules and runs."
+    "Which of these best describes a Pod?
+     [a] A container image stored in a registry
+     [b] A wrapper around one or more containers that share network and storage
+     [c] A virtual machine managed by Kubernetes"
 ```
 
 **Returning learner:**
