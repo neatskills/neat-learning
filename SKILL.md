@@ -94,6 +94,19 @@ Learn by thinking before AI explains.
    - "Understand negotiation" → "Negotiate salary offers"
    - "Review code and interview prep" → Split into 2 goals
 
+   **Exam-mode detection:** Check the confirmed goal for exam/cert keywords
+   ("pass", "certification", "cert", "exam") or a known certification name.
+
+   **REQUIRED:** Read `references/exam-mode.md` before confirming exam-mode -
+   it has the full keyword list, blueprint research process, and pretest format;
+   the summary below only covers the trigger.
+
+   On a match, confirm: "This looks like exam/certification prep. I can research
+   the official exam blueprint (domains, weighting, format) and calibrate your
+   learning around it. Want me to? [y/n]"
+
+   Declined or no match → continue as normal, skip all exam-mode steps below.
+
 5. **Detect compound goals** - Split if contains "and"/"or"/"/"
 
    - "Review AI code **and** prepare for interviews" → 2 goals
@@ -151,6 +164,22 @@ Learn by thinking before AI explains.
      - `enables`: Array of concept names this concept unlocks
 
    Topic slug: lowercase-hyphens
+
+   **Exam-mode: Blueprint research and pretest** - if exam-mode was confirmed in
+   step 4, run before building `mapData`:
+
+   **REQUIRED:** Read `references/exam-mode.md` - it has the full three-tier
+   research fallback, the `exam_blueprint` schema, the exam-domain section-naming
+   rule, and the pretest format; do not improvise any of these from the summary
+   below.
+
+   - Research the exam's public blueprint (web search → AI knowledge → generic
+     fallback). Name sections after the exam's own domains instead of
+     Foundation/Core/Advanced, and pass the result as the `examBlueprint`
+     argument: `initMap(topic, goal, domain, mapData, examBlueprint)`.
+   - Offer the pretest ("Want a quick diagnostic to see where you're starting
+     from? [y/n]"). If accepted, run the sampled quiz and show the one-time
+     level summary. This never changes concept status or skips activities.
 
 9. **Display and begin** - Show sections/concepts. Add one line: *"If you ever get stuck or want options to choose from, just say so."* Begin Learn on first concept.
 
@@ -255,7 +284,10 @@ Learn by thinking before AI explains.
 **Handle choice:**
 
 - [a] Load selected goal
-- [b] Add goal, generate priorities, create goal filter, ask which to work on
+- [b] Add goal, generate priorities, create goal filter, ask which to work on -
+  run **Exam-mode detection** (see step 4 above) on the new goal text; if
+  confirmed, see `references/exam-mode.md` for the existing-map research +
+  priority-concept flow (sections are never renamed once a map exists)
 - [c] Archive existing, replace with new
 
 ### Goal Filters: Strategy C
@@ -493,6 +525,7 @@ learning_stats:
 | Hand-editing state fields | Record results via `scripts/activity-updater.js` (intervals, dates, status) |
 | Skipping topic normalization | Duplicates maps - normalize before checking for existing maps |
 | Storing `review_interval` in ms | Intervals are seconds (`172800` = 2 days) |
+| Treating the exam pretest as a placement test | It's informational only - never seed concept status or skip activities from it (see `references/exam-mode.md`) |
 
 ## Usage Examples
 
