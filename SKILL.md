@@ -178,8 +178,9 @@ Learn by thinking before AI explains.
      Foundation/Core/Advanced, and pass the result as the `examBlueprint`
      argument: `initMap(topic, goal, domain, mapData, examBlueprint)`.
    - Offer the pretest ("Want a quick diagnostic to see where you're starting
-     from? [y/n]"). If accepted, run the sampled quiz and show the one-time
-     level summary. This never changes concept status or skips activities.
+     from? [y/n]"). If accepted, show the per-domain plan for confirmation, then
+     ask questions one at a time and show the one-time level summary. This never
+     changes concept status or skips activities.
 
 9. **Display and begin** - Show sections/concepts. Add one line: *"If you ever get stuck or want options to choose from, just say so."* Begin Learn on first concept.
 
@@ -290,7 +291,9 @@ Learn by thinking before AI explains.
   which produces the exam-weighted concepts to prioritize. Then generate
   priorities (exam-weighted concepts first if exam-mode confirmed, otherwise
   the normal priority logic), create goal filter with those as
-  `priorityConcepts`, ask which goal to work on
+  `priorityConcepts`. If exam-mode was confirmed, offer the pretest per
+  `references/exam-mode.md` (check `pretest_offered` first — skip if already
+  set). Ask which goal to work on
 - [c] Archive existing, replace with new
 
 ### Goal Filters: Strategy C
@@ -529,6 +532,7 @@ learning_stats:
 | Skipping topic normalization | Duplicates maps - normalize before checking for existing maps |
 | Storing `review_interval` in ms | Intervals are seconds (`172800` = 2 days) |
 | Treating the exam pretest as a placement test | It's informational only - never seed concept status or skip activities from it (see `references/exam-mode.md`) |
+| Missing the mock test trigger | After every Calibrate, check if mastered ≥ 80% of concepts — offer the mock test on first crossing (see `references/exam-mode.md`) |
 
 ## Usage Examples
 
