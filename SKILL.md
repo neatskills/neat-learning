@@ -195,14 +195,7 @@ Learn by thinking before AI explains.
    **REQUIRED:** Read `references/state-format.md` before reading or writing map files -
    it defines the frontmatter structure and field types.
 
-2. **Exam-mode check (returning sessions)** - if the active goal matches exam/cert
-   keywords (see `references/exam-mode.md` Detection) and `data.exam_blueprint` is
-   NOT already set, run exam-mode detection now (same confirmation question as
-   step 4 of First Session). This only fires once per map - once confirmed,
-   `exam_blueprint` gets stored and this check is a no-op on future returns.
-   If `exam_blueprint` is already present, or the goal doesn't match, skip silently.
-
-3. **Calculate learning stats**:
+2. **Calculate learning stats**:
 
    ```javascript
    const { calculateStats } = require('./scripts/calculate-learning-stats.js');
@@ -210,7 +203,7 @@ Learn by thinking before AI explains.
    // Returns: avg_hours_per_concept, estimated_days_remaining, etc.
    ```
 
-4. **Calculate reviews**:
+3. **Calculate reviews**:
 
    ```javascript
    const { getConceptsDueForReview } = require('./scripts/activity-selector.js');
@@ -218,13 +211,13 @@ Learn by thinking before AI explains.
    // Returns due concepts sorted most-overdue first, with isOverdue flags
    ```
 
-5. **Check compression** - if 10+ concepts mastered and 30+ days since first mastery,
+4. **Check compression** - if 10+ concepts mastered and 30+ days since first mastery,
    offer to archive mastered concepts:
 
    **REQUIRED:** Read `references/compression-checkpoints.md` before offering compression -
    it defines the trigger, what gets archived, and the `scripts/compression.js` workflow.
 
-6. **Present status** - Show focused overview:
+5. **Present status** - Show focused overview:
 
    ```text
    [Topic] Learning: [Goal in one line]

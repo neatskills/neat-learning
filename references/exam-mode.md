@@ -75,7 +75,7 @@ Applies when exam-mode is confirmed for a topic with **no existing map**.
 
 ## Existing Map Case
 
-Applies when the exam goal lands on a topic that **already has a map** - adding exam-mode as a second goal (SKILL.md "Goal Change: Multiple Goals," option b), or returning to a map whose active goal is exam-oriented.
+Applies when the exam goal lands on a topic that **already has a map** - adding exam-mode as a second goal (SKILL.md "Goal Change: Multiple Goals," option b).
 
 - Blueprint research (above) still runs, and `exam_blueprint` is still stored on the existing map's frontmatter (load with `loadState`, set `data.exam_blueprint`, save with `saveState` - do not call `initMap` again, it would reset the map).
 - Do **not** rename or restructure existing sections - the map is shared across goals (Strategy C in SKILL.md), and restructuring would disrupt concepts/progress tied to other goals.
