@@ -195,7 +195,14 @@ Learn by thinking before AI explains.
    **REQUIRED:** Read `references/state-format.md` before reading or writing map files -
    it defines the frontmatter structure and field types.
 
-2. **Calculate learning stats**:
+2. **Exam-mode check (returning sessions)** - if the active goal matches exam/cert
+   keywords (see `references/exam-mode.md` Detection) and `data.exam_blueprint` is
+   NOT already set, run exam-mode detection now (same confirmation question as
+   step 4 of First Session). This only fires once per map - once confirmed,
+   `exam_blueprint` gets stored and this check is a no-op on future returns.
+   If `exam_blueprint` is already present, or the goal doesn't match, skip silently.
+
+3. **Calculate learning stats**:
 
    ```javascript
    const { calculateStats } = require('./scripts/calculate-learning-stats.js');
@@ -203,7 +210,7 @@ Learn by thinking before AI explains.
    // Returns: avg_hours_per_concept, estimated_days_remaining, etc.
    ```
 
-3. **Calculate reviews**:
+4. **Calculate reviews**:
 
    ```javascript
    const { getConceptsDueForReview } = require('./scripts/activity-selector.js');
@@ -211,13 +218,13 @@ Learn by thinking before AI explains.
    // Returns due concepts sorted most-overdue first, with isOverdue flags
    ```
 
-4. **Check compression** - if 10+ concepts mastered and 30+ days since first mastery,
+5. **Check compression** - if 10+ concepts mastered and 30+ days since first mastery,
    offer to archive mastered concepts:
 
    **REQUIRED:** Read `references/compression-checkpoints.md` before offering compression -
    it defines the trigger, what gets archived, and the `scripts/compression.js` workflow.
 
-5. **Present status** - Show focused overview:
+6. **Present status** - Show focused overview:
 
    ```text
    [Topic] Learning: [Goal in one line]
@@ -284,10 +291,13 @@ Learn by thinking before AI explains.
 **Handle choice:**
 
 - [a] Load selected goal
-- [b] Add goal, generate priorities, create goal filter, ask which to work on -
-  run **Exam-mode detection** (see step 4 above) on the new goal text; if
-  confirmed, see `references/exam-mode.md` for the existing-map research +
-  priority-concept flow (sections are never renamed once a map exists)
+- [b] Add goal - run **Exam-mode detection** (see step 4 above) on the new
+  goal text first; if confirmed, see `references/exam-mode.md` for the
+  existing-map research flow (sections are never renamed once a map exists),
+  which produces the exam-weighted concepts to prioritize. Then generate
+  priorities (exam-weighted concepts first if exam-mode confirmed, otherwise
+  the normal priority logic), create goal filter with those as
+  `priorityConcepts`, ask which goal to work on
 - [c] Archive existing, replace with new
 
 ### Goal Filters: Strategy C

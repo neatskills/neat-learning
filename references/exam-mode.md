@@ -70,7 +70,7 @@ const { mapPath } = initMap(topic, goal, domain, mapData, examBlueprint);
 Applies when exam-mode is confirmed for a topic with **no existing map**.
 
 - Name sections after the exam's own domains (e.g. "Cluster Architecture (25%)," "Workloads (15%)") instead of Foundation/Core/Advanced.
-- Order concepts by dependencies first, exactly as the normal flow (see `references/concept-granularity.md`) - a concept never appears before its `requires`. Exam domain weight is only a **secondary** sort key: among concepts with equally-satisfied prerequisite depth, list higher-weighted-domain concepts first.
+- Order concepts by dependencies first, exactly as the normal flow (a concept never appears before its `requires`, consistent with `enables` on the concepts it unlocks). Exam domain weight is only a **secondary** sort key: among concepts with equally-satisfied prerequisite depth, list higher-weighted-domain concepts first.
 - Pass the researched blueprint as `examBlueprint` to `initMap()` alongside the exam-domain `mapData.sections`.
 
 ## Existing Map Case
