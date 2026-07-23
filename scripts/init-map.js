@@ -6,7 +6,8 @@
  * Usage as library (recommended - AI generates map structure):
  *   const { initMap } = require('./scripts/init-map');
  *   const mapData = { sections: [...] };  // AI generates this
- *   const { mapPath } = initMap(topic, goal, domain, mapData);
+ *   const { mapPath } = initMap(topic, goal, domain, mapData, examBlueprint);
+ *   // examBlueprint is optional - only exam-mode maps pass it (see references/exam-mode.md)
  *
  * Usage as CLI (fallback - uses generic structure):
  *   node scripts/init-map.js "Topic Name" "goal description" "domain"
@@ -17,7 +18,7 @@ const { buildInitialMap } = require('./map-builder');
 const { createGoalFilter } = require('./goal-manager');
 const path = require('node:path');
 
-function initMap(topic, goal, domain, mapData = null) {
+function initMap(topic, goal, domain, mapData = null, examBlueprint = null) {
   // Create slug from topic
   const slug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const mapPath = path.join(__dirname, '..', 'docs', 'neat_learning', slug, 'map.md');
@@ -34,6 +35,11 @@ function initMap(topic, goal, domain, mapData = null) {
     }
   ];
   data.active_goal = goal;
+
+  // Step 1c: Attach exam blueprint metadata when provided (exam-mode maps only)
+  if (examBlueprint) {
+    data.exam_blueprint = examBlueprint;
+  }
 
   // Step 2: Build concept map (use provided mapData or generate generic)
   if (!mapData) {
