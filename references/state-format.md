@@ -30,6 +30,18 @@ goals:
     created: '2026-06-26T00:00:00.000Z'
     last_active: '2026-06-27T00:00:00.000Z'
 active_goal: Deploy applications
+exam_blueprint: # optional - only present on exam-mode maps, see references/exam-mode.md
+  source: official # or ai-estimated
+  source_url: 'https://kubernetes.io/docs/...' # omitted when source is ai-estimated
+  researched: '2026-06-27T00:00:00.000Z'
+  format:
+    question_count: 60
+    time_limit_minutes: 120
+    passing_score: 66
+    question_style: hands-on
+  domains:
+    - name: Cluster Architecture
+      weight_pct: 25
 sections:
   - name: Foundation
     description: Core building blocks
@@ -98,3 +110,4 @@ update the body when presenting, never parse state from it.
 - `last_activity`: ISO date of the latest activity or review - basis for review due calculation
 - `status`: Enum `[not-started, learning, practicing, mastered]` (see SKILL.md Concept Status Values)
 - `coverage`: Optional Learn field tracking which core/depth/breadth topics were covered
+- `exam_blueprint`: Optional - present only on exam-mode maps (see `references/exam-mode.md`). `source` is `official` or `ai-estimated`; `source_url` present only when `source: official`
