@@ -110,4 +110,5 @@ update the body when presenting, never parse state from it.
 - `last_activity`: ISO date of the latest activity or review - basis for review due calculation
 - `status`: Enum `[not-started, learning, practicing, mastered]` (see SKILL.md Concept Status Values)
 - `coverage`: Optional Learn field tracking which core/depth/breadth topics were covered
-- `exam_blueprint`: Optional - present only on exam-mode maps (see `references/exam-mode.md`). `source` is `official` or `ai-estimated`; `source_url` present only when `source: official`
+- `exam_blueprint`: Optional - present only on exam-mode maps (see `references/exam-mode.md`).
+  `source` is `official` or `ai-estimated`; `source_url` present only when `source: official`

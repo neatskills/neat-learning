@@ -1,8 +1,10 @@
 # Exam Mode
 
-**Purpose:** Calibrate learning maps to real exam/certification blueprints, offer an optional informational pretest at the start, and offer a full mock exam once sufficient mastery is reached.
+**Purpose:** Calibrate learning maps to real exam/certification blueprints, offer an optional
+informational pretest at the start, and offer a full mock exam once sufficient mastery is reached.
 
-**When to use:** After a goal is confirmed (first-session goal refinement, or a new goal added via the Goal Change flow) - BEFORE building or modifying the map.
+**When to use:** After a goal is confirmed (first-session goal refinement, or a new goal added via
+the Goal Change flow) - BEFORE building or modifying the map.
 
 ## Detection
 
@@ -13,21 +15,32 @@ Check the confirmed goal text for exam/cert keywords or known certification name
 
 On a match, confirm before acting:
 
-> "This looks like exam/certification prep. I can research the official exam blueprint (domains, weighting, format) and calibrate your learning around it. Want me to? [y/n]"
+> "This looks like exam/certification prep. I can research the official exam blueprint (domains,
+> weighting, format) and calibrate your learning around it. Want me to? [y/n]"
 
 Declined or no match -> proceed with the normal (non-exam) flow. Nothing below applies.
 
 ## Research Scope Guardrail
 
-**In scope:** the exam's publicly published objectives/blueprint - domains, weight percentages, format, question count, time limit, passing score. Certifying bodies publish this themselves as study material (AWS exam guide PDFs, CompTIA objectives PDFs, PMI's ECO, Microsoft's "Skills measured" pages, CNCF's CKA curriculum, etc.).
+**In scope:** the exam's publicly published objectives/blueprint - domains, weight percentages, format, question count,
+time limit, passing score. Certifying bodies publish this themselves as study material (AWS exam guide PDFs, CompTIA
+objectives PDFs, PMI's ECO, Microsoft's "Skills measured" pages, CNCF's CKA curriculum, etc.).
 
-**Never in scope:** actual exam questions, braindumps, leaked content, or "real exam answers" sources - regardless of whether they're found or the user asks for them directly.
+**Never in scope:** actual exam questions, braindumps, leaked content, or "real exam answers"
+sources - regardless of whether they're found or the user asks for them directly.
 
 ## Blueprint Research (three-tier fallback)
 
-1. **Web research.** One `WebSearch`, phrased toward official material ("official exam guide," "certification objectives," "exam blueprint" - never "exam questions" or "practice test," which surfaces unofficial content). Add a `site:` filter to the certifying body's domain when it's identifiable (e.g. `site:aws.amazon.com`, `site:comptia.org`, `site:kubernetes.io`). Follow with one `WebFetch` on the top result, only if its domain plausibly belongs to the certifying body. Single search + single fetch - no retries, no follow-up searches.
+1. **Web research.** One `WebSearch`, phrased toward official material ("official exam guide,"
+   "certification objectives," "exam blueprint" - never "exam questions" or "practice test,"
+   which surfaces unofficial content). Add a `site:` filter to the certifying body's domain
+   when it's identifiable (e.g. `site:aws.amazon.com`, `site:comptia.org`, `site:kubernetes.io`).
+   Follow with one `WebFetch` on the top result, only if its domain plausibly belongs to the
+   certifying body. Single search + single fetch - no retries, no follow-up searches.
 
-2. **AI knowledge fallback.** If step 1 fails, times out, or is inconclusive (fetch fails, or no discernible domain/weight breakdown in the content), and the exam is one you recognize, construct an approximate blueprint from your own knowledge.
+2. **AI knowledge fallback.** If step 1 fails, times out, or is inconclusive (fetch fails, or no
+   discernible domain/weight breakdown in the content), and the exam is one you recognize,
+   construct an approximate blueprint from your own knowledge.
 
 3. **Generic fallback.** If neither produces a usable blueprint, tell the user:
 
@@ -35,7 +48,8 @@ Declined or no match -> proceed with the normal (non-exam) flow. Nothing below a
 
    Proceed with the standard Foundation/Core/Advanced map. No `exam_blueprint` data is stored.
 
-**Source attribution:** tier 1 results are `source: official` with a `source_url`. Tier 2 results are `source: ai-estimated`, no `source_url`.
+**Source attribution:** tier 1 results are `source: official` with a `source_url`. Tier 2 results
+are `source: ai-estimated`, no `source_url`.
 
 ## Blueprint Schema
 
@@ -77,49 +91,68 @@ const { mapPath } = initMap(topic, goal, domain, mapData, examBlueprint);
 
 Applies when exam-mode is confirmed for a topic with **no existing map**.
 
-- Name sections after the exam's own domains (e.g. "Cluster Architecture (25%)," "Workloads (15%)") instead of Foundation/Core/Advanced.
-- Order concepts by dependencies first, exactly as the normal flow (a concept never appears before its `requires`, consistent with `enables` on the concepts it unlocks). Exam domain weight is only a **secondary** sort key: among concepts with equally-satisfied prerequisite depth, list higher-weighted-domain concepts first.
+- Name sections after the exam's own domains (e.g. "Cluster Architecture (25%)," "Workloads
+  (15%)") instead of Foundation/Core/Advanced.
+- Order concepts by dependencies first, exactly as the normal flow (a concept never appears
+  before its `requires`, consistent with `enables` on the concepts it unlocks). Exam domain
+  weight is only a **secondary** sort key: among concepts with equally-satisfied prerequisite
+  depth, list higher-weighted-domain concepts first.
 - Pass the researched blueprint as `examBlueprint` to `initMap()` alongside the exam-domain `mapData.sections`.
 
 ## Existing Map Case
 
-Applies when the exam goal lands on a topic that **already has a map** - adding exam-mode as a second goal (SKILL.md "Goal Change: Multiple Goals," option b).
+Applies when the exam goal lands on a topic that **already has a map** - adding exam-mode as a
+second goal (SKILL.md "Goal Change: Multiple Goals," option b).
 
-- Blueprint research (above) still runs, and `exam_blueprint` is still stored on the existing map's frontmatter (load with `loadState`, set `data.exam_blueprint`, save with `saveState` - do not call `initMap` again, it would reset the map).
-- Do **not** rename or restructure existing sections - the map is shared across goals (Strategy C in SKILL.md), and restructuring would disrupt concepts/progress tied to other goals.
-- Instead, list the concepts belonging to higher-weighted exam domains as `priorityConcepts` when calling `createGoalFilter` (`scripts/goal-manager.js`) - this prioritizes them within the existing section structure without touching section names.
+- Blueprint research (above) still runs, and `exam_blueprint` is still stored on the existing
+  map's frontmatter (load with `loadState`, set `data.exam_blueprint`, save with `saveState` -
+  do not call `initMap` again, it would reset the map).
+- Do **not** rename or restructure existing sections - the map is shared across goals (Strategy
+  C in SKILL.md), and restructuring would disrupt concepts/progress tied to other goals.
+- Instead, list the concepts belonging to higher-weighted exam domains as `priorityConcepts`
+  when calling `createGoalFilter` (`scripts/goal-manager.js`) - this prioritizes them within
+  the existing section structure without touching section names.
 - Pretest (below) is still offered if `pretest_offered` is not already `true` on the map.
-- `exam_blueprint` is per-map (not per-goal). If the map already has an `exam_blueprint` from a previous exam goal, the new research overwrites it. Tell the user: "Updating the exam blueprint to [new exam] — the previous [old exam] blueprint will be replaced."
+- `exam_blueprint` is per-map (not per-goal). If the map already has an `exam_blueprint` from
+  a previous exam goal, the new research overwrites it. Tell the user: "Updating the exam
+  blueprint to [new exam] — the previous [old exam] blueprint will be replaced."
 
 ## Pretest
 
-Offered once, right after exam-mode is confirmed (both brand-new and existing-map cases), always skippable. Set `pretest_offered: true` in map frontmatter immediately when the offer is shown — whether accepted, declined, or abandoned — so it is never re-shown on returning sessions.
+Offered once, right after exam-mode is confirmed (both brand-new and existing-map cases), always
+skippable. Set `pretest_offered: true` in map frontmatter immediately when the offer is shown —
+whether accepted, declined, or abandoned — so it is never re-shown on returning sessions.
 
 ### Plan and confirm
 
 Derive the plan and ask in a single message (no two-step confirmation):
 
-**Step 1 — Normalize weights.** Web-researched weights may not sum to 100% due to rounding. Normalize before applying the formula:
+**Step 1 — Normalize weights.** Web-researched weights may not sum to 100% due to rounding.
+Normalize before applying the formula:
 
-```
+```text
 normalized_pct = (domain.weight_pct / sum_of_all_weight_pcts) × 100
 ```
 
 **Step 2 — Allocate per domain:**
 
-```
+```text
 per_domain = round(total_questions × (normalized_pct / 100) × 0.25), floor 2
 ```
 
-**Step 3 — Apply cap.** If the sum exceeds 20, scale down proportionally: multiply each allocation by `20 / sum`, re-apply floor 2, then adjust the largest domain by ±1 to reach exactly 20.
+**Step 3 — Apply cap.** If the sum exceeds 20, scale down proportionally: multiply each
+allocation by `20 / sum`, re-apply floor 2, then adjust the largest domain by ±1 to reach
+exactly 20.
 
-**Step 4 — Mark skipped domains.** Check `question_style` on each domain entry (falls back to `format.question_style` if absent). Any domain with `question_style: hands-on` or `question_style: performance` is skipped. If every domain is skipped, skip the pretest entirely:
+**Step 4 — Mark skipped domains.** Check `question_style` on each domain entry (falls back to
+`format.question_style` if absent). Any domain with `question_style: hands-on` or
+`question_style: performance` is skipped. If every domain is skipped, skip the pretest entirely:
 
 > "This exam is entirely hands-on — a text-based pretest wouldn't give a useful signal. Skipping the diagnostic."
 
 Show the plan and ask in one message:
 
-```
+```text
 Exam: AWS SAA-C03  (65 questions · 130 min · 72% passing)
 
 Quick diagnostic — want to see where you're starting from?
@@ -130,18 +163,23 @@ Quick diagnostic — want to see where you're starting from?
 Total: 17 questions  [y/n]
 ```
 
-**Fallback (no blueprint / tier 3):** 8–12 questions. If domain names are known, distribute evenly and use the same table format. If no domain names are known, omit the table:
+**Fallback (no blueprint / tier 3):** 8–12 questions. If domain names are known, distribute
+evenly and use the same table format. If no domain names are known, omit the table:
 
-```
+```text
 Quick diagnostic — want to see where you're starting from?
 ~10 questions  [y/n]
 ```
 
 ### Delivery
 
-Ask **one question at a time** — multiple-choice, assessment style. Write questions that test existing knowledge: "Which of these correctly describes X?" or "In scenario Y, what is the right approach?" — not Socratic/predictive questions. Wait for the answer before showing the next. After each answer, acknowledge briefly (correct/incorrect + one-line explanation), then continue.
+Ask **one question at a time** — multiple-choice, assessment style. Write questions that test
+existing knowledge: "Which of these correctly describes X?" or "In scenario Y, what is the right
+approach?" — not Socratic/predictive questions. Wait for the answer before showing the next.
+After each answer, acknowledge briefly (correct/incorrect + one-line explanation), then continue.
 
-**If the user abandons mid-pretest:** stop immediately, skip the summary. The `pretest_offered: true` flag is already set, so the pretest is not re-offered next session.
+**If the user abandons mid-pretest:** stop immediately, skip the summary. The
+`pretest_offered: true` flag is already set, so the pretest is not re-offered next session.
 
 ### Effect: informational only
 
@@ -149,7 +187,9 @@ After all questions, produce a one-time summary:
 
 > "Rough starting level: Intermediate. Strong on Resilient Architectures and Security, weaker on Cost Optimization."
 
-Do **not** change any concept's `status`, reorder anything, or skip any activity — every concept still runs the full Learn → Synthesize → Practice → Calibrate journey regardless of pretest performance. Do not persist the result — it is a session-only message.
+Do **not** change any concept's `status`, reorder anything, or skip any activity — every
+concept still runs the full Learn → Synthesize → Practice → Calibrate journey regardless of
+pretest performance. Do not persist the result — it is a session-only message.
 
 ## Mock Test
 
@@ -157,9 +197,11 @@ Offered once mastery reaches ≥80% of concepts in the map. Repeatable — the l
 
 ### Trigger
 
-After every Calibrate activity, check the mastery threshold against the **active goal's filtered concept set** (use `filterMapByGoal` from `scripts/goal-manager.js`). Exclude archived concepts. A concept with `status: mastered` counts regardless of whether it is overdue for review.
+After every Calibrate activity, check the mastery threshold against the **active goal's filtered
+concept set** (use `filterMapByGoal` from `scripts/goal-manager.js`). Exclude archived concepts.
+A concept with `status: mastered` counts regardless of whether it is overdue for review.
 
-```
+```text
 mastered_count / filtered_total >= 0.80
 ```
 
@@ -173,15 +215,16 @@ If declined, offer again after every subsequent concept mastered. Never auto-run
 
 If `question_style` in the blueprint is `hands-on` and every domain is performance-task only, skip the mock test entirely:
 
-> "This exam is entirely hands-on — a text-based mock would give a false signal. For realistic practice, use [official simulator / killer.sh / a real cluster]."
+> "This exam is entirely hands-on — a text-based mock would give a false signal. For realistic
+> practice, use [official simulator / killer.sh / a real cluster]."
 
 Do not offer a conceptual proxy as a substitute for a full mock.
 
-### Plan and confirm
+### Prompt and disclaimer
 
 Show the exam format and a disclaimer before running:
 
-```
+```text
 Mock Exam: AWS SAA-C03
 65 questions · 130 min time limit · 72% to pass
 
@@ -191,13 +234,16 @@ Mock Exam: AWS SAA-C03
 Set a timer if you want realistic conditions. Run the mock? [y/n]
 ```
 
-### Delivery
+### Running the mock
 
-One question at a time — same options-based style as the pretest. Full question count from the blueprint (no sampling). After each answer, acknowledge briefly (correct/incorrect + one-line explanation), then continue without running score commentary.
+One question at a time — same options-based style as the pretest. Full question count from the
+blueprint (no sampling). After each answer, acknowledge briefly (correct/incorrect + one-line
+explanation), then continue without running score commentary.
 
-**Per-domain allocation:** distribute the full question count proportionally by domain weight (normalize weights first, same as pretest step 1):
+**Per-domain allocation:** distribute the full question count proportionally by domain weight
+(normalize weights first, same as pretest step 1):
 
-```
+```text
 per_domain = round(total_questions × (normalized_pct / 100))
 ```
 
@@ -207,7 +253,7 @@ Adjust the largest domain by ±1 to make the total exact.
 
 After all questions, show the verdict and per-domain breakdown:
 
-```
+```text
 Mock Exam Result — AWS SAA-C03
 
 Score: 54/65 (83%)  ·  Passing: 72%  ·  Result: READY ✓
@@ -249,17 +295,17 @@ mock_tests:
 | --------- | ----- |
 | Treating the pretest like a placement test | It's informational only — never skip or seed activities from it |
 | Persisting pretest results | The pretest summary is session-only — never write it to the map |
-| Re-offering the pretest on a returning session | Set `pretest_offered: true` when the offer is shown; never re-offer once set |
+| Re-offering pretest on returning session | Set `pretest_offered: true` on first offer; never re-show |
 | Showing all pretest or mock test questions at once | Ask one question at a time, wait for the answer, then continue |
-| Writing pretest questions in Socratic/predictive style | Pretest questions are assessment-style ("Which of these is correct?"), not discovery-guided |
-| Using raw `weight_pct` directly in the formula | Normalize weights first (`weight_pct / sum_of_all_weight_pcts × 100`), then apply `normalized_pct / 100` |
-| Not defining cap reduction when pretest total > 20 | Scale down proportionally, re-apply floor 2, adjust the largest domain to hit exactly 20 |
-| Triggering the mock test before 80% mastery | Check `mastered / filtered_total >= 0.80` after every Calibrate — offer only on first crossing |
+| Pretest questions in Socratic/predictive style | Assessment-style only ("Which is correct?") — not discovery-guided |
+| Raw `weight_pct` in formula | Normalize: `weight_pct / sum_pcts × 100`, then apply `normalized_pct / 100` |
+| No cap when pretest total > 20 | Scale proportionally, re-apply floor 2, adjust largest domain to hit 20 |
+| Mock test before 80% mastery | Offer only at first ≥ 0.80 crossing — check after every Calibrate |
 | Auto-running the mock test | Always offer it, never trigger automatically |
-| Offering a conceptual proxy mock for hands-on-only exams | Skip the mock entirely and direct the user to an official simulator instead |
-| Forgetting the disclaimer before mock test | Show "AI-generated approximations — not real exam questions" before the first question |
+| Conceptual proxy mock for hands-on exams | Skip the mock; direct user to official simulator instead |
+| Missing disclaimer before mock test | Show "AI-generated — not real exam questions" before first question |
 | Forgetting to persist mock test results | Append each attempt to `mock_tests` in map frontmatter |
-| Searching for "exam questions" or "practice test" | Use "official exam guide"/"objectives"/"blueprint" phrasing — avoids braindump sources |
-| Restructuring sections on an existing map | Only brand-new maps get exam-domain section names — existing maps use `priorityConcepts` instead |
+| Searching "exam questions" or "practice test" | Use "official exam guide"/"objectives"/"blueprint" — no braindumps |
+| Restructuring sections on existing map | Only new maps get exam-domain names — existing maps use `priorityConcepts` |
 | Sorting concepts by weight alone | Weight is a secondary key — dependencies (`requires`/`enables`) always come first |
 | Retrying failed web research | Single search + single fetch, then fall through the tier chain |

@@ -182,7 +182,7 @@ Learn by thinking before AI explains.
      ask questions one at a time and show the one-time level summary. This never
      changes concept status or skips activities.
 
-9. **Display and begin** - Show sections/concepts. Add one line: *"If you ever get stuck or want options to choose from, just say so."* Begin Learn on first concept.
+9. **Display and begin** - Show sections/concepts. Begin Learn on first concept.
 
 ### Returning Session: Load and Review
 
@@ -468,21 +468,8 @@ When user types "stats" or asks "How long?" / "When will I finish?":
 ```text
 Learning Stats
 
-Speed:
-  - Average: 2.1h per concept (5 concepts measured)
-  - Foundation: 1.5h avg
-  - Core: 2.0h avg
-  - Advanced: 3.0h estimated (not measured yet)
-
-Remaining:
-  - Core: 2 concepts × 2h = 4h
-  - Advanced: 3 concepts × 3h = 9h
-  - Total: ~13h of active learning
-
-Timeline:
-  - Sessions needed: ~4 (at 3h each)
-  - Estimated: ~12 days (with breaks and reviews)
-
+Speed: 2.1h per concept avg (5 measured) · Foundation 1.5h · Core 2.0h · Advanced 3.0h est.
+Remaining: Core 2×2h + Advanced 3×3h = ~13h total · ~4 sessions · ~12 days
 Confidence: Medium (5 concepts measured, advanced not yet tested)
 ```
 
@@ -511,16 +498,7 @@ Confidence: Medium (5 concepts measured, advanced not yet tested)
    (Updated from 16 days - on track!)
    ```
 
-**Stats stored in frontmatter:**
-
-```yaml
-learning_stats:
-  avg_hours_per_concept: 2.1        # Average time per concept
-  estimated_days_remaining: 14       # Days to complete
-  sample_size: 6                     # Concepts measured
-  confidence: medium                 # low/medium/high
-  last_calculated: '2026-07-09T...'  # Timestamp
-```
+Schema: same `learning_stats` block shown in Progress Tracking above.
 
 ## Common Mistakes
 
@@ -531,8 +509,8 @@ learning_stats:
 | Hand-editing state fields | Record results via `scripts/activity-updater.js` (intervals, dates, status) |
 | Skipping topic normalization | Duplicates maps - normalize before checking for existing maps |
 | Storing `review_interval` in ms | Intervals are seconds (`172800` = 2 days) |
-| Treating the exam pretest as a placement test | It's informational only - never seed concept status or skip activities from it (see `references/exam-mode.md`) |
-| Missing the mock test trigger | After every Calibrate, check if mastered ≥ 80% of concepts — offer the mock test on first crossing (see `references/exam-mode.md`) |
+| Treating the exam pretest as a placement test | Informational only — never seed concept status or skip activities |
+| Missing the mock test trigger | After every Calibrate, check mastered ≥ 80% — offer mock test on first crossing |
 
 ## Usage Examples
 
@@ -544,16 +522,8 @@ AI: "What's your goal? (Examples: deploy apps, pass CKA cert)"
 User: "Deploy applications"
 AI: "This looks like a technical topic. [y/n]"
 User: "y"
-AI: [Shows map with Foundation/Core sections]
-    "If you ever get stuck or want options to choose from, just say so."
-    "Let's start with Pod."
-    "A Pod is the smallest deployable unit in Kubernetes — a wrapper around
-     one or more containers that share network and storage. For deploying
-     applications, Pods are what Kubernetes actually schedules and runs."
-    "Which of these best describes a Pod?
-     [a] A container image stored in a registry
-     [b] A wrapper around one or more containers that share network and storage
-     [c] A virtual machine managed by Kubernetes"
+AI: [Shows map with Foundation/Core sections, begins Learn on first concept]
+    [Analogy-first orientation + options + [t] tip  |  [e] explain — see references/activities/learn.md]
 ```
 
 **Returning learner:**

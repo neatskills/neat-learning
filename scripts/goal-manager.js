@@ -38,10 +38,11 @@ function createGoalFilter(mapPath, goal, priorityConcepts = [], skipConcepts = [
   const goalSlug = goalToSlug(goal);
   const filterPath = path.join(goalsDir, `${goalSlug}.json`);
 
+  const ts = now();
   const filter = {
     goal,
-    created: now(),
-    last_active: now(),
+    created: ts,
+    last_active: ts,
     priority_concepts: priorityConcepts,
     skip_concepts: skipConcepts,
     custom_concepts: customConcepts
@@ -84,8 +85,7 @@ function addGoalToMap(mapPath, goal) {
   }
 
   // Check if goal already exists
-  const existingGoal = data.goals.find(g => g.name === goal);
-  if (existingGoal) {
+  if (data.goals.some(g => g.name === goal)) {
     return { mapPath, data, alreadyExists: true };
   }
 
@@ -163,21 +163,8 @@ function filterMapByGoal(mapData, goalFilter) {
  * Count concepts by filter
  */
 function countConceptsByGoal(mapData, goalFilter) {
-  const filtered = filterMapByGoal(mapData, goalFilter);
-
-  let total = 0;
-  let mastered = 0;
-
-  filtered.sections.forEach(section => {
-    section.concepts.forEach(concept => {
-      total++;
-      if (isMastered(concept)) {
-        mastered++;
-      }
-    });
-  });
-
-  return { mastered, total };
+  const concepts = filterMapByGoal(mapData, goalFilter).sections.flatMap(s => s.concepts);
+  return { mastered: concepts.filter(isMastered).length, total: concepts.length };
 }
 
 module.exports = {

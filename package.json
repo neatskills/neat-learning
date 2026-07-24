@@ -1,6 +1,6 @@
 {
   "name": "neat-learning",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI-guided discovery-based learning system",
   "scripts": {
     "test": "node tests/state-manager.test.js && node tests/map-builder.test.js && node tests/activity-updater.test.js && node tests/activity-selector.test.js && node tests/compression.test.js && node tests/init-map.test.js && node tests/integration.test.js",

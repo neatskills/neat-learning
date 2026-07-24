@@ -12,36 +12,69 @@
 
 **Always open with a brief orientation before the first question:**
 
-1. **Orient** (2-3 sentences): what this concept is, why it matters for the learner's goal, one concrete anchor — analogy, example, or image
-2. **First question:** always options (recognition, low-stakes) — gives the learner a foothold when they have no prior context
+1. **Orient** (1-2 sentences): open with an analogy or familiar comparison first, then connect to why it matters for the
+   learner's goal — do NOT lead with a definition
+2. **First question:** always options (recognition, low-stakes) — always show `→ tip  |  explain` below the options
 
 **Template:**
-```
-[What this concept is]. [Why it matters for their goal]. [Concrete anchor].
+
+```text
+[Analogy: compare to something familiar]. [Why it matters for their goal].
 
 Which of these best describes [concept]?
 [a] ...
 [b] ...
 [c] ...
+
+[t] tip  |  [e] explain
 ```
 
 **Example (Pod, goal: deploy applications):**
-> A Pod is the smallest deployable unit in Kubernetes — a wrapper around one or more containers that share network and storage. For deploying applications, Pods are what Kubernetes actually schedules and runs.
+> A Pod is like a shipping container for your app — it bundles one or more containers so they share
+> the same network and storage and travel as a unit. For deploying applications, Pods are the smallest thing Kubernetes
+> actually schedules and runs.
 >
 > Which of these best describes a Pod?
 > [a] A container image stored in a registry
-> [b] A wrapper around one or more containers that share network and storage
+> [b] A wrapper around containers that share network and storage
 > [c] A virtual machine managed by Kubernetes
+>
+> [t] tip  |  [e] explain
 
 **Adaptive escalation after each answer:**
 
 | Response | Next step |
-|----------|-----------|
+| -------- | --------- |
 | Correct + confident | Escalate: harder options, then open question |
 | Correct + uncertain / hedged | Probe: ask them to justify before moving on |
 | Wrong | Give one insight, ask a related question at the same level |
 
-**Learner agency:** If the learner asks for "a hint" or "give me options" at any point, honor it immediately — it is part of the design, not an interruption.
+**Learner agency:** `tip` and `explain` are always offered on every question and honored immediately — they are part of
+the design, not an interruption. If the learner types `t`, `tip`, `e`, `explain`, or asks for
+"a hint" / "give me options" in free text, treat `t`/hint as `tip` and `e` as `explain`.
+
+### tip
+
+Extend the opening analogy with a concrete detail that narrows the learner's reasoning — do NOT state the answer or
+eliminate options directly.
+
+Example (Pod question):
+> "Think about what makes a shipping container useful — it keeps everything inside isolated from other containers, but
+> shares the same ship and loading dock."
+
+Count as hint: `hints_needed` +1. Re-show the question after.
+
+### explain
+
+Give a full explanation of the concept (definition, how it works, why it matters). Then ask a comprehension question —
+not predictive, but understanding-check — before moving on.
+
+Example follow-up after explaining Pod:
+> "Got it — so given that a Pod shares network and storage across its containers, what would happen if one container in
+> a Pod crashes?"
+
+Count as hint: `hints_needed` +2. The comprehension question does not count toward the tree — it replaces the current
+question slot.
 
 ## Tree-Based Question Strategy
 
@@ -104,7 +137,7 @@ than advancing to Synthesize).
 **Max hints per question by type:**
 
 | Question type | Max hints | Then |
-|---------------|-----------|------|
+| ------------- | --------- | ---- |
 | Options (recognition) | 1 | Narrow to near-rhetorical |
 | Open / core | 1 | Narrow to near-rhetorical |
 | Open / depth or breadth | 2 | Narrow to near-rhetorical |
@@ -195,8 +228,8 @@ For weak understanding, record confusion patterns as strings, e.g.
 
 | Mistake | Fix |
 | --------- | ----- |
-| Skipping the concept overview | Always orient before asking — zero-context learners cannot predict anything meaningfully |
-| Starting with an open question | First question is always options (recognition) — escalate only after the learner has a foothold |
+| Skipping the concept overview | Always orient before asking — zero-context learners can't predict meaningfully |
+| Starting with an open question | First question is always options (recognition) — escalate once learner has foothold |
 | Yes/no questions only | Use open-ended, scenario-based questions |
 | Not tracking performance | Record every answer for state updates |
 | Moving on too quickly | Need 4/5+ correct before Synthesize |

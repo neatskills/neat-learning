@@ -9,6 +9,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { isMastered, daysSince, now: getNow } = require('./utils');
 
+const ACTIVITY_FORMATS = {
+  learn: { dateField: 'date', fields: ['questions', 'hints_needed', 'signals'] },
+  synthesize: { dateField: 'completed', fields: ['terms', 'mental_model'] },
+  practice: { dateField: 'date', fields: ['independence', 'exercises'] },
+  calibrate: { dateField: 'date', fields: ['judgment', 'expert_thinking'] }
+};
+
 /**
  * Check if compression should be offered
  * @param {Array<Object>} sections - All sections from state
@@ -54,13 +61,6 @@ function shouldOfferCompression(sections, started) {
  * @param {Array<Object>} concepts - Concepts to archive
  * @returns {string} Markdown content for archive
  */
-const ACTIVITY_FORMATS = {
-  learn: { dateField: 'date', fields: ['questions', 'hints_needed', 'signals'] },
-  synthesize: { dateField: 'completed', fields: ['terms', 'mental_model'] },
-  practice: { dateField: 'date', fields: ['independence', 'exercises'] },
-  calibrate: { dateField: 'date', fields: ['judgment', 'expert_thinking'] }
-};
-
 function formatActivity(activityType, activity) {
   const config = ACTIVITY_FORMATS[activityType];
   const typeName = activityType.charAt(0).toUpperCase() + activityType.slice(1);

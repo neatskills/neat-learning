@@ -158,18 +158,7 @@ function updateReviewInterval(concept, correct, total) {
  */
 function calculateProgress(sections) {
   const concepts = flattenConcepts(sections);
-  let masteredConcepts = 0;
-
-  concepts.forEach(concept => {
-    if (isMastered(concept)) {
-      masteredConcepts++;
-    }
-  });
-
-  return {
-    mastered: masteredConcepts,
-    total: concepts.length
-  };
+  return { mastered: concepts.filter(isMastered).length, total: concepts.length };
 }
 
 module.exports = {

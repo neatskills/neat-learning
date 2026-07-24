@@ -5,6 +5,8 @@
  * Used to show progress and estimated completion time
  */
 
+const { now } = require('./utils');
+
 /**
  * Calculate time difference in minutes between two ISO timestamps
  */
@@ -27,7 +29,7 @@ function hasGap(start, end, maxGapHours = 8) {
  */
 function getConceptTime(concept) {
   const { activity } = concept;
-  if (!activity || !activity.learn) return null;
+  if (!activity?.learn) return null;
 
   const timestamps = [];
 
@@ -44,8 +46,7 @@ function getConceptTime(concept) {
   for (let i = 1; i < timestamps.length; i++) {
     const segmentTime = getMinutesDiff(timestamps[i - 1], timestamps[i]);
 
-    // Skip if gap is too large (overnight break, etc.)
-    if (segmentTime > 8 * 60) {
+    if (hasGap(timestamps[i - 1], timestamps[i])) {
       continue;
     }
 
@@ -60,8 +61,7 @@ function getConceptTime(concept) {
  */
 function getConceptCategory(conceptName, sections) {
   for (const section of sections) {
-    const concept = section.concepts.find(c => c.name === conceptName);
-    if (concept) {
+    if (section.concepts.some(c => c.name === conceptName)) {
       const sectionName = section.name.toLowerCase();
       if (sectionName.includes('foundation')) return 'foundation';
       if (sectionName.includes('core')) return 'core';
@@ -76,7 +76,7 @@ function getConceptCategory(conceptName, sections) {
  * Calculate learning statistics from concept map
  */
 function calculateStats(mapData) {
-  const { sections, progress, started } = mapData;
+  const { sections, progress } = mapData;
 
   // Flatten all concepts
   const allConcepts = sections.flatMap(s =>
@@ -165,7 +165,7 @@ function calculateStats(mapData) {
     confidence: getConfidence(measuredConcepts.length, byCategory),
 
     // Metadata
-    last_calculated: new Date().toISOString()
+    last_calculated: now()
   };
 }
 
@@ -175,7 +175,7 @@ function calculateStats(mapData) {
 function getConceptStatus(concept) {
   const { activity } = concept;
 
-  if (!activity || !activity.learn) return 'not-started';
+  if (!activity?.learn) return 'not-started';
   if (!activity.practice) return 'learning';
   if (!activity.calibrate) return 'practicing';
   if (activity.calibrate.judgment.correct >= 2) return 'mastered';

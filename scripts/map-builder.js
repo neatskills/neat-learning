@@ -29,6 +29,7 @@ function buildGenericMap(topic, goal, domain) {
           {
             name: `${topic} Basics`,
             description: `Fundamental concepts of ${topic}`,
+            status: 'not-started',
             dependencies: { requires: [], enables: [] }
           }
         ]
@@ -39,6 +40,7 @@ function buildGenericMap(topic, goal, domain) {
           {
             name: `${topic} Practice`,
             description: `Practical application of ${topic}`,
+            status: 'not-started',
             dependencies: { requires: [`${topic} Basics`], enables: [] }
           }
         ]

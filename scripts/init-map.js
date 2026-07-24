@@ -16,6 +16,7 @@
 const { createNewMap, saveState } = require('./state-manager');
 const { buildInitialMap } = require('./map-builder');
 const { createGoalFilter } = require('./goal-manager');
+const { now: getNow } = require('./utils');
 const path = require('node:path');
 
 function initMap(topic, goal, domain, mapData = null, examBlueprint = null) {
@@ -27,11 +28,12 @@ function initMap(topic, goal, domain, mapData = null, examBlueprint = null) {
   const { data } = createNewMap(topic, goal, domain);
 
   // Step 1b: Initialize goals array and active_goal (Strategy C)
+  const ts = getNow();
   data.goals = [
     {
       name: goal,
-      created: new Date().toISOString(),
-      last_active: new Date().toISOString()
+      created: ts,
+      last_active: ts
     }
   ];
   data.active_goal = goal;
