@@ -9,9 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
 const { createNewMap, saveState, loadState } = require('../scripts/state-manager');
-const { buildInitialMap } = require('../scripts/map-builder');
 const { recordLearn, recordSynthesize, recordPractice, recordCalibrate, updateReviewInterval, calculateProgress } = require('../scripts/activity-updater');
-const { getNextActivity, getNextConcept, getConceptsDueForReview } = require('../scripts/activity-selector');
 
 console.log('Integration Test: Full Learning Session Flow\n');
 
@@ -27,10 +25,20 @@ fs.mkdirSync(testDir, { recursive: true });
 console.log('1. Creating new Kubernetes learning map...');
 let { data, content } = createNewMap('Kubernetes', 'Deploy applications', 'technical');
 
-// Build initial concept map
-const template = buildInitialMap('Kubernetes', 'Deploy applications', 'technical');
-data.sections = template.sections;
-data.progress = calculateProgress(template.sections);
+const mapData = {
+  sections: [
+    {
+      name: 'Foundation',
+      concepts: [{ name: 'Kubernetes Basics', description: 'Fundamental concepts', status: 'not-started', dependencies: { requires: [], enables: ['Kubernetes Practice'] } }]
+    },
+    {
+      name: 'Core',
+      concepts: [{ name: 'Kubernetes Practice', description: 'Practical application', status: 'not-started', dependencies: { requires: ['Kubernetes Basics'], enables: [] } }]
+    }
+  ]
+};
+data.sections = mapData.sections;
+data.progress = calculateProgress(mapData.sections);
 
 const mapPath = path.join(testDir, 'kubernetes-map.md');
 saveState(mapPath, data, content);
@@ -47,12 +55,10 @@ console.log(`✓ State loaded: ${state.data.sections.length} sections\n`);
 console.log('3. Running Learn activity on Kubernetes Basics...');
 let podConcept = state.data.sections[0].concepts[0];
 assert.strictEqual(podConcept.name, 'Kubernetes Basics');
-assert.strictEqual(getNextActivity(podConcept), 'learn'); // Not started
+assert.strictEqual(podConcept.status, 'not-started');
 
-// Simulate user completing Learn
 podConcept = recordLearn(podConcept, 5, 5, 0, [], ['lifecycle', 'restart-policy']);
 assert.strictEqual(podConcept.status, 'learning');
-assert.strictEqual(getNextActivity(podConcept), 'synthesize');
 
 state.data.sections[0].concepts[0] = podConcept;
 state.data.progress = calculateProgress(state.data.sections);
@@ -65,7 +71,6 @@ state = loadState(mapPath);
 podConcept = state.data.sections[0].concepts[0];
 podConcept = recordSynthesize(podConcept, ['Pod', 'Pod spec', 'Pod lifecycle']);
 assert.strictEqual(podConcept.status, 'learning');
-assert.strictEqual(getNextActivity(podConcept), 'practice');
 
 state.data.sections[0].concepts[0] = podConcept;
 state.data.progress = calculateProgress(state.data.sections);
@@ -82,7 +87,6 @@ const exercises = [
 ];
 podConcept = recordPractice(podConcept, exercises, true, []);
 assert.strictEqual(podConcept.status, 'practicing');
-assert.strictEqual(getNextActivity(podConcept), 'calibrate');
 
 state.data.sections[0].concepts[0] = podConcept;
 state.data.progress = calculateProgress(state.data.sections);
@@ -104,13 +108,12 @@ assert.strictEqual(state.data.progress.mastered, 1);
 saveState(mapPath, state.data, state.content);
 console.log('✓ Calibrate completed, mastered\n');
 
-// Test: Next concept selection
-console.log('7. Selecting next concept...');
+// Test: Second concept still untouched
+console.log('7. Verifying second concept is not-started...');
 state = loadState(mapPath);
-const next = getNextConcept(state.data.sections, { skipReviews: true });
-assert(next !== null, 'Should find next concept');
-assert.notStrictEqual(next.concept.name, 'Kubernetes Basics'); // Should skip mastered concept
-console.log(`✓ Next concept: ${next.concept.name} (${next.activity})\n`);
+const secondConcept = state.data.sections[1].concepts[0];
+assert.strictEqual(secondConcept.status, 'not-started', 'Second concept should be untouched');
+console.log(`✓ Second concept: ${secondConcept.name} (not-started)\n`);
 
 // Test: Review due check (simulate time passing)
 console.log('8. Simulating 3 days passing...');
@@ -122,10 +125,11 @@ state.data.sections[0].concepts[0] = podConcept;
 saveState(mapPath, state.data, state.content);
 
 state = loadState(mapPath);
-const dueReviews = getConceptsDueForReview(state.data.sections);
-assert.strictEqual(dueReviews.length, 1);
-assert.strictEqual(dueReviews[0].name, 'Kubernetes Basics');
-assert.strictEqual(dueReviews[0].isOverdue, true);
+const masteredConcept = state.data.sections[0].concepts[0];
+const elapsedMs = Date.now() - new Date(masteredConcept.last_activity).getTime();
+const reviewIntervalMs = masteredConcept.review_interval * 1000;
+assert(elapsedMs >= reviewIntervalMs, 'Kubernetes Basics should be due for review');
+assert(elapsedMs > reviewIntervalMs * 1.2, 'Kubernetes Basics should be overdue (past 20% grace)');
 console.log('✓ Kubernetes Basics is now overdue for review\n');
 
 // Test: Review activity updates interval

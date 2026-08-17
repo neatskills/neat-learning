@@ -35,8 +35,7 @@ concept reaches mastered.
 
 ## Due Calculation
 
-`checkReviewDue` and `getConceptsDueForReview` in `scripts/activity-selector.js`
-implement this - use them at session start:
+Apply inline at session start:
 
 ```javascript
 const elapsedMs = Date.now() - new Date(concept.last_activity).getTime()
@@ -44,9 +43,9 @@ const isDue = elapsedMs >= concept.review_interval * 1000
 const isOverdue = elapsedMs > concept.review_interval * 1000 * 1.2  // 20% grace
 ```
 
-`getConceptsDueForReview(sections)` returns due mastered concepts sorted most
-overdue first. Present them in the session status (see the returning-session
-template in SKILL.md).
+Iterate all mastered concepts, collect those where `isDue`, sort most-overdue first
+(highest `elapsedMs - review_interval * 1000`). Present them in the session status
+(see the returning-session template in SKILL.md).
 
 ## Review Activity
 

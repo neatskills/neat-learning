@@ -26,10 +26,8 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 | Create map | `initMap` in `scripts/init-map.js` |
 | Load/save state | `loadState`/`saveState` in `scripts/state-manager.js` |
 | Record activity results | `record<Activity>` functions in `scripts/activity-updater.js` |
-| Pick next activity | `getNextConcept` in `scripts/activity-selector.js` |
-| Due reviews | `getConceptsDueForReview` in `scripts/activity-selector.js` |
 | Update review interval | `updateReviewInterval` in `scripts/activity-updater.js` |
-| Learning stats | `calculateStats` in `scripts/calculate-learning-stats.js` |
+| Learning stats | `calculateStats` in `scripts/activity-updater.js` |
 | Goal filters | `scripts/goal-manager.js` |
 | Archive mastered | `scripts/compression.js` (see `references/compression-checkpoints.md`) |
 
@@ -190,18 +188,16 @@ checking. If `exam_blueprint.researched` is more than 6 months old, offer to re-
 **Step 4 — Calculate learning stats:**
 
 ```javascript
-const { calculateStats } = require('./scripts/calculate-learning-stats.js');
+const { calculateStats } = require('./scripts/activity-updater.js');
 const stats = calculateStats(mapData);
 // Returns: avg_hours_per_concept, estimated_days_remaining, etc.
 ```
 
 **Step 5 — Calculate reviews:**
 
-```javascript
-const { getConceptsDueForReview } = require('./scripts/activity-selector.js');
-const dueReviews = getConceptsDueForReview(data.sections);
-// Returns due concepts sorted most-overdue first, with isOverdue flags
-```
+Iterate mastered concepts in all sections; for each compute:
+`elapsed_ms = Date.now() - new Date(concept.last_activity); isDue = elapsed_ms >= concept.review_interval * 1000; isOverdue = elapsed_ms > concept.review_interval * 1000 * 1.2`
+Sort due concepts most-overdue first.
 
 **Step 6 — Check compression:** if 10+ concepts mastered, 30+ days since `data.started`, and
 no reviews due, offer to archive mastered concepts:
@@ -373,10 +369,9 @@ Next activity for concept:
     "You've mastered all concepts! Want to add an advanced concept or start a new goal?"
 ```
 
-`getNextConcept(sections)` from `scripts/activity-selector.js` implements this selection
-(reviews first, then first unfinished concept). This diagram is the authoritative source —
-the Returning Session status step only surfaces reviews due; the full selection logic lives
-here. Override it when readiness gates say otherwise (e.g. repeat Learn after weak performance).
+This diagram is the authoritative source — the Returning Session status step only surfaces
+reviews due; the full selection logic lives here. Override it when readiness gates say
+otherwise (e.g. repeat Learn after weak performance).
 
 **Session pacing:** Aim for 1–2 concepts per session (~30–60 min). After completing a concept or
 activity block, check whether the user wants to continue or stop. Update `last_session` (current
@@ -447,7 +442,7 @@ Done.
 
 **After each concept completion:**
 
-**Step 1 — Recalculate:** recalculate learning stats using `calculate-learning-stats.js`
+**Step 1 — Recalculate:** recalculate learning stats using `calculateStats` from `scripts/activity-updater.js`
 **Step 2 — Update:** update `learning_stats` in map frontmatter
 **Step 3 — Show:** show a focused progress update:
 

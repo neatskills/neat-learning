@@ -14,12 +14,13 @@
  */
 
 const { createNewMap, saveState } = require('./state-manager');
-const { buildInitialMap } = require('./map-builder');
 const { createGoalFilter } = require('./goal-manager');
 const { now: getNow } = require('./utils');
 const path = require('node:path');
 
-function initMap(topic, goal, domain, mapData = null, examBlueprint = null) {
+function initMap(topic, goal, domain, mapData, examBlueprint = null) {
+  if (!mapData) throw new Error('initMap requires mapData — AI must generate the concept map structure');
+
   // Create slug from topic
   const slug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const mapPath = path.join(__dirname, '..', 'docs', 'neat_learning', slug, 'map.md');
@@ -43,12 +44,7 @@ function initMap(topic, goal, domain, mapData = null, examBlueprint = null) {
     data.exam_blueprint = examBlueprint;
   }
 
-  // Step 2: Build concept map (use provided mapData or generate generic)
-  if (!mapData) {
-    mapData = buildInitialMap(topic, goal, domain);
-  }
-
-  // Step 3: Merge map data into state
+  // Step 2: Merge map data into state
   data.sections = mapData.sections;
   data.progress.total = mapData.sections.reduce((sum, section) => sum + section.concepts.length, 0);
 

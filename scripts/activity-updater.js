@@ -1,10 +1,144 @@
 #!/usr/bin/env node
 
 /**
- * Activity result updater - records activity performance and updates concept state
+ * Activity result updater - records activity performance, updates concept state,
+ * and calculates learning statistics.
  */
 
 const { ensureActivity, now: getNow, INITIAL_REVIEW_INTERVAL, clamp, isMastered, flattenConcepts } = require('./utils');
+
+// ─── Learning stats helpers ───────────────────────────────────────────────────
+
+function getMinutesDiff(start, end) {
+  return (new Date(end) - new Date(start)) / (1000 * 60);
+}
+
+function hasGap(start, end, maxGapHours = 8) {
+  return getMinutesDiff(start, end) > maxGapHours * 60;
+}
+
+function getConceptTime(concept) {
+  const { activity } = concept;
+  if (!activity?.learn) return null;
+
+  const timestamps = [];
+  if (activity.learn?.date) timestamps.push(activity.learn.date);
+  if (activity.synthesize?.completed) timestamps.push(activity.synthesize.completed);
+  if (activity.practice?.date) timestamps.push(activity.practice.date);
+  if (activity.calibrate?.date) timestamps.push(activity.calibrate.date);
+
+  if (timestamps.length < 2) return null;
+
+  let totalMinutes = 0;
+  for (let i = 1; i < timestamps.length; i++) {
+    if (!hasGap(timestamps[i - 1], timestamps[i])) {
+      totalMinutes += getMinutesDiff(timestamps[i - 1], timestamps[i]);
+    }
+  }
+
+  return totalMinutes > 0 ? totalMinutes : null;
+}
+
+function getConceptStatus(concept) {
+  const { activity } = concept;
+  if (!activity?.learn) return 'not-started';
+  if (!activity.practice) return 'learning';
+  if (!activity.calibrate) return 'practicing';
+  if (activity.calibrate.judgment.correct >= 2) return 'mastered';
+  return 'practicing';
+}
+
+function getConceptCategory(conceptName, sections) {
+  for (const section of sections) {
+    if (section.concepts.some(c => c.name === conceptName)) {
+      const name = section.name.toLowerCase();
+      if (name.includes('foundation')) return 'foundation';
+      if (name.includes('advanced')) return 'advanced';
+      return 'core';
+    }
+  }
+  return 'core';
+}
+
+function statsAvg(numbers) {
+  if (numbers.length === 0) return null;
+  return numbers.reduce((sum, n) => sum + n, 0) / numbers.length;
+}
+
+function getConfidence(sampleSize, byCategory) {
+  if (sampleSize < 3) return 'low';
+  if (sampleSize < 5) return 'medium';
+  if (byCategory.advanced.length > 0 || sampleSize >= 8) return 'high';
+  return 'medium';
+}
+
+/**
+ * Calculate learning statistics and time estimates from concept map data.
+ * @param {Object} mapData - State object with sections and progress
+ * @returns {Object|null} Stats object, or null if insufficient data
+ */
+function calculateStats(mapData) {
+  const { sections, progress } = mapData;
+
+  const allConcepts = sections.flatMap(s => s.concepts.map(c => ({ ...c, section: s.name })));
+
+  const measured = allConcepts
+    .map(c => ({
+      name: c.name,
+      time: getConceptTime(c),
+      category: getConceptCategory(c.name, sections),
+      status: getConceptStatus(c)
+    }))
+    .filter(c => c.time !== null);
+
+  if (measured.length === 0) return null;
+
+  const byCategory = {
+    foundation: measured.filter(c => c.category === 'foundation'),
+    core: measured.filter(c => c.category === 'core'),
+    advanced: measured.filter(c => c.category === 'advanced')
+  };
+
+  const avgMin = {
+    foundation: statsAvg(byCategory.foundation.map(c => c.time)),
+    core: statsAvg(byCategory.core.map(c => c.time)),
+    advanced: statsAvg(byCategory.advanced.map(c => c.time)),
+    overall: statsAvg(measured.map(c => c.time))
+  };
+
+  const remaining = allConcepts.filter(c => getConceptStatus(c) === 'not-started');
+  const estMin = {
+    foundation: avgMin.foundation || avgMin.overall,
+    core: avgMin.core || avgMin.overall,
+    advanced: avgMin.advanced || (avgMin.core || avgMin.overall) * 1.5
+  };
+
+  const totalRemainingMin =
+    remaining.filter(c => getConceptCategory(c.name, sections) === 'foundation').length * estMin.foundation +
+    remaining.filter(c => getConceptCategory(c.name, sections) === 'core').length * estMin.core +
+    remaining.filter(c => getConceptCategory(c.name, sections) === 'advanced').length * estMin.advanced;
+
+  const sessionsNeeded = Math.ceil(totalRemainingMin / 180);
+  const reviewDays = Math.ceil((progress.mastered || 0) * 0.3);
+  const totalDays = Math.ceil(sessionsNeeded * 1.3) + reviewDays;
+
+  return {
+    sample_size: measured.length,
+    avg_minutes_per_concept: Math.round(avgMin.overall),
+    avg_hours_per_concept: Math.round(avgMin.overall / 60 * 10) / 10,
+    avg_by_category: {
+      foundation: Math.round(avgMin.foundation || 0),
+      core: Math.round(avgMin.core || 0),
+      advanced: Math.round(avgMin.advanced || 0)
+    },
+    concepts_remaining: remaining.length,
+    estimated_hours_remaining: Math.round(totalRemainingMin / 60),
+    estimated_days_remaining: totalDays,
+    sessions_remaining: sessionsNeeded,
+    confidence: getConfidence(measured.length, byCategory),
+    last_calculated: getNow()
+  };
+}
 
 /**
  * Record Learn activity results
@@ -167,7 +301,10 @@ module.exports = {
   recordPractice,
   recordCalibrate,
   updateReviewInterval,
-  calculateProgress
+  calculateProgress,
+  calculateStats,
+  getConceptTime,
+  getConceptStatus
 };
 
 // CLI usage

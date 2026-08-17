@@ -11,7 +11,7 @@
 - Learn: 4/5+ questions correct
 - Synthesize: Vocabulary introduced
 - Prerequisites: All "requires" dependencies at status `practicing` or `mastered`
-  (`checkPracticePrerequisites` in `scripts/activity-selector.js` checks this)
+  (check `concept.dependencies.requires` array against concept statuses in all sections)
 
 **Blocked if:**
 
