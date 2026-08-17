@@ -66,6 +66,8 @@ Learn by thinking before AI explains.
 
    **Confirm:** "I'll help you learn [Canonical Name]. Is that correct? [y/n]"
 
+   If [n]: ask "What would you like to call this topic?" and use their answer as the canonical display name, keeping the normalized slug for file paths.
+
 3. **Get goal** - If not provided: ask "What's your goal for learning [topic]?"
    Examples: deploy apps, pass cert, review code, build projects
 
@@ -78,12 +80,10 @@ Learn by thinking before AI explains.
 
    - Abstract verbs: "understand", "learn deeply", "know advanced"
    - Missing scope: no specific application or context
-   - Multiple unrelated outcomes mixed together
 
    **Refinement questions:**
 
    - Too broad: "Are you building/using/reviewing [topic]? Specific use case?"
-   - Multiple outcomes: "Are these related? Same priority? Split or combine?"
    - No context: "What will you do with this? Specific project/situation?"
 
    **Propose refined goal:** "So your goal is: '[refined]'?" → User confirms
@@ -94,16 +94,14 @@ Learn by thinking before AI explains.
    - "Understand negotiation" → "Negotiate salary offers"
    - "Review code and interview prep" → Split into 2 goals
 
-   **Exam-mode detection:** Check the confirmed goal for exam/cert keywords
-   ("pass", "certification", "cert", "exam") or a known certification name.
+   **Exam-mode detection:** Check the confirmed goal for exam/cert keywords or a known
+   certification name.
 
-   **REQUIRED:** Read `references/exam-mode.md` before confirming exam-mode -
-   it has the full keyword list, blueprint research process, and pretest format;
-   the summary below only covers the trigger.
+   **REQUIRED:** Read `references/exam-mode.md` before confirming exam-mode - it has the
+   full keyword list, confirm prompt, blueprint research process, pretest format, and mock
+   test trigger; all behavioral details are there.
 
-   On a match, confirm: "This looks like exam/certification prep. I can research
-   the official exam blueprint (domains, weighting, format) and calibrate your
-   learning around it. Want me to? [y/n]"
+   On a keyword/cert match, confirm per `references/exam-mode.md` (Detection section).
 
    Declined or no match → continue as normal, skip all exam-mode steps below.
 
@@ -187,6 +185,10 @@ Learn by thinking before AI explains.
 
 ### Returning Session: Load and Review
 
+0. **Normalize topic and derive path** - apply the same topic normalization as First Session
+   step 2 (read `references/topic-normalization.md`). Derive:
+   `mapPath = docs/neat_learning/{normalized-topic}/map.md`
+
 1. **Load state** - if map does not exist → first session flow:
 
    ```javascript
@@ -196,6 +198,11 @@ Learn by thinking before AI explains.
 
    **REQUIRED:** Read `references/state-format.md` before reading or writing map files -
    it defines the frontmatter structure and field types.
+
+1b. **Check blueprint staleness** - if `exam_blueprint` is present in the loaded state:
+
+   **REQUIRED:** Read `references/exam-mode.md` (Blueprint Staleness section) before
+   checking. If `exam_blueprint.researched` is more than 6 months old, offer to re-research.
 
 2. **Calculate learning stats**:
 
@@ -213,8 +220,8 @@ Learn by thinking before AI explains.
    // Returns due concepts sorted most-overdue first, with isOverdue flags
    ```
 
-4. **Check compression** - if 10+ concepts mastered and 30+ days since first mastery,
-   offer to archive mastered concepts:
+4. **Check compression** - if 10+ concepts mastered, 30+ days since `data.started`, and
+   no reviews due, offer to archive mastered concepts:
 
    **REQUIRED:** Read `references/compression-checkpoints.md` before offering compression -
    it defines the trigger, what gets archived, and the `scripts/compression.js` workflow.
@@ -295,7 +302,9 @@ Learn by thinking before AI explains.
   `priorityConcepts`. If exam-mode was confirmed, offer the pretest per
   `references/exam-mode.md` (check `pretest_offered` first — skip if already
   set). Ask which goal to work on
-- [c] Archive existing, replace with new
+- [c] Archive existing, replace with new: set `archived: true` on the goal entry in map
+  frontmatter, move its goal filter file to `goals/archived/`, update `active_goal` to the new
+  goal, then proceed as option [b] for the new goal
 
 ### Goal Filters: Strategy C
 
@@ -332,6 +341,16 @@ goals:
     created: "2026-06-29T13:00:00.000Z"
 active_goal: "Review AI-generated code"
 ```
+
+**Filter fields:**
+
+- `priority_concepts`: Concepts to surface first for this goal (e.g. exam-weighted concepts or
+  user-selected focus areas). Set when creating the goal filter; the activity selector picks
+  from this list first before the normal dependency order.
+- `skip_concepts`: Concepts to exclude from this goal's view (user chose to skip). Never delete
+  from the master map — only hidden per-goal.
+- `custom_concepts`: Concepts added specifically for this goal that don't appear in the master
+  map. Stored here (not on the map) so they don't pollute other goals.
 
 **Usage:** Filter when displaying progress, selecting next activity, calculating mastery,
 scheduling reviews. All progress stored in master map, shared across goals.
@@ -384,6 +403,11 @@ it defines readiness gates, domain adaptation, and state-update format.
 **REQUIRED:** Read `references/activities/calibrate.md` before running this activity -
 it defines the question pattern, pass criteria, and state-update format.
 
+**Mock test check (exam-mode only):** After recording Calibrate results, if exam-mode is
+active, check the mastery threshold. **REQUIRED:** Read `references/exam-mode.md` (Mock
+Test → Trigger section) for the formula, offer text, hands-on-only guard, and persistence
+schema. Never auto-run — always offer.
+
 ## Spaced Repetition
 
 Mastered concepts get timed reviews: strong recall extends the interval, weak recall
@@ -416,11 +440,19 @@ Next activity for concept:
   status: practicing + Practice done → Calibrate (expert judgment)
   status: mastered + due → Learn (review)
   status: mastered + not due → Next concept or end
+  end (all mastered, none due) →
+    exam-mode: offer mock test (if not already offered this session) per references/exam-mode.md
+    non-exam: "You've mastered all concepts! Want to add an advanced concept or start a new goal?"
 ```
 
 `getNextConcept(sections)` from `scripts/activity-selector.js` implements this selection
-(reviews first, then first unfinished concept). Override it when readiness gates say
-otherwise (e.g. repeat Learn after weak performance).
+(reviews first, then first unfinished concept). This diagram is the authoritative source —
+the Returning Session status step only surfaces reviews due; the full selection logic lives
+here. Override it when readiness gates say otherwise (e.g. repeat Learn after weak performance).
+
+**Session pacing:** Aim for 1–2 concepts per session (~30–60 min). After completing a concept or
+activity block, check whether the user wants to continue or stop. Update `last_session` (current
+timestamp) and `total_sessions` (increment by 1) via `saveState` at the end of every session.
 
 **User navigation:** Skip ahead ("practice X"), repeat ("more questions on Y"), add concepts ("What's Z?")
 

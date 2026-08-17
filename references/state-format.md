@@ -38,7 +38,7 @@ exam_blueprint: # optional - only present on exam-mode maps, see references/exam
     question_count: 60
     time_limit_minutes: 120
     passing_score: 66
-    question_style: hands-on
+    question_styles: [hands-on]
   domains:
     - name: Cluster Architecture
       weight_pct: 25
@@ -110,5 +110,7 @@ update the body when presenting, never parse state from it.
 - `last_activity`: ISO date of the latest activity or review - basis for review due calculation
 - `status`: Enum `[not-started, learning, practicing, mastered]` (see SKILL.md Concept Status Values)
 - `coverage`: Optional Learn field tracking which core/depth/breadth topics were covered
+- `goal`: Legacy single-goal field (string). Still written for backwards compatibility; for
+  multi-goal maps, `active_goal` is authoritative and `goal` may be omitted or set to `active_goal`.
 - `exam_blueprint`: Optional - present only on exam-mode maps (see `references/exam-mode.md`).
   `source` is `official` or `ai-estimated`; `source_url` present only when `source: official`
