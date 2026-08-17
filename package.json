@@ -1,21 +1,11 @@
 {
   "name": "neat-learning",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "description": "AI-guided discovery-based learning system",
   "scripts": {
-    "test": "node tests/state-manager.test.js && node tests/map-builder.test.js && node tests/activity-updater.test.js && node tests/activity-selector.test.js && node tests/compression.test.js && node tests/init-map.test.js && node tests/integration.test.js",
-    "test:integration": "node tests/integration.test.js"
+    "test": "node tests/store.test.js && node tests/map.test.js"
   },
-  "keywords": [
-    "learning",
-    "ai",
-    "education",
-    "spaced-repetition",
-    "claude"
-  ],
+  "keywords": ["learning", "ai", "education", "claude"],
   "author": "neatskills",
-  "license": "MIT",
-  "dependencies": {
-    "gray-matter": "^2.0.1"
-  }
+  "license": "MIT"
 }
