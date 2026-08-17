@@ -430,4 +430,4 @@ mock_tests:
 | Searching "exam questions" or "practice test" | Use "official exam guide"/"objectives"/"blueprint" — no braindumps |
 | Restructuring sections on existing map | Only new maps get exam-domain names — existing maps use `priorityConcepts` |
 | Sorting concepts by weight alone | Weight is a secondary key — dependencies (`requires`/`enables`) always come first |
-| Retrying failed web research | Single search + single fetch, then fall through the tier chain |
+| Retrying failed web research | Single search + single fetch, then fall through the tier chain. Exception: one additional fetch is permitted when the first result is a PDF that failed to parse — fetch the cert's main info page, then fall through if it also fails. |

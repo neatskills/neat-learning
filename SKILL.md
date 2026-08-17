@@ -175,8 +175,9 @@ Learn by thinking before AI explains.
 
    - Research the exam's public blueprint (web search → AI knowledge → generic
      fallback). Name sections after the exam's own domains instead of
-     Foundation/Core/Advanced, and pass the result as the `examBlueprint`
-     argument: `initMap(topic, goal, domain, mapData, examBlueprint)`.
+     Foundation/Core/Advanced, seed concepts from official guide objectives when
+     available, and pass the result as the `examBlueprint` argument:
+     `initMap(topic, goal, domain, mapData, examBlueprint)`.
    - Offer the pretest ("Want a quick diagnostic to see where you're starting
      from? [y/n]"). If accepted, show the per-domain plan for confirmation, then
      ask questions one at a time and show the one-time level summary. This never
