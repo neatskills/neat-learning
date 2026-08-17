@@ -144,6 +144,47 @@ Applies when exam-mode is confirmed for a topic with **no existing map**.
   depth, list higher-weighted-domain concepts first.
 - Pass the researched blueprint as `examBlueprint` to `initMap()` alongside the exam-domain `mapData.sections`.
 
+**Concept seeding from objectives:** When the blueprint contains `domains[].objectives`, use
+them as the seed list for concepts in that domain's section. Each objective maps to one concept
+— use the objective string as the concept's description anchor, then apply concept-granularity
+rules (`references/concept-granularity.md`) to decide whether to keep it as-is, split it, or
+merge it with an adjacent objective. The concept `name` is a short noun phrase derived from the
+objective (not a verbatim copy).
+
+**Map size policy:** When objectives produce more concepts than usual, do not merge aggressively
+to hit a target count — apply granularity rules and let the map grow as large as the objectives
+warrant. No artificial cap. The real exam's scope determines the map's scope.
+
+**Fallback for domains without objectives:** For any domain where `objectives` is absent (tier-2
+source, or a domain whose guide content was too thin to extract), generate concepts from AI
+knowledge of that domain exactly as today.
+
+**Example — concept seeding from one domain:**
+
+```
+Domain: "Fundamentals of Generative AI" (24%)
+Objectives:
+  - "Explain foundation models, token limits, and embeddings"
+  - "Distinguish RAG from fine-tuning and prompt engineering"
+  - "Select appropriate GenAI services for a given use case on AWS"
+
+→ Generated concepts:
+  - Foundation Models and Token Limits
+    description: Core architecture of foundation models; how token limits affect
+                 generation, context windows, and cost
+  - Embeddings
+    description: What embeddings are, how they represent semantic meaning,
+                 and when to use embedding models vs. generative models
+  - RAG vs Fine-tuning vs Prompt Engineering
+    description: When to apply each technique; trade-offs in cost, latency,
+                 data requirements, and update frequency
+  - GenAI Service Selection on AWS
+    description: Matching Bedrock, SageMaker JumpStart, etc. to business requirements
+
+(First objective split into two concepts — "foundation models + token limits" and
+"embeddings" are distinct testable areas with different `requires`/`enables` chains.)
+```
+
 ## Existing Map Case
 
 Applies when the exam goal lands on a topic that **already has a map** - adding exam-mode as a
