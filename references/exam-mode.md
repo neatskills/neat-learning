@@ -57,22 +57,38 @@ Store as a new `exam_blueprint` block in map frontmatter (see `references/state-
 
 ```yaml
 exam_blueprint:
-  source: official # or ai-estimated
-  source_url: 'https://kubernetes.io/docs/...' # omitted when source is ai-estimated
-  researched: '2026-07-23T00:00:00.000Z'
+  source: official             # or: ai-estimated
+  source_url: 'https://...'    # omitted when source is ai-estimated
+  researched: '2026-08-17T00:00:00.000Z'
+  content_type: webpage        # webpage | pdf | pdf-failed
   format:
-    question_count: 60
-    time_limit_minutes: 120
-    passing_score: 66
-    question_style: multiple-choice # exam-level default; per-domain overrides below
+    question_count: 85
+    time_limit_minutes: 170
+    passing_score: 72
+    question_styles: [multiple-choice, ordering, matching]  # replaces question_style (string)
   domains:
-    - name: Cluster Architecture
-      weight_pct: 25
-      question_style: hands-on # optional; inherits format.question_style if omitted
-    - name: Workloads
-      weight_pct: 15
-      # question_style omitted → inherits multiple-choice from format
+    - name: Fundamentals of AI and ML
+      weight_pct: 20
+      question_styles: [multiple-choice, ordering]  # domain-level override; optional
+      objectives:                                   # optional; omitted when not extractable
+        - "Explain basic ML concepts: supervised, unsupervised, reinforcement learning"
+        - "Describe common GenAI use cases: summarization, classification, generation"
+        - "Identify appropriate model types for given business problems"
+    - name: Fundamentals of Generative AI
+      weight_pct: 24
+      # question_styles omitted → inherits format.question_styles
+      objectives:
+        - "Explain foundation models, token limits, and embeddings"
+        - "Distinguish RAG from fine-tuning and prompt engineering"
+        - "Select appropriate GenAI services for a given use case on AWS"
 ```
+
+**Field notes:**
+- `content_type`: set by the research step — `webpage`, `pdf` (parsed successfully), or `pdf-failed` (garbled/binary).
+- `question_styles` (plural array): replaces the old singular `question_style` string. Domain-level override replaces the format-level array entirely for that domain's questions.
+- `objectives`: optional per domain. When present, seeds concept generation. When absent, AI fills from training knowledge.
+
+**Backwards-compatibility — read-coercion rule:** When reading a map that has the old `question_style` field (singular string) instead of `question_styles`, treat it as `question_styles: [<value>]` — a single-element array. Apply this coercion first wherever delivery instructions reference `question_styles`. New maps always write `question_styles` (plural).
 
 **Blueprint staleness:** On a returning session, if `exam_blueprint.researched` is more than 6 months old, offer once:
 
@@ -144,9 +160,9 @@ per_domain = round(total_questions × (normalized_pct / 100) × 0.25), floor 2
 allocation by `20 / sum`, re-apply floor 2, then adjust the largest domain by ±1 to reach
 exactly 20.
 
-**Step 4 — Mark skipped domains.** Check `question_style` on each domain entry (falls back to
-`format.question_style` if absent). Any domain with `question_style: hands-on` or
-`question_style: performance` is skipped. If every domain is skipped, skip the pretest entirely:
+**Step 4 — Mark skipped domains.** Check `question_styles` on each domain entry (falls back to
+`format.question_styles` if absent). A domain is skipped if any of its question styles is `hands-on`
+or `performance`. If every domain is skipped, skip the pretest entirely:
 
 > "This exam is entirely hands-on — a text-based pretest wouldn't give a useful signal. Skipping the diagnostic."
 
@@ -213,7 +229,7 @@ If declined, offer again after every subsequent concept mastered. Never auto-run
 
 ### Hands-on-only exams
 
-If `question_style` in the blueprint is `hands-on` and every domain is performance-task only, skip the mock test entirely:
+If `question_styles` in the blueprint includes `hands-on` and every domain is performance-task only, skip the mock test entirely:
 
 > "This exam is entirely hands-on — a text-based mock would give a false signal. For realistic
 > practice, use [official simulator / killer.sh / a real cluster]."
