@@ -32,15 +32,44 @@ sources - regardless of whether they're found or the user asks for them directly
 ## Blueprint Research (three-tier fallback)
 
 1. **Web research.** One `WebSearch`, phrased toward official material ("official exam guide,"
-   "certification objectives," "exam blueprint" - never "exam questions" or "practice test,"
+   "certification objectives," "exam blueprint" — never "exam questions" or "practice test,"
    which surfaces unofficial content). Add a `site:` filter to the certifying body's domain
    when it's identifiable (e.g. `site:aws.amazon.com`, `site:comptia.org`, `site:kubernetes.io`).
    Follow with one `WebFetch` on the top result, only if its domain plausibly belongs to the
-   certifying body. Single search + single fetch - no retries, no follow-up searches.
+   certifying body.
+
+   **Extraction targets:** From whatever content is fetched, extract:
+   - All question format types mentioned anywhere in the document → `format.question_styles` (array).
+   - For each domain: name, weight, per-domain format overrides if listed, and all sub-topic /
+     task / objective bullets → `domains[].objectives`.
+
+   **Objective normalization — use the cert body's own grouping as the primary guide:**
+   - **Combine** bullets the cert body groups under a single task heading, or that share an
+     action verb and subject (e.g. "Explain supervised learning" and "Explain unsupervised
+     learning" under a shared "ML paradigms" task → one objective: "Explain ML paradigm types:
+     supervised, unsupervised, reinforcement").
+   - **Split** a bullet only when it names two independent, non-overlapping testable topics with
+     no shared grouping header (e.g. "Configure VPCs and manage IAM policies" → two objectives).
+   - Each final string must begin with an action verb (Explain, Identify, Distinguish, Apply,
+     Evaluate…) and cover exactly one testable area.
+
+   **PDF handling:**
+   - Text-based PDF (most cert body PDFs): extract normally. Set `content_type: pdf`.
+   - Garbled / binary content: set `content_type: pdf-failed`. Skip objective extraction for all
+     domains (AI fills at map generation time). Still attempt to recover domain names and weights
+     from any surrounding HTML context or page title in the search result.
+
+   **Second fetch — exception to the single-fetch rule:** If and only if the top result is a PDF
+   that failed to parse (`content_type: pdf-failed`), make one additional `WebFetch` on the
+   cert's main info page (the `/certification/…` overview URL, identifiable from the search
+   result list). This is the only permitted second fetch — it does not apply to any other failure
+   mode. If the second fetch also fails or is inconclusive, move to tier 2.
 
 2. **AI knowledge fallback.** If step 1 fails, times out, or is inconclusive (fetch fails, or no
    discernible domain/weight breakdown in the content), and the exam is one you recognize,
-   construct an approximate blueprint from your own knowledge.
+   construct an approximate blueprint from your own knowledge. Mark `source: ai-estimated`,
+   omit `source_url`. Do not populate `objectives` in tier 2 — the AI draws from knowledge at
+   map generation time instead.
 
 3. **Generic fallback.** If neither produces a usable blueprint, tell the user:
 
@@ -48,8 +77,8 @@ sources - regardless of whether they're found or the user asks for them directly
 
    Proceed with the standard Foundation/Core/Advanced map. No `exam_blueprint` data is stored.
 
-**Source attribution:** tier 1 results are `source: official` with a `source_url`. Tier 2 results
-are `source: ai-estimated`, no `source_url`.
+**Source attribution:** tier 1 results are `source: official` with a `source_url` and
+`content_type` set. Tier 2 results are `source: ai-estimated`, no `source_url`.
 
 ## Blueprint Schema
 
