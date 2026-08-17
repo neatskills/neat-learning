@@ -17,10 +17,14 @@ The current scripts grew organically — 5 files with unclear boundaries, a dead
 | Multiple goals per topic | Removed | Weak use case; separate topic slugs serve the same need more cleanly |
 | Compression | Removed | Maps stay small as pure JSON; fragile archive parser not worth keeping |
 | External dependencies | Zero | gray-matter was the only dependency; pure Node.js built-ins suffice |
+| Migration of existing .md files | None | Deliberately orphaned; users start fresh with new .json format |
 
 ## Domain Model
 
 One JSON file per topic at `docs/neat_learning/{topic-slug}/map.json`.
+
+**Slug algorithm:** `topic.toLowerCase().replace(/[^a-z0-9]+/g, '-')`
+Example: "Model Context Protocol" → `model-context-protocol`
 
 ### Map (top-level)
 
@@ -31,18 +35,19 @@ One JSON file per topic at `docs/neat_learning/{topic-slug}/map.json`.
   "domain": "technical",
   "started": "2026-08-17T10:00:00.000Z",
   "last_session": "2026-08-17T10:00:00.000Z",
-  "total_sessions": 4,
+  "total_sessions": 0,
   "progress": { "mastered": 3, "total": 8 },
   "learning_stats": {
     "avg_hours_per_concept": 2.1,
     "estimated_days_remaining": 12,
     "sample_size": 3,
-    "confidence": "medium",
     "last_calculated": "2026-08-17T10:00:00.000Z"
   },
   "sections": [...]
 }
 ```
+
+`total_sessions` starts at 0 and is incremented by `endSession` — value N means N sessions have completed.
 
 ### Concept (inside sections[].concepts[])
 
@@ -53,23 +58,63 @@ One JSON file per topic at `docs/neat_learning/{topic-slug}/map.json`.
   "status": "not-started",
   "dependencies": { "requires": [], "enables": ["Deployments"] },
   "activity": {
-    "learn":      { "date": "...", "correct": 4, "total": 5 },
-    "synthesize": { "completed": "..." },
-    "practice":   { "date": "...", "independence": true },
-    "calibrate":  { "date": "...", "correct": 2, "total": 3 }
+    "learn":      { "date": "2026-08-17T10:00:00.000Z", "correct": 4, "total": 5 },
+    "synthesize": { "completed": "2026-08-17T10:30:00.000Z" },
+    "practice":   { "date": "2026-08-17T11:00:00.000Z", "independence": true },
+    "calibrate":  { "date": "2026-08-17T11:30:00.000Z", "correct": 2, "total": 3, "attempts": 1 }
   }
 }
 ```
 
-**Status values:** `not-started → learning → practicing → mastered`
+### Activity stored fields (minimal)
 
-**Status derivation rule (from activity chain):**
-- No `activity.learn` → `not-started`
-- `learn` present, no `practice` → `learning`
-- `practice` present, no `calibrate` → `practicing`
-- `calibrate.correct >= 2` → `mastered`; otherwise → `practicing`
+| Activity | Fields stored |
+|---|---|
+| `learn` | `date`, `correct`, `total` |
+| `synthesize` | `completed` (ISO timestamp) |
+| `practice` | `date`, `independence` (boolean) |
+| `calibrate` | `date`, `correct`, `total` (always 3), `attempts` |
 
-**Removed fields vs current:** `review_interval`, `last_activity`, `compressed`, `goals[]`, `active_goal`, `exam_blueprint`
+All other fields from the current system (`hints_needed`, `signals`, `coverage`, `terms`, `mental_model`, `exercises`, `error_patterns`, `expert_thinking`) are dropped.
+
+### Status values and derivation
+
+**Values:** `not-started → learning → practicing → mastered`
+
+**Derived from activity chain** (not stored independently — always computed):
+
+| Condition | Status |
+|---|---|
+| No `activity.learn` | `not-started` |
+| `learn` present, no `practice` | `learning` |
+| `practice` present, no `calibrate` or `calibrate.correct < 2` | `practicing` |
+| `calibrate.correct >= 2` | `mastered` |
+
+Note: `synthesize` does not affect status — it is stored but does not gate the status transition. Status reflects broad phase; `nextActivity` uses the activity chain.
+
+### Next activity logic
+
+| Activity present | Next activity |
+|---|---|
+| none | `learn` |
+| `learn` only | `synthesize` |
+| `learn` + `synthesize` | `practice` |
+| `practice`, no `calibrate` | `calibrate` |
+| `calibrate.correct < 2`, `attempts < 3` | `calibrate` (retry) |
+| `calibrate.correct < 2`, `attempts >= 3` | `practice` (forced back; attempts resets) |
+| `calibrate.correct >= 2` | `done` |
+
+### Learning stats formula
+
+Calculated after each `recordActivity` call:
+
+- `avg_hours_per_concept`: average minutes across concepts with complete activity chains (learn→calibrate), divided by 60, excluding time gaps >8h between activities
+- `sample_size`: count of concepts with complete chains
+- `estimated_days_remaining`: `ceil(remaining_concepts × avg_hours / 3) × 1.3` where 3 is assumed hours per session
+
+`learning_stats` is `null` until at least one concept has a complete chain.
+
+**Removed fields vs current:** `confidence`, `avg_by_category`, `review_interval`, `last_activity`, `compressed`, `goals[]`, `active_goal`, `exam_blueprint`
 
 ## Architecture
 
@@ -86,8 +131,8 @@ store.js  ←  map.js  ←  Claude (via Bash tool)
 **Exports:**
 
 ```javascript
-load(filePath)        // → parsed object; throws Error if file not found
-save(filePath, data)  // → writes JSON with 2-space indent; mkdirSync recursive
+load(filePath)        // → parsed object; throws Error('Map not found: <path>') if missing
+save(filePath, data)  // → writes JSON with 2-space indent; mkdirSync({ recursive: true })
 exists(filePath)      // → boolean
 ```
 
@@ -103,45 +148,53 @@ exists(filePath)      // → boolean
 createMap(topic, goal, domain, sections)
 // Builds initial state, writes map.json, returns { mapPath }
 // sections: [{ name, description, concepts: [{ name, description, dependencies }] }]
+// Throws if map already exists at that path
 
 loadMap(mapPath)
-// Returns full state object for Claude to inspect (read-only, no save)
+// Returns full state object — read-only, no save
+// Throws Error('Map not found: <path>') if missing
 
 recordActivity(mapPath, conceptName, activityType, results)
 // activityType: 'learn' | 'synthesize' | 'practice' | 'calibrate'
-// results shape per type:
-//   learn:      { correct, total, hintsNeeded, confusionPatterns, strengths }
-//   synthesize: { terms, mentalModel }
-//   practice:   { exercises, independence, errorPatterns }
-//   calibrate:  { correct }  (total always 3)
-// Atomically: loads → writes activity fields → derives new status
-//   → recalculates progress → recalculates stats → saves
+// results per type:
+//   learn:      { correct, total }
+//   synthesize: {}  (no fields needed beyond timestamp)
+//   practice:   { independence }
+//   calibrate:  { correct }  (total always 3; attempts tracked internally)
+// Atomically: load → write activity fields → derive status → recalculate
+//   progress + stats → save
+// Throws Error('Concept "X" not found') if conceptName missing
+// Throws Error('Invalid activity type: X') for unknown activityType
 
 addConcept(mapPath, sectionName, concept)
-// Adds concept to named section mid-journey, saves
-// concept: { name, description, dependencies }
+// Adds concept to named section, saves
+// concept: { name, description, dependencies: { requires[], enables[] } }
+// Throws Error('Section "X" not found') if sectionName missing
+// New concept gets status 'not-started', no activity object
 
 getStatus(mapPath)
-// Read-only. Returns:
-// { currentConcept, nextActivity, progress, stats, sections }
+// Read-only, no save. Returns:
+// { currentConcept, nextActivity, progress, stats }
+// currentConcept: first concept where nextActivity !== 'done', or null if all done
 // nextActivity: 'learn' | 'synthesize' | 'practice' | 'calibrate' | 'done'
 
 endSession(mapPath)
-// Increments total_sessions, updates last_session timestamp, saves
+// Increments total_sessions by 1, updates last_session to now(), saves
 ```
 
 **Internal helpers (not exported):**
 
 | Helper | Purpose |
 |---|---|
-| `deriveStatus(concept)` | Derives status string from activity chain |
-| `nextActivity(concept)` | Returns next activity name from status |
-| `recalculateProgress(sections)` | Counts mastered/total across all sections |
-| `recalculateStats(data)` | Updates `learning_stats` (avg time, estimate, confidence) |
-| `now()` | Returns ISO timestamp |
-| `conceptTime(concept)` | Minutes between first and last activity, skipping gaps >8h |
+| `deriveStatus(concept)` | Status from activity chain |
+| `nextActivityFor(concept)` | Next activity name from activity chain |
+| `recalculateProgress(sections)` | Counts mastered/total |
+| `recalculateStats(data)` | Updates `learning_stats` or sets to null |
+| `conceptTime(concept)` | Minutes first→last activity, skipping gaps >8h |
+| `now()` | ISO timestamp |
+| `toSlug(str)` | `str.toLowerCase().replace(/[^a-z0-9]+/g, '-')` |
 
-**Size:** ~150–180 lines.
+**Size:** ~160–190 lines.
 
 ## File Changes
 
@@ -170,13 +223,13 @@ tests/state-manager.test.js   (replaced by store.test.js)
 
 ### Updated files
 ```
-SKILL.md                                 (Quick Reference, script call snippets)
-references/state-format.md               (updated to JSON schema)
-references/activities/*.md               (update any script references)
-references/spaced-repetition.md          (deleted — feature dropped)
-references/compression-checkpoints.md    (deleted — feature dropped)
-references/goal-filters.md              (deleted — feature dropped)
-package.json                             (remove gray-matter dependency)
+SKILL.md                              (Quick Reference, remove old script snippets)
+references/state-format.md            (updated to JSON schema)
+references/activities/practice.md     (remove script reference)
+references/spaced-repetition.md       (deleted — feature dropped)
+references/compression-checkpoints.md (deleted — feature dropped)
+references/goal-filters.md            (deleted — feature dropped)
+package.json                          (remove gray-matter, zero dependencies)
 ```
 
 ## SKILL.md Quick Reference (after)
@@ -200,14 +253,13 @@ package.json                             (remove gray-matter dependency)
 
 ## Testing Strategy
 
-**store.test.js:** load/save round-trip, exists check, missing file error, directory auto-creation.
+**store.test.js:** load/save round-trip, exists check, missing file throws, directory auto-creation on save.
 
-**map.test.js:** covers the full activity flow (createMap → recordActivity × 4 → mastered), addConcept, getStatus output, endSession counter, progress recalculation, stats calculation with gap exclusion.
+**map.test.js:** full activity flow (createMap → learn → synthesize → practice → calibrate → mastered), failed calibrate retry, calibrate attempts cap forcing back to practice, addConcept, getStatus, endSession counter increment, progress recalculation, stats null until first complete chain, stats formula correctness.
 
 ## Success Criteria
 
-- `node scripts/map.js` is not an error (exports clean)
 - All tests in `tests/store.test.js` and `tests/map.test.js` pass
 - `package.json` has zero dependencies
 - SKILL.md Quick Reference points only to `scripts/map.js`
-- No reference to `gray-matter`, `activity-selector`, `goal-manager`, `compression`, `state-manager`, `init-map`, or `utils` anywhere in scripts or skill files
+- No reference to `gray-matter`, `goal-manager`, `compression`, `state-manager`, `init-map`, or `utils` anywhere in scripts or skill files
