@@ -263,7 +263,7 @@ const before = loadMap(statusPath).total_sessions;
 endSession(statusPath);
 const after = loadMap(statusPath);
 assert.strictEqual(after.total_sessions, before + 1);
-assert(after.last_session > loadMap(statusPath).started || true, 'last_session updated');
+assert(after.last_session >= loadMap(statusPath).started, 'last_session updated');
 console.log('✓ endSession increments total_sessions');
 
 // 26. endSession can be called multiple times
