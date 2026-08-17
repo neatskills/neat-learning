@@ -230,9 +230,11 @@ per_domain = round(total_questions × (normalized_pct / 100) × 0.25), floor 2
 allocation by `20 / sum`, re-apply floor 2, then adjust the largest domain by ±1 to reach
 exactly 20.
 
-**Step 4 — Mark skipped domains.** Check `question_styles` on each domain entry (falls back to
-`format.question_styles` if absent). A domain is skipped if any of its question styles is `hands-on`
-or `performance`. If every domain is skipped, skip the pretest entirely:
+**Step 4 — Mark skipped domains.** Resolve each domain's effective `question_styles` array:
+use `domain.question_styles` if present, otherwise fall back to `format.question_styles`
+(applying the backwards-compat coercion rule from Blueprint Schema if needed). A domain is
+skipped when its resolved array **contains** `hands-on` or `performance`. If every domain is
+skipped, skip the pretest entirely:
 
 > "This exam is entirely hands-on — a text-based pretest wouldn't give a useful signal. Skipping the diagnostic."
 
@@ -259,10 +261,37 @@ Quick diagnostic — want to see where you're starting from?
 
 ### Delivery
 
-Ask **one question at a time** — multiple-choice, assessment style. Write questions that test
-existing knowledge: "Which of these correctly describes X?" or "In scenario Y, what is the right
-approach?" — not Socratic/predictive questions. Wait for the answer before showing the next.
-After each answer, acknowledge briefly (correct/incorrect + one-line explanation), then continue.
+Ask **one question at a time** — assessment style (not Socratic/predictive). Write questions
+that test existing knowledge: "Which of these correctly describes X?" or "In scenario Y, what
+is the right approach?" Wait for the answer before showing the next. After each answer,
+acknowledge briefly (correct/incorrect + one-line explanation), then continue.
+
+**Question formats:** Use the question formats from the domain's resolved `question_styles`
+array (see Step 4). Supported formats:
+
+| Format | Structure |
+|---|---|
+| `multiple-choice` | One correct answer, 3–4 options. Distractor options must be plausible — common misconceptions, not obviously wrong choices. |
+| `ordering` | Present 3–5 items; user orders them (e.g. steps in a workflow, rule precedence). State the ordering criterion clearly in the question stem. |
+| `matching` | Two columns of 3–5 items each; user pairs them. Both columns must have the same count — no leftover items. |
+
+**Format distribution:** For each domain's question allocation, assign at least one question per
+available format first (round-robin in order: multiple-choice → ordering → matching). Distribute
+remaining questions proportionally — if two formats remain and three questions are left, assign 2
+to the first and 1 to the second (largest remainder). If a domain's total allocation is smaller
+than the number of available formats, drop the least-common format for that domain only.
+
+**Difficulty calibration:** Write questions at the difficulty level of the real exam:
+- Prefer scenario-based stems over definition recall: "A company needs to… which approach?"
+  over "What is X?"
+- Use domain-specific terminology as it appears in the official objectives (not simplified
+  paraphrases).
+- For ordering questions: use real workflow steps or architectural decision sequences — not
+  trivially obvious orderings.
+- For matching questions: use near-synonyms or functionally related pairs that require genuine
+  discrimination (e.g. RAG vs. fine-tuning vs. prompt engineering use cases).
+- Distractors in multiple-choice should reflect common exam traps (plausible AWS service names
+  that don't apply, or correct concepts applied to the wrong context).
 
 **If the user abandons mid-pretest:** stop immediately, skip the summary. The
 `pretest_offered: true` flag is already set, so the pretest is not re-offered next session.
@@ -299,7 +328,9 @@ If declined, offer again after every subsequent concept mastered. Never auto-run
 
 ### Hands-on-only exams
 
-If `question_styles` in the blueprint includes `hands-on` and every domain is performance-task only, skip the mock test entirely:
+If the blueprint's `format.question_styles` array contains only `hands-on` or `performance`
+entries, and every domain's resolved `question_styles` is also entirely hands-on or
+performance, skip the mock test entirely:
 
 > "This exam is entirely hands-on — a text-based mock would give a false signal. For realistic
 > practice, use [official simulator / killer.sh / a real cluster]."
@@ -334,6 +365,11 @@ per_domain = round(total_questions × (normalized_pct / 100))
 ```
 
 Adjust the largest domain by ±1 to make the total exact.
+
+**Format distribution and difficulty calibration:** apply the same format distribution algorithm
+and difficulty calibration rules as the pretest Delivery section above. The mock test uses the
+full question count, so format distribution applies per-domain across that domain's full
+allocation (not capped at 20).
 
 ### Result
 
