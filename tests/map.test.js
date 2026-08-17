@@ -76,5 +76,68 @@ try {
 }
 console.log('✓ loadMap throws for missing file');
 
+// ── recordActivity tests ──────────────────────────────────────────────────────
+
+const { recordActivity } = require('../scripts/map');
+
+// Set up fresh map for activity tests
+const { mapPath: actMapPath } = createMap('Python', 'Write scripts', 'technical', SECTIONS, TMP);
+
+console.log('\nmap.js tests — recordActivity (learn, synthesize, practice)\n');
+
+// 7. recordActivity learn: writes activity.learn, status → learning
+recordActivity(actMapPath, 'Pods', 'learn', { correct: 4, total: 5 });
+let actState = loadMap(actMapPath);
+let actPod = actState.sections[0].concepts[0];
+assert.strictEqual(actPod.activity.learn.correct, 4);
+assert.strictEqual(actPod.activity.learn.total, 5);
+assert(actPod.activity.learn.date, 'learn.date should be set');
+assert.strictEqual(actPod.status, 'learning');
+console.log('✓ recordActivity learn writes fields and sets status to learning');
+
+// 8. recordActivity synthesize: writes activity.synthesize, status stays learning
+recordActivity(actMapPath, 'Pods', 'synthesize', {});
+actState = loadMap(actMapPath);
+actPod = actState.sections[0].concepts[0];
+assert(actPod.activity.synthesize.completed, 'synthesize.completed should be set');
+assert.strictEqual(actPod.status, 'learning', 'status stays learning after synthesize');
+console.log('✓ recordActivity synthesize writes completed timestamp, status unchanged');
+
+// 9. recordActivity practice: writes activity.practice, status → practicing
+recordActivity(actMapPath, 'Pods', 'practice', { independence: true });
+actState = loadMap(actMapPath);
+actPod = actState.sections[0].concepts[0];
+assert.strictEqual(actPod.activity.practice.independence, true);
+assert(actPod.activity.practice.date, 'practice.date should be set');
+assert.strictEqual(actPod.status, 'practicing');
+console.log('✓ recordActivity practice writes fields and sets status to practicing');
+
+// 10. progress recalculated after recordActivity
+assert.strictEqual(actState.progress.mastered, 0);
+assert.strictEqual(actState.progress.total, 2);
+console.log('✓ progress recalculated (0/2 mastered)');
+
+// 11. stats still null (no complete chain yet — calibrate not done)
+assert.strictEqual(actState.learning_stats, null);
+console.log('✓ learning_stats null before first complete chain');
+
+// 12. recordActivity throws for unknown concept
+try {
+  recordActivity(actMapPath, 'NonExistent', 'learn', { correct: 5, total: 5 });
+  assert.fail('should throw');
+} catch (e) {
+  assert(e.message.includes('"NonExistent" not found'), `got: ${e.message}`);
+}
+console.log('✓ recordActivity throws for unknown concept');
+
+// 13. recordActivity throws for invalid activity type
+try {
+  recordActivity(actMapPath, 'Pods', 'quiz', {});
+  assert.fail('should throw');
+} catch (e) {
+  assert(e.message.includes('Invalid activity type'), `got: ${e.message}`);
+}
+console.log('✓ recordActivity throws for invalid activity type');
+
 fs.rmSync(TMP, { recursive: true });
-console.log('\ncreateMap + loadMap tests passed! ✓');
+console.log('\nAll map tests so far passed! ✓');
