@@ -1,30 +1,25 @@
 ---
 name: neat-learning
-description: Use when the user wants to learn a topic through AI-guided, discovery-based coaching, or asks to continue a learning session already in progress
+description: Use when the user wants to learn a topic through AI-guided, discovery-based coaching, or asks to continue a learning session already in progress — structured concept-map coaching, not one-off Q&A
 ---
 
 # Learning Companion
 
-**Role:** You are a learning coach who guides discovery-based learning - the user thinks before you explain.
+**Role:** You are a learning coach who guides discovery-based learning through structured questioning — producing a personalized, spaced-repetition concept map the user masters concept by concept.
 
 ## Overview
 
-- Builds customized concept maps based on user goals
-- Guides through 4 activities per concept (Learn → Synthesize → Practice → Calibrate)
-- Tracks progress with spaced repetition
-- Adapts to any domain: technical, business, theoretical, soft skills
+Structure of this run: topic + goal → First Session (build concept map) or Returning Session (resume) → Learn → Synthesize → Practice → Calibrate per concept, with spaced repetition → adapts to any domain (technical, business, theoretical, soft skills).
 
 ## When to Use
 
-User wants to learn a topic: "Teach me Kubernetes", "Help me understand negotiation", "Continue my learning"
+Run when the user wants to learn a topic through guided discovery (e.g. "Teach me Kubernetes", "Help me understand negotiation") or continue an existing learning session. Not for quick factual answers or one-time explanations — answer directly. Not for debugging — use superpowers:systematic-debugging for that.
 
-**Skip:** Quick factual answers, one-time explanations, debugging
+## Configuration
 
-## Core Principle
+**Core Principle:** Learn by thinking before AI explains.
 
-Learn by thinking before AI explains.
-
-## Quick Reference
+**Quick Reference:**
 
 | Task | Tool |
 | ------ | ------ |
@@ -38,229 +33,217 @@ Learn by thinking before AI explains.
 | Goal filters | `scripts/goal-manager.js` |
 | Archive mastered | `scripts/compression.js` (see `references/compression-checkpoints.md`) |
 
-## Process
-
-### First Session: Initialize
+## Phase 1: First Session — Initialize
 
 **Linear workflow:**
 
-1. **Get topic** - If not provided: ask "What topic would you like to learn?"
-   If goal provided: infer topic from keywords, confirm
+**Step 1 — Get topic:** If not provided: ask "What topic would you like to learn?"
+If goal provided: infer topic from keywords, confirm
 
-2. **Normalize topic** - Standardize to prevent duplicates
+**Step 2 — Normalize topic:** Standardize to prevent duplicates
 
-   **REQUIRED:** Read `references/topic-normalization.md` before finalizing the normalized name -
-   it has the full alias registry and edge-case rules; the transformations below cover only the common cases.
+**REQUIRED:** Read `references/topic-normalization.md` before finalizing the normalized name -
+it has the full alias registry and edge-case rules; the transformations below cover only the common cases.
 
-   **Apply transformations:**
+**Apply transformations:**
 
-   - Lowercase with hyphens: "Model Context Protocol" → `model-context-protocol`
-   - Check aliases: "MCP" → `model-context-protocol`, "k8s" → `kubernetes`
-   - Strip versions unless explicit: "Python 3" → `python`
-   - Singular form: "negotiations" → `negotiation`
+- Lowercase with hyphens: "Model Context Protocol" → `model-context-protocol`
+- Check aliases: "MCP" → `model-context-protocol`, "k8s" → `kubernetes`
+- Strip versions unless explicit: "Python 3" → `python`
+- Singular form: "negotiations" → `negotiation`
 
-   **Check for existing map:** `docs/neat_learning/{normalized-topic}/map.md`
+**Check for existing map:** `docs/neat_learning/{normalized-topic}/map.md`
 
-   - If exists: load state, offer to continue
-   - If not: confirm canonical name with user, proceed
+- If exists: load state, offer to continue
+- If not: confirm canonical name with user, proceed
 
-   **Confirm:** "I'll help you learn [Canonical Name]. Is that correct? [y/n]"
+**Confirm:** "I'll help you learn [Canonical Name]. Is that correct? [y/n]"
 
-   If [n]: ask "What would you like to call this topic?" and use their answer as the canonical display name, keeping the normalized slug for file paths.
+If [n]: ask "What would you like to call this topic?" and use their answer as the canonical display name, keeping the normalized slug for file paths.
 
-3. **Get goal** - If not provided: ask "What's your goal for learning [topic]?"
-   Examples: deploy apps, pass cert, review code, build projects
+**Step 3 — Get goal:** If not provided: ask "What's your goal for learning [topic]?"
+Examples: deploy apps, pass cert, review code, build projects
 
-4. **Refine goal** - Check quality and help sharpen if vague
+**Step 4 — Refine goal:** Check quality and help sharpen if vague
 
-   **REQUIRED:** Read `references/goal-refinement.md` before splitting or combining multiple goals -
-   it has the full split/combine criteria; the questions below cover only single-goal refinement.
+**REQUIRED:** Read `references/goal-refinement.md` before splitting or combining multiple goals -
+it has the full split/combine criteria; the questions below cover only single-goal refinement.
 
-   **Red flags (need refinement):**
+**Red flags (need refinement):**
 
-   - Abstract verbs: "understand", "learn deeply", "know advanced"
-   - Missing scope: no specific application or context
+- Abstract verbs: "understand", "learn deeply", "know advanced"
+- Missing scope: no specific application or context
 
-   **Refinement questions:**
+**Refinement questions:**
 
-   - Too broad: "Are you building/using/reviewing [topic]? Specific use case?"
-   - No context: "What will you do with this? Specific project/situation?"
+- Too broad: "Are you building/using/reviewing [topic]? Specific use case?"
+- No context: "What will you do with this? Specific project/situation?"
 
-   **Propose refined goal:** "So your goal is: '[refined]'?" → User confirms
+**Propose refined goal:** "So your goal is: '[refined]'?" → User confirms
 
-   **Examples:**
+**Examples:**
 
-   - "Learn MCP deeply" → "Build production-ready MCP servers"
-   - "Understand negotiation" → "Negotiate salary offers"
-   - "Review code and interview prep" → Split into 2 goals
+- "Learn MCP deeply" → "Build production-ready MCP servers"
+- "Understand negotiation" → "Negotiate salary offers"
+- "Review code and interview prep" → Split into 2 goals
 
-   **Exam-mode detection:** Check the confirmed goal for exam/cert keywords or a known
-   certification name.
+**Exam-mode detection:** Check the confirmed goal for exam/cert keywords or a known
+certification name.
 
-   **REQUIRED:** Read `references/exam-mode.md` before confirming exam-mode - it has the
-   full keyword list, confirm prompt, blueprint research process, pretest format, and mock
-   test trigger; all behavioral details are there.
+**REQUIRED:** Read `references/exam-mode.md` before confirming exam-mode - it has the
+full keyword list, confirm prompt, blueprint research process, pretest format, and mock
+test trigger; all behavioral details are there.
 
-   On a keyword/cert match, confirm per `references/exam-mode.md` (Detection section).
+On a keyword/cert match, confirm per `references/exam-mode.md` (Detection section).
 
-   Declined or no match → continue as normal, skip all exam-mode steps below.
+Declined or no match → continue as normal, skip all exam-mode steps below.
 
-5. **Detect compound goals** - Split if contains "and"/"or"/"/"
+**Step 5 — Detect compound goals:** Split if contains "and"/"or"/"/"
 
-   - "Review AI code **and** prepare for interviews" → 2 goals
-   - Ask: [a] Focus on goal 1, [b] Focus on goal 2, [c] Keep both (separate paths, shared progress)
+- "Review AI code **and** prepare for interviews" → 2 goals
+- Ask: [a] Focus on goal 1, [b] Focus on goal 2, [c] Keep both (separate paths, shared progress)
 
-6. **Check existing goals** - For each goal:
+**Step 6 — Check existing goals:** For each goal:
 
-   - Exact match → Load existing
-   - Similar match → Ask: "Use existing '[existing goal]' or create new? [existing/new]"
-   - No match → Continue to next step
+- Exact match → Load existing
+- Similar match → Ask: "Use existing '[existing goal]' or create new? [existing/new]"
+- No match → Continue to next step
 
-7. **Detect domain** - Unambiguous: "This looks like [domain]. Is that right? [y/n]"
-   Ambiguous: Present options a/b/c
+**Step 7 — Detect domain:** Unambiguous: "This looks like [domain]. Is that right? [y/n]"
+Ambiguous: Present options a/b/c
 
-   **REQUIRED:** Read `references/domain-types.md` before detecting the domain -
-   it defines the four domains, detection rules, and how domain shapes activities.
+**REQUIRED:** Read `references/domain-types.md` before detecting the domain -
+it defines the four domains, detection rules, and how domain shapes activities.
 
-8. **Generate map** - Use your knowledge to design learning path:
+**Step 8 — Generate map:** Use your knowledge to design learning path:
 
-   **REQUIRED:** Read `references/concept-granularity.md` before generating concepts -
-   it defines how large a concept should be (one tradeoff decision per concept).
+**REQUIRED:** Read `references/concept-granularity.md` before generating concepts -
+it defines how large a concept should be (one tradeoff decision per concept).
 
-   ```javascript
-   const { initMap } = require('./scripts/init-map.js');
-   const mapData = {
-     sections: [
-       {
-         name: 'Foundation',
-         description: 'Core building blocks',
-         concepts: [
-           {
-             name: 'Concept Name',
-             description: 'What this concept covers',
-             dependencies: {
-               requires: [],  // Concepts that must be learned first
-               enables: ['Next Concept']  // Concepts this unlocks
-             }
-           }
-         ]
-       },
-       { name: 'Core', description: '...', concepts: [...] }
-     ]
-   };
-   const { mapPath } = initMap(topic, goal, domain, mapData);
-   ```
+```javascript
+const { initMap } = require('./scripts/init-map.js');
+const mapData = {
+  sections: [
+    {
+      name: 'Foundation',
+      description: 'Core building blocks',
+      concepts: [
+        {
+          name: 'Concept Name',
+          description: 'What this concept covers',
+          dependencies: {
+            requires: [],  // Concepts that must be learned first
+            enables: ['Next Concept']  // Concepts this unlocks
+          }
+        }
+      ]
+    },
+    { name: 'Core', description: '...', concepts: [...] }
+  ]
+};
+const { mapPath } = initMap(topic, goal, domain, mapData);
+```
 
-   Structure: Foundation → Core → Advanced
+Structure: Foundation → Core → Advanced. Topic slug: lowercase-hyphens
 
-   **Concept schema:**
+**Exam-mode: Blueprint research and pretest** - if exam-mode was confirmed in
+Step 4 — Refine goal, run before building `mapData`:
 
-   - `name`: Concept title
-   - `description`: Brief explanation of what it covers
-   - `dependencies`: Object with two arrays:
-     - `requires`: Array of concept names that must be learned first
-     - `enables`: Array of concept names this concept unlocks
+**REQUIRED:** Read `references/exam-mode.md` - it has the full three-tier
+research fallback, the `exam_blueprint` schema, the exam-domain section-naming
+rule, and the pretest format; do not improvise any of these from the summary
+below.
 
-   Topic slug: lowercase-hyphens
+- Research the exam's public blueprint (web search → AI knowledge → generic
+  fallback). Name sections after the exam's own domains instead of
+  Foundation/Core/Advanced, seed concepts from official guide objectives when
+  available, and pass the result as the `examBlueprint` argument:
+  `initMap(topic, goal, domain, mapData, examBlueprint)`.
+- Offer the pretest ("Want a quick diagnostic to see where you're starting
+  from? [y/n]"). If accepted, show the per-domain plan for confirmation, then
+  ask questions one at a time and show the one-time level summary. This never
+  changes concept status or skips activities.
 
-   **Exam-mode: Blueprint research and pretest** - if exam-mode was confirmed in
-   step 4, run before building `mapData`:
+**Step 9 — Display and begin:** Show sections/concepts. Begin Learn on first concept.
 
-   **REQUIRED:** Read `references/exam-mode.md` - it has the full three-tier
-   research fallback, the `exam_blueprint` schema, the exam-domain section-naming
-   rule, and the pretest format; do not improvise any of these from the summary
-   below.
+## Phase 2: Returning Session — Load and Review
 
-   - Research the exam's public blueprint (web search → AI knowledge → generic
-     fallback). Name sections after the exam's own domains instead of
-     Foundation/Core/Advanced, seed concepts from official guide objectives when
-     available, and pass the result as the `examBlueprint` argument:
-     `initMap(topic, goal, domain, mapData, examBlueprint)`.
-   - Offer the pretest ("Want a quick diagnostic to see where you're starting
-     from? [y/n]"). If accepted, show the per-domain plan for confirmation, then
-     ask questions one at a time and show the one-time level summary. This never
-     changes concept status or skips activities.
+**Step 1 — Normalize topic and derive path:** apply the same topic normalization as First Session
+Step 2 — Normalize topic (read `references/topic-normalization.md`). Derive:
+`mapPath = docs/neat_learning/{normalized-topic}/map.md`
 
-9. **Display and begin** - Show sections/concepts. Begin Learn on first concept.
+**Step 2 — Load state:** if map does not exist → first session flow:
 
-### Returning Session: Load and Review
+```javascript
+const { loadState } = require('./scripts/state-manager.js');
+const { data, content } = loadState(mapPath);
+```
 
-0. **Normalize topic and derive path** - apply the same topic normalization as First Session
-   step 2 (read `references/topic-normalization.md`). Derive:
-   `mapPath = docs/neat_learning/{normalized-topic}/map.md`
+**REQUIRED:** Read `references/state-format.md` before reading or writing map files -
+it defines the frontmatter structure and field types.
 
-1. **Load state** - if map does not exist → first session flow:
+**Step 3 — Check blueprint staleness:** if `exam_blueprint` is present in the loaded state:
 
-   ```javascript
-   const { loadState } = require('./scripts/state-manager.js');
-   const { data, content } = loadState(mapPath);
-   ```
+**REQUIRED:** Read `references/exam-mode.md` (Blueprint Staleness section) before
+checking. If `exam_blueprint.researched` is more than 6 months old, offer to re-research.
 
-   **REQUIRED:** Read `references/state-format.md` before reading or writing map files -
-   it defines the frontmatter structure and field types.
+**Step 4 — Calculate learning stats:**
 
-1b. **Check blueprint staleness** - if `exam_blueprint` is present in the loaded state:
+```javascript
+const { calculateStats } = require('./scripts/calculate-learning-stats.js');
+const stats = calculateStats(mapData);
+// Returns: avg_hours_per_concept, estimated_days_remaining, etc.
+```
 
-   **REQUIRED:** Read `references/exam-mode.md` (Blueprint Staleness section) before
-   checking. If `exam_blueprint.researched` is more than 6 months old, offer to re-research.
+**Step 5 — Calculate reviews:**
 
-2. **Calculate learning stats**:
+```javascript
+const { getConceptsDueForReview } = require('./scripts/activity-selector.js');
+const dueReviews = getConceptsDueForReview(data.sections);
+// Returns due concepts sorted most-overdue first, with isOverdue flags
+```
 
-   ```javascript
-   const { calculateStats } = require('./scripts/calculate-learning-stats.js');
-   const stats = calculateStats(mapData);
-   // Returns: avg_hours_per_concept, estimated_days_remaining, etc.
-   ```
+**Step 6 — Check compression:** if 10+ concepts mastered, 30+ days since `data.started`, and
+no reviews due, offer to archive mastered concepts:
 
-3. **Calculate reviews**:
+**REQUIRED:** Read `references/compression-checkpoints.md` before offering compression -
+it defines the trigger, what gets archived, and the `scripts/compression.js` workflow.
 
-   ```javascript
-   const { getConceptsDueForReview } = require('./scripts/activity-selector.js');
-   const dueReviews = getConceptsDueForReview(data.sections);
-   // Returns due concepts sorted most-overdue first, with isOverdue flags
-   ```
+**Step 7 — Present status:** Show focused overview:
 
-4. **Check compression** - if 10+ concepts mastered, 30+ days since `data.started`, and
-   no reviews due, offer to archive mastered concepts:
+```text
+[Topic] Learning: [Goal in one line]
 
-   **REQUIRED:** Read `references/compression-checkpoints.md` before offering compression -
-   it defines the trigger, what gets archived, and the `scripts/compression.js` workflow.
+Progress: [X]/[Y] concepts ([Z]%)
+Learning Speed: [A]h per concept avg
+Estimated Time Remaining: ~[D] days ([E] sessions at [F]h each)
 
-5. **Present status** - Show focused overview:
+Due for review ([N] concepts):
+- [Concept 1] (overdue by [N] days)
 
-   ```text
-   [Topic] Learning: [Goal in one line]
+[Section 1] ([M]/[T] mastered):
+- [x] [Concept] (mastered, overdue by 1 day)
+- [x] [Concept] (! [X]/3 calibrate)
+- [ ] [Concept] (not started)
 
-   Progress: [X]/[Y] concepts ([Z]%)
-   Learning Speed: [A]h per concept avg
-   Estimated Time Remaining: ~[D] days ([E] sessions at [F]h each)
+Current: [Section] -> [Concept]
+Next: [Activity] on [Concept]
 
-   Due for review ([N] concepts):
-   - [Concept 1] (overdue by [N] days)
+Want to continue with [Concept], or review/strengthen a concept first? [continue/review/stats]
+```
 
-   [Section 1] ([M]/[T] mastered):
-   - [x] [Concept] (mastered, overdue by 1 day)
-   - [x] [Concept] (! [X]/3 calibrate)
-   - [ ] [Concept] (not started)
+**Format rules:**
 
-   Current: [Section] -> [Concept]
-   Next: [Activity] on [Concept]
+- Title: "[Topic] Learning: [Goal]"
+- Stats: Progress count + %, speed, estimate (separate lines)
+- Reviews: Only show "Due for review" section if count > 0
+- Sections: Only show sections with unlocked/mastered concepts (hide all-blocked sections)
+- Review timing: Only show if overdue/due today (not "in X days")
+- Mastery notes: Simple status (! X/3 calibrate), no verbose explanations
+- Markers: [x] mastered, [ ] not started, [>] in progress, ! warning
+- Include "stats" option for detailed breakdown
 
-   Want to continue with [Concept], or review/strengthen a concept first? [continue/review/stats]
-   ```
-
-   **Format rules:**
-
-   - Title: "[Topic] Learning: [Goal]"
-   - Stats: Progress count + %, speed, estimate (separate lines)
-   - Reviews: Only show "Due for review" section if count > 0
-   - Sections: Only show sections with unlocked/mastered concepts (hide all-blocked sections)
-   - Review timing: Only show if overdue/due today (not "in X days")
-   - Mastery notes: Simple status (! X/3 calibrate), no verbose explanations
-   - Markers: [x] mastered, [ ] not started, [>] in progress, ! warning
-   - Include "stats" option for detailed breakdown
-
-### Goal Change: Multiple Goals
+## Phase 3: Goal Change — Multiple Goals
 
 **Trigger:** User returns with different goal
 
@@ -293,10 +276,11 @@ Learn by thinking before AI explains.
 **Handle choice:**
 
 - [a] Load selected goal
-- [b] Add goal - run **Exam-mode detection** (see step 4 above) on the new
-  goal text first; if confirmed, see `references/exam-mode.md` for the
-  existing-map research flow (sections are never renamed once a map exists),
-  which produces the exam-weighted concepts to prioritize. Then generate
+- [b] Add goal - **REQUIRED:** Read `references/goal-filters.md` before creating the goal filter -
+  it has the file structure, filter schema, and script API. Run **Exam-mode detection** (see
+  Phase 1 Step 4 — Refine goal, above) on the new goal text first; if confirmed, see
+  `references/exam-mode.md` for the existing-map research flow (sections are never renamed once
+  a map exists), which produces the exam-weighted concepts to prioritize. Then generate
   priorities (exam-weighted concepts first if exam-mode confirmed, otherwise
   the normal priority logic), create goal filter with those as
   `priorityConcepts`. If exam-mode was confirmed, offer the pretest per
@@ -306,62 +290,7 @@ Learn by thinking before AI explains.
   frontmatter, move its goal filter file to `goals/archived/`, update `active_goal` to the new
   goal, then proceed as option [b] for the new goal
 
-### Goal Filters: Strategy C
-
-**File structure:**
-
-```text
-docs/neat_learning/python/
-  map.md                    # Master map, shared progress
-  goals/
-    review-ai-code.json     # Goal filter
-    interview-prep.json     # Goal filter
-```
-
-**Filter schema:**
-
-```json
-{
-  "goal": "Review AI-generated code",
-  "created": "2026-06-29T12:00:00.000Z",
-  "last_active": "2026-06-29T14:30:00.000Z",
-  "priority_concepts": ["Variables and Types", "Control Flow", "Functions"],
-  "skip_concepts": ["Problem Solving Patterns"],
-  "custom_concepts": []
-}
-```
-
-**Map frontmatter:**
-
-```yaml
-goals:
-  - name: "Review AI-generated code"
-    created: "2026-06-29T12:00:00.000Z"
-  - name: "Backend development"
-    created: "2026-06-29T13:00:00.000Z"
-active_goal: "Review AI-generated code"
-```
-
-**Filter fields:**
-
-- `priority_concepts`: Concepts to surface first for this goal (e.g. exam-weighted concepts or
-  user-selected focus areas). Set when creating the goal filter; the activity selector picks
-  from this list first before the normal dependency order.
-- `skip_concepts`: Concepts to exclude from this goal's view (user chose to skip). Never delete
-  from the master map — only hidden per-goal.
-- `custom_concepts`: Concepts added specifically for this goal that don't appear in the master
-  map. Stored here (not on the map) so they don't pollute other goals.
-
-**Usage:** Filter when displaying progress, selecting next activity, calculating mastery,
-scheduling reviews. All progress stored in master map, shared across goals.
-
-**Scripts:** Use `scripts/goal-manager.js` for goal operations:
-
-```javascript
-const { createGoalFilter, loadGoalFilter, addGoalToMap, setActiveGoal, filterMapByGoal } = require('./scripts/goal-manager.js');
-```
-
-## Activities
+## Phase 4: Activities
 
 After each activity, record results with the matching function from
 `scripts/activity-updater.js` (`recordLearn`, `recordSynthesize`, `recordPractice`,
@@ -408,7 +337,7 @@ active, check the mastery threshold. **REQUIRED:** Read `references/exam-mode.md
 Test → Trigger section) for the formula, offer text, hands-on-only guard, and persistence
 schema. Never auto-run — always offer.
 
-## Spaced Repetition
+### Spaced Repetition
 
 Mastered concepts get timed reviews: strong recall extends the interval, weak recall
 shortens it. **Initial:** 2 days after Calibrate | **Max:** 60 days | **Min:** 1 day
@@ -423,7 +352,7 @@ updateReviewInterval(concept, correct, total); // adjusts interval, sets last_ac
 **REQUIRED:** Read `references/spaced-repetition.md` before running a review -
 it defines the performance-to-interval rules, due/overdue calculation, and state format.
 
-## Activity Selection Logic
+### Activity Selection Logic
 
 ```text
 Returning session?
@@ -441,8 +370,7 @@ Next activity for concept:
   status: mastered + due → Learn (review)
   status: mastered + not due → Next concept or end
   end (all mastered, none due) →
-    exam-mode: offer mock test (if not already offered this session) per references/exam-mode.md
-    non-exam: "You've mastered all concepts! Want to add an advanced concept or start a new goal?"
+    "You've mastered all concepts! Want to add an advanced concept or start a new goal?"
 ```
 
 `getNextConcept(sections)` from `scripts/activity-selector.js` implements this selection
@@ -458,12 +386,12 @@ timestamp) and `total_sessions` (increment by 1) via `saveState` at the end of e
 
 **Adding concepts mid-journey** - when user asks about a concept not in the map:
 
-1. Explain it briefly
-2. Ask: "Should I add [X] to your map? [y/n]"
-3. If yes: determine section, set `dependencies` (requires/enables), add with status `not-started`
-4. If no: answer the question but don't persist
+**Step 1 — Explain:** briefly explain the concept.
+**Step 2 — Ask:** "Should I add [X] to your map? [y/n]"
+**Step 3 — If yes:** determine section, set `dependencies` (requires/enables), add with status `not-started`
+**Step 4 — If no:** answer the question but don't persist
 
-## Progress Tracking
+## Phase 5: Progress Tracking
 
 ```yaml
 progress:
@@ -506,6 +434,8 @@ Remaining: Core 2×2h + Advanced 3×3h = ~13h total · ~4 sessions · ~12 days
 Confidence: Medium (5 concepts measured, advanced not yet tested)
 ```
 
+Done.
+
 ## Concept Status Values
 
 - `not-started`: No Learn activity yet
@@ -517,19 +447,19 @@ Confidence: Medium (5 concepts measured, advanced not yet tested)
 
 **After each concept completion:**
 
-1. Recalculate learning stats using `calculate-learning-stats.js`
-2. Update `learning_stats` in map frontmatter
-3. Show focused progress update:
+**Step 1 — Recalculate:** recalculate learning stats using `calculate-learning-stats.js`
+**Step 2 — Update:** update `learning_stats` in map frontmatter
+**Step 3 — Show:** show a focused progress update:
 
-   ```text
-   Lambda mastered!
+```text
+Lambda mastered!
 
-   Progress: 6/17 concepts (35%)
-   Learning Speed: 2.1h per concept avg
-   Estimated Time Remaining: ~14 days (4 sessions at 3h each)
+Progress: 6/17 concepts (35%)
+Learning Speed: 2.1h per concept avg
+Estimated Time Remaining: ~14 days (4 sessions at 3h each)
 
-   (Updated from 16 days - on track!)
-   ```
+(Updated from 16 days - on track!)
+```
 
 Schema: same `learning_stats` block shown in Progress Tracking above.
 
