@@ -93,14 +93,12 @@ Practice should be about **applying understanding**, not repeating what was cove
 
 ## State Updates
 
-Record results with `recordPractice`, then save:
+Record results with `recordActivity`:
 
 ```javascript
-const { loadState, saveState } = require('./scripts/state-manager.js');
-const { recordPractice } = require('./scripts/activity-updater.js');
+const { recordActivity } = require('./scripts/map.js');
 
-recordPractice(concept, exercises, independence, errorPatterns);
-saveState(mapPath, data, content);
+recordActivity(mapPath, conceptName, 'practice', { independence });
 ```
 
 This writes `activity.practice` and sets the concept status to `practicing`:

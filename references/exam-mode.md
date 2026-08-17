@@ -125,11 +125,11 @@ exam_blueprint:
 
 If accepted, re-run Blueprint Research and overwrite `exam_blueprint`. If declined, continue with the stored blueprint.
 
-Pass as the `examBlueprint` argument to `initMap()`:
+Pass as the `examBlueprint` argument to `createMap()`:
 
 ```javascript
-const { initMap } = require('./scripts/init-map.js');
-const { mapPath } = initMap(topic, goal, domain, mapData, examBlueprint);
+const { createMap } = require('./scripts/map.js');
+const { mapPath } = createMap(topic, goal, domain, mapData.sections);
 ```
 
 ## Map Generation (brand-new map only)
@@ -142,7 +142,7 @@ Applies when exam-mode is confirmed for a topic with **no existing map**.
   before its `requires`, consistent with `enables` on the concepts it unlocks). Exam domain
   weight is only a **secondary** sort key: among concepts with equally-satisfied prerequisite
   depth, list higher-weighted-domain concepts first.
-- Pass the researched blueprint as `examBlueprint` to `initMap()` alongside the exam-domain `mapData.sections`.
+- Pass the exam-domain sections to `createMap()` to build the map.
 
 **Concept seeding from objectives:** When the blueprint contains `domains[].objectives`, use
 them as the seed list for concepts in that domain's section. Each objective maps to one concept
@@ -191,13 +191,11 @@ Applies when the exam goal lands on a topic that **already has a map** - adding 
 second goal (SKILL.md "Goal Change: Multiple Goals," option b).
 
 - Blueprint research (above) still runs, and `exam_blueprint` is still stored on the existing
-  map's frontmatter (load with `loadState`, set `data.exam_blueprint`, save with `saveState` -
-  do not call `initMap` again, it would reset the map).
+  map (do not call `createMap` again — it would reset the map).
 - Do **not** rename or restructure existing sections - the map is shared across goals (Strategy
   C in SKILL.md), and restructuring would disrupt concepts/progress tied to other goals.
-- Instead, list the concepts belonging to higher-weighted exam domains as `priorityConcepts`
-  when calling `createGoalFilter` (`scripts/goal-manager.js`) - this prioritizes them within
-  the existing section structure without touching section names.
+- Instead, order higher-weighted exam-domain concepts earlier within sections so they are
+  covered first — this prioritizes them without touching section names.
 - Pretest (below) is still offered if `pretest_offered` is not already `true` on the map.
 - `exam_blueprint` is per-map (not per-goal). If the map already has an `exam_blueprint` from
   a previous exam goal, the new research overwrites it. Tell the user: "Updating the exam
@@ -312,9 +310,8 @@ Offered once mastery reaches ≥80% of concepts in the map. Repeatable — the l
 
 ### Trigger
 
-After every Calibrate activity, check the mastery threshold against the **active goal's filtered
-concept set** (use `filterMapByGoal` from `scripts/goal-manager.js`). Exclude archived concepts.
-A concept with `status: mastered` counts regardless of whether it is overdue for review.
+After every Calibrate activity, check the mastery threshold against all concepts in the map.
+A concept with `status: mastered` counts.
 
 ```text
 mastered_count / filtered_total >= 0.80

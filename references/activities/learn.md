@@ -192,15 +192,12 @@ hasn't landed — spaced repetition will bring it back sooner via high `hints_ne
 
 ## State Updates
 
-Record results with `recordLearn`, then save:
+Record results with `recordActivity`:
 
 ```javascript
-const { loadState, saveState } = require('./scripts/state-manager.js');
-const { recordLearn } = require('./scripts/activity-updater.js');
+const { recordActivity } = require('./scripts/map.js');
 
-// concept is the entry in data.sections[i].concepts
-recordLearn(concept, correct, total, hintsNeeded, confusionPatterns, strengths, coverage);
-saveState(mapPath, data, content);
+recordActivity(mapPath, conceptName, 'learn', { correct, total });
 ```
 
 This writes `activity.learn` and sets the concept status to `learning`:

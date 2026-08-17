@@ -42,14 +42,12 @@ AI: "You now understand:
 
 ## State Updates
 
-Record results with `recordSynthesize`, then save:
+Record results with `recordActivity`:
 
 ```javascript
-const { loadState, saveState } = require('./scripts/state-manager.js');
-const { recordSynthesize } = require('./scripts/activity-updater.js');
+const { recordActivity } = require('./scripts/map.js');
 
-recordSynthesize(concept, termsIntroduced, mentalModel);
-saveState(mapPath, data, content);
+recordActivity(mapPath, conceptName, 'synthesize', {});
 ```
 
 This writes `activity.synthesize` (status stays `learning`):

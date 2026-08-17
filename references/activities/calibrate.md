@@ -29,19 +29,16 @@ Ask 3 types, user must pass 2/3:
 
 ## State Updates
 
-Record results with `recordCalibrate`, then save:
+Record results with `recordActivity`:
 
 ```javascript
-const { loadState, saveState } = require('./scripts/state-manager.js');
-const { recordCalibrate } = require('./scripts/activity-updater.js');
+const { recordActivity } = require('./scripts/map.js');
 
-recordCalibrate(concept, correct, expertThinking);
-saveState(mapPath, data, content);
+recordActivity(mapPath, conceptName, 'calibrate', { correct });
 ```
 
-This writes `activity.calibrate`; on 2/3+ it sets status to `mastered` and starts
-the review schedule (`review_interval`, `last_activity`), otherwise status stays
-`practicing`:
+This writes `activity.calibrate`; on 2+ correct it sets status to `mastered`,
+otherwise status stays `practicing`:
 
 ```yaml
 calibrate:
