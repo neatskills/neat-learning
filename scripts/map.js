@@ -162,4 +162,42 @@ function recordActivity(mapPath, conceptName, activityType, results = {}) {
   store.save(mapPath, data);
 }
 
-module.exports = { createMap, loadMap, recordActivity, nextActivityFor };
+function addConcept(mapPath, sectionName, concept) {
+  const data = store.load(mapPath);
+  const section = data.sections.find(s => s.name === sectionName);
+  if (!section) throw new Error(`Section "${sectionName}" not found`);
+  section.concepts.push({
+    name: concept.name,
+    description: concept.description,
+    status: 'not-started',
+    dependencies: concept.dependencies || { requires: [], enables: [] }
+  });
+  data.progress = recalculateProgress(data.sections);
+  store.save(mapPath, data);
+}
+
+function getStatus(mapPath) {
+  const data = store.load(mapPath);
+  let currentConcept = null;
+  let nextActivity = 'done';
+  outer: for (const section of data.sections) {
+    for (const concept of section.concepts) {
+      const activity = nextActivityFor(concept);
+      if (activity !== 'done') {
+        currentConcept = concept;
+        nextActivity = activity;
+        break outer;
+      }
+    }
+  }
+  return { currentConcept, nextActivity, progress: data.progress, stats: data.learning_stats };
+}
+
+function endSession(mapPath) {
+  const data = store.load(mapPath);
+  data.total_sessions += 1;
+  data.last_session = now();
+  store.save(mapPath, data);
+}
+
+module.exports = { createMap, loadMap, recordActivity, nextActivityFor, addConcept, getStatus, endSession };

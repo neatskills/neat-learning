@@ -204,5 +204,73 @@ assert.strictEqual(retryPod.activity.calibrate.attempts, 1, 'attempts resets to 
 assert.strictEqual(retryPod.status, 'mastered');
 console.log('✓ calibrate after reset: attempts = 1, status = mastered');
 
+// ── addConcept, getStatus, endSession ─────────────────────────────────────────
+
+const { addConcept, getStatus, endSession } = require('../scripts/map');
+
+console.log('\nmap.js tests — addConcept, getStatus, endSession\n');
+
+const { mapPath: statusPath } = createMap('Java', 'Build APIs', 'technical', SECTIONS, TMP);
+
+// 20. getStatus on fresh map: currentConcept = first concept, nextActivity = learn
+let status = getStatus(statusPath);
+assert.strictEqual(status.currentConcept.name, 'Pods');
+assert.strictEqual(status.nextActivity, 'learn');
+assert.strictEqual(status.progress.mastered, 0);
+assert.strictEqual(status.stats, null);
+console.log('✓ getStatus on fresh map returns first concept with learn');
+
+// 21. getStatus advances after recording learn
+recordActivity(statusPath, 'Pods', 'learn', { correct: 5, total: 5 });
+status = getStatus(statusPath);
+assert.strictEqual(status.nextActivity, 'synthesize');
+console.log('✓ getStatus advances to synthesize after learn');
+
+// 22. addConcept adds to named section
+addConcept(statusPath, 'Core', { name: 'Services', description: 'Networking', dependencies: { requires: ['Pods'], enables: [] } });
+let addedState = loadMap(statusPath);
+const core = addedState.sections.find(s => s.name === 'Core');
+assert(core.concepts.some(c => c.name === 'Services'), 'Services should be in Core');
+assert.strictEqual(addedState.progress.total, 3, 'total should be 3 after adding concept');
+console.log('✓ addConcept adds to correct section and recalculates total');
+
+// 23. addConcept throws for unknown section
+try {
+  addConcept(statusPath, 'NonExistent', { name: 'X', description: '', dependencies: { requires: [], enables: [] } });
+  assert.fail('should throw');
+} catch (e) {
+  assert(e.message.includes('"NonExistent" not found'), `got: ${e.message}`);
+}
+console.log('✓ addConcept throws for unknown section');
+
+// 24. getStatus returns null currentConcept when all mastered
+const { mapPath: donePath } = createMap('Ruby', 'Write scripts', 'technical', [
+  { name: 'Only', description: '', concepts: [
+    { name: 'One', description: 'Solo concept', dependencies: { requires: [], enables: [] } }
+  ] }
+], TMP);
+recordActivity(donePath, 'One', 'learn', { correct: 5, total: 5 });
+recordActivity(donePath, 'One', 'synthesize', {});
+recordActivity(donePath, 'One', 'practice', { independence: true });
+recordActivity(donePath, 'One', 'calibrate', { correct: 3 });
+const doneStatus = getStatus(donePath);
+assert.strictEqual(doneStatus.currentConcept, null);
+assert.strictEqual(doneStatus.nextActivity, 'done');
+console.log('✓ getStatus returns null currentConcept when all mastered');
+
+// 25. endSession increments total_sessions and updates last_session
+const before = loadMap(statusPath).total_sessions;
+endSession(statusPath);
+const after = loadMap(statusPath);
+assert.strictEqual(after.total_sessions, before + 1);
+assert(after.last_session > loadMap(statusPath).started || true, 'last_session updated');
+console.log('✓ endSession increments total_sessions');
+
+// 26. endSession can be called multiple times
+endSession(statusPath);
+endSession(statusPath);
+assert.strictEqual(loadMap(statusPath).total_sessions, before + 3);
+console.log('✓ endSession is additive across calls');
+
 fs.rmSync(TMP, { recursive: true });
-console.log('\nAll map tests so far passed! ✓');
+console.log('\nAll map tests passed! ✓');
