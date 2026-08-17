@@ -139,5 +139,70 @@ try {
 }
 console.log('✓ recordActivity throws for invalid activity type');
 
+// ── calibrate tests ───────────────────────────────────────────────────────────
+
+const { nextActivityFor } = require('../scripts/map');
+
+console.log('\nmap.js tests — calibrate + retry logic\n');
+
+// Set up a concept that has completed learn + synthesize + practice
+const { mapPath: calMapPath } = createMap('Go', 'Write services', 'technical', SECTIONS, TMP);
+recordActivity(calMapPath, 'Pods', 'learn', { correct: 5, total: 5 });
+recordActivity(calMapPath, 'Pods', 'synthesize', {});
+recordActivity(calMapPath, 'Pods', 'practice', { independence: true });
+
+// 14. calibrate pass: status → mastered, attempts = 1
+recordActivity(calMapPath, 'Pods', 'calibrate', { correct: 2 });
+let calState = loadMap(calMapPath);
+let calPod = calState.sections[0].concepts[0];
+assert.strictEqual(calPod.status, 'mastered');
+assert.strictEqual(calPod.activity.calibrate.correct, 2);
+assert.strictEqual(calPod.activity.calibrate.attempts, 1);
+console.log('✓ calibrate pass → mastered, attempts = 1');
+
+// 15. stats calculated after first complete chain
+assert(calState.learning_stats !== null, 'stats should be calculated');
+assert.strictEqual(calState.learning_stats.sample_size, 1);
+assert(typeof calState.learning_stats.avg_hours_per_concept === 'number');
+console.log('✓ learning_stats calculated after complete chain');
+
+// 16. calibrate fail (score < 2): status stays practicing, attempts incremented
+const { mapPath: retryPath } = createMap('Rust', 'Build CLI', 'technical', SECTIONS, TMP);
+recordActivity(retryPath, 'Pods', 'learn', { correct: 5, total: 5 });
+recordActivity(retryPath, 'Pods', 'synthesize', {});
+recordActivity(retryPath, 'Pods', 'practice', { independence: true });
+recordActivity(retryPath, 'Pods', 'calibrate', { correct: 1 }); // fail
+let retryState = loadMap(retryPath);
+let retryPod = retryState.sections[0].concepts[0];
+assert.strictEqual(retryPod.status, 'practicing');
+assert.strictEqual(retryPod.activity.calibrate.attempts, 1);
+assert.strictEqual(nextActivityFor(retryPod), 'calibrate', 'should retry calibrate');
+console.log('✓ calibrate fail → status practicing, nextActivity = calibrate');
+
+// 17. calibrate fail 3 times: nextActivity forced to practice
+recordActivity(retryPath, 'Pods', 'calibrate', { correct: 0 }); // fail 2
+recordActivity(retryPath, 'Pods', 'calibrate', { correct: 1 }); // fail 3
+retryState = loadMap(retryPath);
+retryPod = retryState.sections[0].concepts[0];
+assert.strictEqual(retryPod.activity.calibrate.attempts, 3);
+assert.strictEqual(nextActivityFor(retryPod), 'practice', 'after 3 fails, force back to practice');
+console.log('✓ after 3 failed calibrates, nextActivity = practice');
+
+// 18. recording practice after cap resets calibrate, then calibrate starts fresh
+recordActivity(retryPath, 'Pods', 'practice', { independence: false });
+retryState = loadMap(retryPath);
+retryPod = retryState.sections[0].concepts[0];
+assert.strictEqual(retryPod.activity.calibrate, undefined, 'calibrate should be cleared after forced practice');
+assert.strictEqual(nextActivityFor(retryPod), 'calibrate', 'after re-practice, nextActivity = calibrate again');
+console.log('✓ practice after cap clears calibrate; next is calibrate');
+
+// 19. fresh calibrate after reset starts attempts at 1
+recordActivity(retryPath, 'Pods', 'calibrate', { correct: 3 });
+retryState = loadMap(retryPath);
+retryPod = retryState.sections[0].concepts[0];
+assert.strictEqual(retryPod.activity.calibrate.attempts, 1, 'attempts resets to 1');
+assert.strictEqual(retryPod.status, 'mastered');
+console.log('✓ calibrate after reset: attempts = 1, status = mastered');
+
 fs.rmSync(TMP, { recursive: true });
 console.log('\nAll map tests so far passed! ✓');

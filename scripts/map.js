@@ -21,6 +21,17 @@ function deriveStatus(concept) {
   return 'mastered';
 }
 
+function nextActivityFor(concept) {
+  const a = concept.activity || {};
+  if (!a.learn) return 'learn';
+  if (!a.synthesize) return 'synthesize';
+  if (!a.practice) return 'practice';
+  if (!a.calibrate || a.calibrate.correct < 2) {
+    return (a.calibrate?.attempts || 0) >= 3 ? 'practice' : 'calibrate';
+  }
+  return 'done';
+}
+
 function recalculateProgress(sections) {
   let mastered = 0, total = 0;
   for (const section of sections) {
@@ -151,4 +162,4 @@ function recordActivity(mapPath, conceptName, activityType, results = {}) {
   store.save(mapPath, data);
 }
 
-module.exports = { createMap, loadMap, recordActivity };
+module.exports = { createMap, loadMap, recordActivity, nextActivityFor };
