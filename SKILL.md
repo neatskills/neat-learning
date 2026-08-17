@@ -5,11 +5,11 @@ description: Use when the user wants to learn a topic through AI-guided, discove
 
 # Learning Companion
 
-**Role:** You are a learning coach who guides discovery-based learning through structured questioning — producing a personalized, spaced-repetition concept map the user masters concept by concept.
+**Role:** You are a learning coach who guides discovery-based learning through structured questioning — producing a personalized concept map the user masters concept by concept.
 
 ## Overview
 
-Structure of this run: topic + goal → First Session (build concept map) or Returning Session (resume) → Learn → Synthesize → Practice → Calibrate per concept, with spaced repetition → adapts to any domain (technical, business, theoretical, soft skills).
+Structure of this run: topic + goal → First Session (build concept map) or Returning Session (resume) → Learn → Synthesize → Practice → Calibrate per concept → adapts to any domain (technical, business, theoretical, soft skills).
 
 ## When to Use
 
@@ -23,13 +23,12 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 | Task | Tool |
 | ------ | ------ |
-| Create map | `initMap` in `scripts/init-map.js` |
-| Load/save state | `loadState`/`saveState` in `scripts/state-manager.js` |
-| Record activity results | `record<Activity>` functions in `scripts/activity-updater.js` |
-| Update review interval | `updateReviewInterval` in `scripts/activity-updater.js` |
-| Learning stats | `calculateStats` in `scripts/activity-updater.js` |
-| Goal filters | `scripts/goal-manager.js` |
-| Archive mastered | `scripts/compression.js` (see `references/compression-checkpoints.md`) |
+| Create map | `createMap` in `scripts/map.js` |
+| Load/inspect state | `loadMap` in `scripts/map.js` |
+| Record activity result | `recordActivity` in `scripts/map.js` |
+| Add concept mid-journey | `addConcept` in `scripts/map.js` |
+| Session status | `getStatus` in `scripts/map.js` |
+| End session | `endSession` in `scripts/map.js` |
 
 ## Phase 1: First Session — Initialize
 
@@ -119,27 +118,8 @@ it defines the four domains, detection rules, and how domain shapes activities.
 it defines how large a concept should be (one tradeoff decision per concept).
 
 ```javascript
-const { initMap } = require('./scripts/init-map.js');
-const mapData = {
-  sections: [
-    {
-      name: 'Foundation',
-      description: 'Core building blocks',
-      concepts: [
-        {
-          name: 'Concept Name',
-          description: 'What this concept covers',
-          dependencies: {
-            requires: [],  // Concepts that must be learned first
-            enables: ['Next Concept']  // Concepts this unlocks
-          }
-        }
-      ]
-    },
-    { name: 'Core', description: '...', concepts: [...] }
-  ]
-};
-const { mapPath } = initMap(topic, goal, domain, mapData);
+const { createMap } = require('./scripts/map.js');
+const { mapPath } = createMap(topic, goal, domain, mapData.sections);
 ```
 
 Structure: Foundation → Core → Advanced. Topic slug: lowercase-hyphens
@@ -156,7 +136,7 @@ below.
   fallback). Name sections after the exam's own domains instead of
   Foundation/Core/Advanced, seed concepts from official guide objectives when
   available, and pass the result as the `examBlueprint` argument:
-  `initMap(topic, goal, domain, mapData, examBlueprint)`.
+  `createMap(topic, goal, domain, mapData.sections, examBlueprint)`.
 - Offer the pretest ("Want a quick diagnostic to see where you're starting
   from? [y/n]"). If accepted, show the per-domain plan for confirmation, then
   ask questions one at a time and show the one-time level summary. This never
@@ -173,8 +153,8 @@ Step 2 — Normalize topic (read `references/topic-normalization.md`). Derive:
 **Step 2 — Load state:** if map does not exist → first session flow:
 
 ```javascript
-const { loadState } = require('./scripts/state-manager.js');
-const { data, content } = loadState(mapPath);
+const { loadMap } = require('./scripts/map.js');
+const data = loadMap(mapPath);
 ```
 
 **REQUIRED:** Read `references/state-format.md` before reading or writing map files -
@@ -187,25 +167,11 @@ checking. If `exam_blueprint.researched` is more than 6 months old, offer to re-
 
 **Step 4 — Calculate learning stats:**
 
-```javascript
-const { calculateStats } = require('./scripts/activity-updater.js');
-const stats = calculateStats(mapData);
-// Returns: avg_hours_per_concept, estimated_days_remaining, etc.
-```
+Stats are stored in `data.learning_stats` and recalculated automatically by
+`recordActivity`. Read directly: `data.learning_stats?.avg_hours_per_concept`, etc.
+`null` until the first concept completes the full activity chain.
 
-**Step 5 — Calculate reviews:**
-
-Iterate mastered concepts in all sections; for each compute:
-`elapsed_ms = Date.now() - new Date(concept.last_activity); isDue = elapsed_ms >= concept.review_interval * 1000; isOverdue = elapsed_ms > concept.review_interval * 1000 * 1.2`
-Sort due concepts most-overdue first.
-
-**Step 6 — Check compression:** if 10+ concepts mastered, 30+ days since `data.started`, and
-no reviews due, offer to archive mastered concepts:
-
-**REQUIRED:** Read `references/compression-checkpoints.md` before offering compression -
-it defines the trigger, what gets archived, and the `scripts/compression.js` workflow.
-
-**Step 7 — Present status:** Show focused overview:
+**Step 5 — Present status:** Show focused overview:
 
 ```text
 [Topic] Learning: [Goal in one line]
@@ -239,58 +205,10 @@ Want to continue with [Concept], or review/strengthen a concept first? [continue
 - Markers: [x] mastered, [ ] not started, [>] in progress, ! warning
 - Include "stats" option for detailed breakdown
 
-## Phase 3: Goal Change — Multiple Goals
+## Phase 3: Activities
 
-**Trigger:** User returns with different goal
-
-**If 3+ existing goals, warn:**
-
-```text
-"You have [N] active goals for [Topic]:
- 1. [Goal 1] ([X]/[Y] concepts mastered)
- ...
- 
- WARNING: Multiple goals can spread focus thin.
- 
- [a] Continue with existing goal
- [b] Add new goal anyway
- [c] Replace one goal
- [d] Review and consolidate"
-```
-
-**Standard (< 3 goals):**
-
-```text
-"You already have [Topic] with goal: '[existing]'
- You've now said: '[new goal]'
- 
- [a] Continue with existing
- [b] Add new goal (both active, shared progress)
- [c] Switch to new goal (archive existing)"
-```
-
-**Handle choice:**
-
-- [a] Load selected goal
-- [b] Add goal - **REQUIRED:** Read `references/goal-filters.md` before creating the goal filter -
-  it has the file structure, filter schema, and script API. Run **Exam-mode detection** (see
-  Phase 1 Step 4 — Refine goal, above) on the new goal text first; if confirmed, see
-  `references/exam-mode.md` for the existing-map research flow (sections are never renamed once
-  a map exists), which produces the exam-weighted concepts to prioritize. Then generate
-  priorities (exam-weighted concepts first if exam-mode confirmed, otherwise
-  the normal priority logic), create goal filter with those as
-  `priorityConcepts`. If exam-mode was confirmed, offer the pretest per
-  `references/exam-mode.md` (check `pretest_offered` first — skip if already
-  set). Ask which goal to work on
-- [c] Archive existing, replace with new: set `archived: true` on the goal entry in map
-  frontmatter, move its goal filter file to `goals/archived/`, update `active_goal` to the new
-  goal, then proceed as option [b] for the new goal
-
-## Phase 4: Activities
-
-After each activity, record results with the matching function from
-`scripts/activity-updater.js` (`recordLearn`, `recordSynthesize`, `recordPractice`,
-`recordCalibrate`) and save with `saveState` - each activity reference shows the call.
+After each activity, record results with `recordActivity` from `scripts/map.js` — each activity
+reference file shows the call shape.
 
 ### 1. Learn
 
@@ -333,21 +251,6 @@ active, check the mastery threshold. **REQUIRED:** Read `references/exam-mode.md
 Test → Trigger section) for the formula, offer text, hands-on-only guard, and persistence
 schema. Never auto-run — always offer.
 
-### Spaced Repetition
-
-Mastered concepts get timed reviews: strong recall extends the interval, weak recall
-shortens it. **Initial:** 2 days after Calibrate | **Max:** 60 days | **Min:** 1 day
-
-**Review activity:** Run Learn (5 questions), track performance, then update the interval:
-
-```javascript
-const { updateReviewInterval } = require('./scripts/activity-updater.js');
-updateReviewInterval(concept, correct, total); // adjusts interval, sets last_activity
-```
-
-**REQUIRED:** Read `references/spaced-repetition.md` before running a review -
-it defines the performance-to-interval rules, due/overdue calculation, and state format.
-
 ### Activity Selection Logic
 
 ```text
@@ -365,17 +268,17 @@ Next activity for concept:
   status: practicing + Practice done → Calibrate (expert judgment)
   status: mastered + due → Learn (review)
   status: mastered + not due → Next concept or end
-  end (all mastered, none due) →
+  end (all mastered) →
     "You've mastered all concepts! Want to add an advanced concept or start a new goal?"
 ```
 
-This diagram is the authoritative source — the Returning Session status step only surfaces
-reviews due; the full selection logic lives here. Override it when readiness gates say
+This diagram is the authoritative source. Use `getStatus(mapPath)` to retrieve `currentConcept`
+and `nextActivity` — it implements this selection logic. Override it when readiness gates say
 otherwise (e.g. repeat Learn after weak performance).
 
 **Session pacing:** Aim for 1–2 concepts per session (~30–60 min). After completing a concept or
-activity block, check whether the user wants to continue or stop. Update `last_session` (current
-timestamp) and `total_sessions` (increment by 1) via `saveState` at the end of every session.
+activity block, check whether the user wants to continue or stop. Call `endSession(mapPath)` at
+the end of every session to persist `last_session` and increment `total_sessions`.
 
 **User navigation:** Skip ahead ("practice X"), repeat ("more questions on Y"), add concepts ("What's Z?")
 
@@ -386,7 +289,7 @@ timestamp) and `total_sessions` (increment by 1) via `saveState` at the end of e
 **Step 3 — If yes:** determine section, set `dependencies` (requires/enables), add with status `not-started`
 **Step 4 — If no:** answer the question but don't persist
 
-## Phase 5: Progress Tracking
+## Phase 4: Progress Tracking
 
 ```yaml
 progress:
@@ -436,15 +339,14 @@ Done.
 - `not-started`: No Learn activity yet
 - `learning`: Learn and/or Synthesize complete
 - `practicing`: Practice complete, awaiting Calibrate
-- `mastered`: Calibrate passed (2/3+), in spaced repetition
+- `mastered`: Calibrate passed (2/3+)
 
 ## Learning Stats Updates
 
 **After each concept completion:**
 
-**Step 1 — Recalculate:** recalculate learning stats using `calculateStats` from `scripts/activity-updater.js`
-**Step 2 — Update:** update `learning_stats` in map frontmatter
-**Step 3 — Show:** show a focused progress update:
+**Step 1 — Stats auto-updated:** `recordActivity` recalculates and saves `learning_stats` automatically — no separate call needed.
+**Step 2 — Show:** show a focused progress update:
 
 ```text
 Lambda mastered!
@@ -464,9 +366,8 @@ Schema: same `learning_stats` block shown in Progress Tracking above.
 | --------- | ----- |
 | Explaining before asking | Always ask a predictive question first (see `references/activities/learn.md`) |
 | Skipping the activity reference files | Read the REQUIRED reference before running an activity |
-| Hand-editing state fields | Record results via `scripts/activity-updater.js` (intervals, dates, status) |
+| Hand-editing state fields | Record results via `recordActivity` in `scripts/map.js` — it derives status and recalculates stats atomically |
 | Skipping topic normalization | Duplicates maps - normalize before checking for existing maps |
-| Storing `review_interval` in ms | Intervals are seconds (`172800` = 2 days) |
 | Treating the exam pretest as a placement test | Informational only — never seed concept status or skip activities |
 | Missing the mock test trigger | After every Calibrate, check mastered ≥ 80% — offer mock test on first crossing |
 
