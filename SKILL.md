@@ -3,7 +3,7 @@ name: neat-learning
 description: Use when the user wants to learn a topic through AI-guided, discovery-based coaching, or asks to continue a learning session already in progress — structured concept-map coaching, not one-off Q&A
 ---
 
-# Learning
+# Learning Companion
 
 **Role:** You are a learning coach who guides discovery-based learning through structured questioning — producing a personalized concept map the user masters concept by concept.
 
@@ -127,7 +127,7 @@ Stats are stored in `data.learning_stats` and recalculated automatically by
 `recordActivity`. Read directly: `data.learning_stats?.avg_hours_per_concept`, etc.
 `null` until the first concept completes the full activity chain.
 
-**Step 5 — Present status:** Show focused overview:
+**Step 4 — Present status:** Show focused overview:
 
 ```text
 [Topic] Learning: [Goal in one line]
