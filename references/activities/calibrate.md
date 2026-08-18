@@ -40,4 +40,3 @@ calibrate:
   score: 3
   attempts: 1
 ```
-

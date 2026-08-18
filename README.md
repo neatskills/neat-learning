@@ -43,25 +43,15 @@ concepts. Then each concept goes through four activities:
 ## Features
 
 - **Goal-driven exploration:** "Deploy apps" vs "Pass cert" vs "Understand fundamentals" shapes depth/breadth
-- **4 domain support:** Technical, soft skills, business, theoretical
-- **Spaced repetition:** 2-60 day adaptive intervals prevent forgetting
-- **Multi-session state:** YAML frontmatter + Markdown for persistence
+- **4 domain support:** Technical, Analytical, Strategic, Interpersonal
+- **Multi-session state:** JSON map file (`map.json`) for persistence
 - **Mastery tracking:** not-started, learning, practicing, mastered - per concept
-- **Compression checkpoints:** Archive mastered concepts to keep maps focused
 
 ## Install
 
-```bash
-git clone https://github.com/neatskills/neat-learning.git
-cd neat-learning
-npm install
-./scripts/manage-skills.sh install
-```
-
-To uninstall:
-
-```bash
-./scripts/manage-skills.sh uninstall
+```text
+/plugin marketplace add neatskills/neat-learning
+/plugin install neat-learning
 ```
 
 ## Quick Start

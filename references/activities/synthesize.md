@@ -42,9 +42,7 @@ This writes `activity.synthesize` (status stays `learning`):
 
 ```yaml
 synthesize:
-  completed: '2026-06-27T00:00:00.000Z'
-  terms: [Pod, Pod spec, Pod lifecycle, Pod status, restart policy]
-  mental_model: "Pod wraps containers, spec defines desired state, lifecycle manages runtime"
+  date: '2026-06-27T00:00:00.000Z'
 ```
 
 ## Common Mistakes to Avoid

@@ -1,7 +1,7 @@
 {
   "name": "neat-learning",
-  "description": "AI-guided discovery-based learning system that makes you think before it explains. Covers technical, soft skills, business, and theoretical domains with spaced repetition and mastery tracking.",
-  "version": "1.1.1",
+  "description": "AI-guided discovery-based learning system that makes you think before it explains. Covers technical, soft skills, business, and theoretical domains with mastery tracking.",
+  "version": "1.2.0",
   "owner": {
     "name": "neatskills"
   },
@@ -9,8 +9,8 @@
     {
       "name": "neat-learning",
       "displayName": "Neat Learning",
-      "description": "Learn anything through questions and predictions. Builds a concept map, then guides you through Learn → Synthesize → Practice → Calibrate with spaced repetition and mastery tracking.",
-      "version": "1.1.1",
+      "description": "Learn anything through questions and predictions. Builds a concept map, then guides you through Learn → Synthesize → Practice → Calibrate with mastery tracking.",
+      "version": "1.2.0",
       "source": {
         "source": "github",
         "repo": "neatskills/neat-learning",

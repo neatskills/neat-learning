@@ -27,8 +27,9 @@ Practice preference: prefer scenario-based exercises ("A company needs X — whi
 
 ## Returning Session
 
-If map not found at the derived path, scan all maps under `docs/neat_learning/` for cert maps (`cert: true`) whose exam topic relates to the user's input:
+If map not found at the derived path, scan all maps under `./learning/` for cert maps (`cert: true`) whose exam topic relates to the user's input:
 > "You have a [Exam] cert map for [Topic] — is that what you meant? [y/n]"
+
 - Yes → load that cert map and continue as returning session
 - No → first session flow
 
@@ -50,7 +51,7 @@ By domain:
   Troubleshooting        (30%)   4/7  — focus here before booking
 ```
 
-`domain_mastery = mastered / total` per domain (skip domains with 0 concepts). Match concepts to domain by stripping the ` (N%)` suffix from section headers before comparing to `domain.name` in frontmatter.
+`domain_mastery = mastered / total` per domain (skip domains with 0 concepts). Match concepts to domain by stripping the `(N%)` suffix from section headers before comparing to `domain.name` in frontmatter.
 
 Ready when all domains ≥80%:
 > "All domains at 80%+ — you're ready. Book your exam and use the official simulator for final hands-on practice."

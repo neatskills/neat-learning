@@ -20,22 +20,24 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 **Workspace:**
 
 - Working space: `./learning/`
-- Output files: `./learning/{topic-slug}/map.json`
+- Output files: `./learning/{topic-slug}/map.json` — format: [maps.md](references/maps.md)
+
+**Perf Logging:** At the start and end of each phase, run `date +%s` and record `<label>_start` / `<label>_end`. Do not print the raw values. Durations are approximate. Report in the Retro phase.
 
 ## Phase 1: Setup
 
-**1. Topic & mode:** Ask "What would you like to learn?" if not provided. Normalize to a slug.
+**Step 1 — Topic & mode:** Ask "What would you like to learn?" if not provided. Normalize to a slug.
 
 - Cert/exam keywords or exam name → **cert mode**: topic = goal = cert
 - Otherwise → **topic mode**
 
-**2. Existing map?** List `./learning/` for a match:
+**Step 2 — Existing map:** List `./learning/` for a match:
 
-**Yes → Returning:** Load map. If cert → read `references/modes/cert.md`. Go to Phase 2: Activities.
+**Yes → Returning:** Load map. If cert → read [references/modes/cert.md](references/modes/cert.md). Go to Phase 2: Activities.
 
 **No → New:**
-- **Cert:** Read `references/modes/cert.md`. Generate map. Go to Phase 2: Activities.
-- **Topic:** Ask "What's your goal?" Refine if vague; confirm. Check for similar existing goal. Read `references/domains.md`. Read `references/modes/topic.md`. Generate map. Go to Phase 2: Activities.
+- **Cert:** Read [references/modes/cert.md](references/modes/cert.md). Generate map. Go to Phase 2: Activities.
+- **Topic:** Ask "What's your goal?" Refine if vague; confirm. Check for similar existing goal. Read [references/modes/topic.md](references/modes/topic.md). Generate map. Go to Phase 2: Activities.
 
 ## Phase 2: Activities
 
@@ -43,18 +45,20 @@ Sequence: `not-started → Learn → Synthesize → Practice → Calibrate → m
 
 Read the activity reference file before running it. Record results with `recordActivity` after — the reference shows the call shape.
 
+**Script calls:** `getStatus`, `recordActivity`, `addConcept`, and `endSession` live in `scripts/map.js` (backed by `scripts/store.js`) — invoke via `node -e "console.log(JSON.stringify(require('./scripts/map.js').<fn>(<args>)))"`.
+
 | Activity | Purpose | Reference |
 |---|---|---|
-| **Learn** | Ask questions, not explain | `references/activities/learn.md` |
-| **Synthesize** | Consolidate, introduce terminology | `references/activities/synthesize.md` |
-| **Practice** | Apply knowledge | `references/activities/practice.md` |
-| **Calibrate** | Expert judgment — tradeoffs, mistakes | `references/activities/calibrate.md` |
+| **Learn** | Ask questions, not explain | [references/activities/learn.md](references/activities/learn.md) |
+| **Synthesize** | Consolidate, introduce terminology | [references/activities/synthesize.md](references/activities/synthesize.md) |
+| **Practice** | Apply knowledge | [references/activities/practice.md](references/activities/practice.md) |
+| **Calibrate** | Expert judgment — tradeoffs, mistakes | [references/activities/calibrate.md](references/activities/calibrate.md) |
 
-Cert: after Calibrate, run readiness check — see `references/modes/cert.md`.
+Cert: after Calibrate, run readiness check — see [references/modes/cert.md](references/modes/cert.md).
 
-**Pacing:** 1–2 concepts per session. Check continue/stop after each concept. Call `endSession(mapPath)` at end.
+**Pacing:** 1–2 concepts per session. Check continue/stop after each concept. When the user stops: call `endSession(mapPath)`, then run Phase 4: Retro.
 
-**Navigation:** User can skip ahead, repeat, or ask about an unknown concept — explain it, offer to add it to the map.
+**Navigation:** User can skip ahead, repeat, or ask about an unknown concept — explain it, then `addConcept(mapPath, sectionName, { name, description })` to add it to the map.
 
 ## Phase 3: Status
 
@@ -63,5 +67,39 @@ Use `getStatus(mapPath)` to compute progress and stats on demand. Markers: `[x]`
 - **Progress** (user asks for map view): sections with concept markers and counts, overall % mastered
 - **Stats** (user asks "how long?" / "stats"): avg hours/concept, estimated days remaining, sample size
 - **Mastery** (after Calibrate passes): "[Concept] mastered! Progress: X/Y (Z%)"
+
+## Phase 4: Retro
+
+Runs once per session, triggered by the user stopping (see Phase 2: Activities — Pacing).
+
+`<name>`: this skill's name (frontmatter). `Target:`: topic slug and session number (e.g. `kubernetes / session 3`).
+
+```text
+Retro: neat-learning
+Target: <topic-slug> / session <N>
+```
+
+Count columns by scanning back through this session: **Tool calls** = every Bash/Read/Edit/Write; **File reads** = every Read; **Reasoning** = low / medium / high (high = multi-step inference with few tool calls).
+
+| Phase / Step | Duration (s) | Tool calls | File reads | Reasoning |
+| --- | --- | --- | --- | --- |
+| Phase 1 — Setup *(total)* | | | | |
+| Phase 1 — Step 1 — Topic & mode | | | | |
+| Phase 1 — Step 2 — Existing map | | | | |
+| Phase 2 — Activities *(total)* | | | | |
+| Phase 3 — Status *(total)* | | | | |
+
+For phase-level rows: record total for that phase. For step rows: record that step's duration within the phase.
+
+**Reflection** — omit any bullet where count is zero.
+
+Direct:
+- Reasoning spikes:
+- Duplicate file reads:
+- Mid-run corrections:
+
+Inferred (only if surprising and not already logged above):
+- Unclear instruction or judgment gap:
+- Unexpected win:
 
 Done.

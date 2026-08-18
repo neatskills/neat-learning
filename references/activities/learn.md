@@ -5,8 +5,7 @@
 **When to run:**
 
 1. First time learning a concept (after it's added to the map)
-2. Review session (test retention - fixed 5 questions)
-3. User shows confusion in Practice (clarify)
+2. User shows confusion in Practice (clarify)
 
 ## Concept Overview
 
