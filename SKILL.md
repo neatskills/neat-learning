@@ -3,7 +3,7 @@ name: neat-learning
 description: Use when the user wants to learn a topic through AI-guided, discovery-based coaching, or asks to continue a learning session already in progress — structured concept-map coaching, not one-off Q&A
 ---
 
-# Learning Companion
+# Learning
 
 **Role:** You are a learning coach who guides discovery-based learning through structured questioning — producing a personalized concept map the user masters concept by concept.
 
@@ -23,7 +23,7 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 | Task | Tool |
 | ------ | ------ |
-| Create map | `createMap` in `scripts/map.js` |
+| Create map (topic) | `createMap` in `scripts/map.js` |
 | Load/inspect state | `loadMap` in `scripts/map.js` |
 | Record activity result | `recordActivity` in `scripts/map.js` |
 | Add concept mid-journey | `addConcept` in `scripts/map.js` |
@@ -39,20 +39,18 @@ If goal provided: infer topic from keywords, confirm
 
 **Step 2 — Normalize topic:** Standardize to prevent duplicates
 
-**REQUIRED:** Read `references/topic-normalization.md` before finalizing the normalized name -
-it has the full alias registry and edge-case rules; the transformations below cover only the common cases.
-
 **Apply transformations:**
 
 - Lowercase with hyphens: "Model Context Protocol" → `model-context-protocol`
-- Check aliases: "MCP" → `model-context-protocol`, "k8s" → `kubernetes`
 - Strip versions unless explicit: "Python 3" → `python`
 - Singular form: "negotiations" → `negotiation`
 
-**Check for existing map:** `docs/neat_learning/{normalized-topic}/map.md`
+**Check for similar existing maps:** List `docs/neat_learning/` and compare slugs to the user's input.
 
-- If exists: load state, offer to continue
-- If not: confirm canonical name with user, proceed
+- Similar slug found (substring, abbreviation, or obvious alias): "You have an existing map for [Topic] — is that the same? [y/n]"
+  - Yes → load and continue that map
+  - No → proceed with new slug
+- No similar map → confirm canonical name with user and proceed
 
 **Confirm:** "I'll help you learn [Canonical Name]. Is that correct? [y/n]"
 
@@ -61,39 +59,25 @@ If [n]: ask "What would you like to call this topic?" and use their answer as th
 **Step 3 — Get goal:** If not provided: ask "What's your goal for learning [topic]?"
 Examples: deploy apps, pass cert, review code, build projects
 
-**Step 4 — Refine goal:** Check quality and help sharpen if vague
+**Step 4 — Refine goal:** Check quality and sharpen if vague
 
-**REQUIRED:** Read `references/goal-refinement.md` before splitting or combining multiple goals -
-it has the full split/combine criteria; the questions below cover only single-goal refinement.
+**Red flags:** abstract verbs ("understand", "learn deeply"), missing scope, multiple unrelated outcomes
 
-**Red flags (need refinement):**
+**Patterns:**
 
-- Abstract verbs: "understand", "learn deeply", "know advanced"
-- Missing scope: no specific application or context
+- **Too broad:** "Are you building/using/reviewing [topic]? Specific use case?" → "Learn MCP deeply" → "Build production-ready MCP servers"
+- **No context:** "What will you do with this? Specific project/situation?" → "Understand negotiation" → "Negotiate salary offers"
+- **Multiple outcomes ("X and Y"):** check relationship — same workflow → combine; unrelated → split and ask which to start
 
-**Refinement questions:**
+**Split when:** different domains, timelines, or contexts. **Combine when:** same workflow, sequential steps, or mutually reinforcing.
 
-- Too broad: "Are you building/using/reviewing [topic]? Specific use case?"
-- No context: "What will you do with this? Specific project/situation?"
+**Propose:** "So your goal is: '[refined]'?" → User confirms. If still vague, ask one more round.
 
-**Propose refined goal:** "So your goal is: '[refined]'?" → User confirms
+**Cert-mode detection:** Check the confirmed goal for cert/exam keywords ("pass", "cert", "exam", "certification") or a known exam name ("CKA", "CKAD", "AWS SAA", "PMP").
 
-**Examples:**
+On a match: **REQUIRED:** Read `references/modes/cert.md` before continuing — it defines the doc request, map generation, activity variations, and end state for cert mode.
 
-- "Learn MCP deeply" → "Build production-ready MCP servers"
-- "Understand negotiation" → "Negotiate salary offers"
-- "Review code and interview prep" → Split into 2 goals
-
-**Exam-mode detection:** Check the confirmed goal for exam/cert keywords or a known
-certification name.
-
-**REQUIRED:** Read `references/exam-mode.md` before confirming exam-mode - it has the
-full keyword list, confirm prompt, blueprint research process, pretest format, and mock
-test trigger; all behavioral details are there.
-
-On a keyword/cert match, confirm per `references/exam-mode.md` (Detection section).
-
-Declined or no match → continue as normal, skip all exam-mode steps below.
+No keyword match → topic mode. Continue to Steps 5–8.
 
 **Step 5 — Detect compound goals:** Split if contains "and"/"or"/"/"
 
@@ -109,48 +93,24 @@ Declined or no match → continue as normal, skip all exam-mode steps below.
 **Step 7 — Detect domain:** Unambiguous: "This looks like [domain]. Is that right? [y/n]"
 Ambiguous: Present options a/b/c
 
-**REQUIRED:** Read `references/domain-types.md` before detecting the domain -
-it defines the four domains, detection rules, and how domain shapes activities.
+**REQUIRED:** Read `references/map-concepts.md` before detecting the domain and generating concepts -
+it defines the four domains, detection rules, and concept granularity (one tradeoff decision per concept).
 
-**Step 8 — Generate map:** Use your knowledge to design learning path:
+**Step 8 — Generate map:**
 
-**REQUIRED:** Read `references/concept-granularity.md` before generating concepts -
-it defines how large a concept should be (one tradeoff decision per concept).
-
-```javascript
-const { createMap } = require('./scripts/map.js');
-const { mapPath } = createMap(topic, goal, domain, mapData.sections);
-```
-
-Structure: Foundation → Core → Advanced. Topic slug: lowercase-hyphens
-
-**Exam-mode: Blueprint research and pretest** - if exam-mode was confirmed in
-Step 4 — Refine goal, run before building `mapData`:
-
-**REQUIRED:** Read `references/exam-mode.md` - it has the full three-tier
-research fallback, the `exam_blueprint` schema, the exam-domain section-naming
-rule, and the pretest format; do not improvise any of these from the summary
-below.
-
-- Research the exam's public blueprint (web search → AI knowledge → generic
-  fallback). Name sections after the exam's own domains instead of
-  Foundation/Core/Advanced, seed concepts from official guide objectives when
-  available, and pass the result as the `examBlueprint` argument:
-  `createMap(topic, goal, domain, mapData.sections, examBlueprint)`.
-- Offer the pretest ("Want a quick diagnostic to see where you're starting
-  from? [y/n]"). If accepted, show the per-domain plan for confirmation, then
-  ask questions one at a time and show the one-time level summary. This never
-  changes concept status or skips activities.
+- **Cert mode:** follow `references/modes/cert.md` (already loaded in Step 4).
+- **Topic mode:** **REQUIRED:** Read `references/modes/topic.md` before generating the map.
 
 **Step 9 — Display and begin:** Show sections/concepts. Begin Learn on first concept.
 
 ## Phase 2: Returning Session — Load and Review
 
-**Step 1 — Normalize topic and derive path:** apply the same topic normalization as First Session
-Step 2 — Normalize topic (read `references/topic-normalization.md`). Derive:
-`mapPath = docs/neat_learning/{normalized-topic}/map.md`
+**Step 1 — Normalize topic and derive path:** Apply the same slug transformation as First Session Step 2. List `docs/neat_learning/` to find the matching map. Derive:
+`mapPath = docs/neat_learning/{normalized-topic}/map.json`
 
-**Step 2 — Load state:** if map does not exist → first session flow:
+**Step 2 — Load state:** if map does not exist at the derived path → first session flow.
+
+**Cert maps:** if no map was found, or if `data.cert === true` after loading — **REQUIRED:** Read `references/modes/cert.md` for cert-specific returning session behavior.
 
 ```javascript
 const { loadMap } = require('./scripts/map.js');
@@ -160,12 +120,8 @@ const data = loadMap(mapPath);
 **REQUIRED:** Read `references/state-format.md` before reading or writing map files -
 it defines the frontmatter structure and field types.
 
-**Step 3 — Check blueprint staleness:** if `exam_blueprint` is present in the loaded state:
 
-**REQUIRED:** Read `references/exam-mode.md` (Blueprint Staleness section) before
-checking. If `exam_blueprint.researched` is more than 6 months old, offer to re-research.
-
-**Step 4 — Calculate learning stats:**
+**Step 3 — Calculate learning stats:**
 
 Stats are stored in `data.learning_stats` and recalculated automatically by
 `recordActivity`. Read directly: `data.learning_stats?.avg_hours_per_concept`, etc.
@@ -246,10 +202,7 @@ it defines readiness gates, domain adaptation, and state-update format.
 **REQUIRED:** Read `references/activities/calibrate.md` before running this activity -
 it defines the question pattern, pass criteria, and state-update format.
 
-**Mock test check (exam-mode only):** After recording Calibrate results, if exam-mode is
-active, check the mastery threshold. **REQUIRED:** Read `references/exam-mode.md` (Mock
-Test → Trigger section) for the formula, offer text, hands-on-only guard, and persistence
-schema. Never auto-run — always offer.
+**Cert mode:** After recording Calibrate results, run the readiness check — see `references/modes/cert.md`.
 
 ### Activity Selection Logic
 
@@ -268,8 +221,7 @@ Next activity for concept:
   status: practicing + Practice done → Calibrate (expert judgment)
   status: mastered + due → Learn (review)
   status: mastered + not due → Next concept or end
-  end (all mastered) →
-    "You've mastered all concepts! Want to add an advanced concept or start a new goal?"
+  end (all mastered) → see mode reference for end state
 ```
 
 This diagram is the authoritative source. Use `getStatus(mapPath)` to retrieve `currentConcept`
@@ -368,8 +320,6 @@ Schema: same `learning_stats` block shown in Progress Tracking above.
 | Skipping the activity reference files | Read the REQUIRED reference before running an activity |
 | Hand-editing state fields | Record results via `recordActivity` in `scripts/map.js` — it derives status and recalculates stats atomically |
 | Skipping topic normalization | Duplicates maps - normalize before checking for existing maps |
-| Treating the exam pretest as a placement test | Informational only — never seed concept status or skip activities |
-| Missing the mock test trigger | After every Calibrate, check mastered ≥ 80% — offer mock test on first crossing |
 
 ## Usage Examples
 
