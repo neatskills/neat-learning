@@ -197,7 +197,7 @@ Record results with `recordActivity`:
 ```javascript
 const { recordActivity } = require('./scripts/map.js');
 
-recordActivity(mapPath, conceptName, 'learn', { correct, total });
+recordActivity(mapPath, conceptName, 'learn', { score: correct });
 ```
 
 This writes `activity.learn` and sets the concept status to `learning`:
@@ -205,21 +205,8 @@ This writes `activity.learn` and sets the concept status to `learning`:
 ```yaml
 learn:
   date: '2026-06-27T00:00:00.000Z'
-  questions:
-    correct: 5
-    total: 5
-  hints_needed: 0
-  coverage:
-    core: [lifecycle, restart-policy]
-    depth: [init-containers]
-    breadth: []
-  signals:
-    confusion: []
-    strengths: [lifecycle, container-relationship, restart-policy]
+  score: 5
 ```
-
-For weak understanding, record confusion patterns as strings, e.g.
-`["Mixing up Deployment vs ReplicaSet"]` - they drive the readiness criteria above.
 
 ## Common Mistakes to Avoid
 

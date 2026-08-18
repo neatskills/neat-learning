@@ -12,7 +12,7 @@ On cert keyword match in goal refinement, confirm and ask for docs in one messag
 
 - Map slug keyed to the exam (`cka`, `aws-saa-c03`), not the topic
 - Extract from shared docs: domain names, weight percentages, objectives per domain
-- Apply granularity rules (`references/map-concepts.md`) to objectives: combine/split into concepts
+- Apply granularity rules to objectives: combine/split into concepts (one concept = one testable skill; aim for 5–12 per domain)
 - Sections named after exam domains with weight in header: `"Cluster Architecture (25%)"`
 - Sections ordered by domain weight descending; concepts within each section ordered by dependency as normal
 

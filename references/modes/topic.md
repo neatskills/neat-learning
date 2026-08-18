@@ -4,6 +4,8 @@
 
 Use your knowledge to design a learning path. Structure: Foundation → Core → Advanced. Concepts ordered by dependency within each section.
 
+**Granularity:** one concept = one tradeoff or decision a practitioner makes. Aim for 5–15 concepts per map. Combine objectives that share a single mental model; split objectives that require separate decisions.
+
 ```javascript
 const { createMap } = require('./scripts/map.js');
 const { mapPath } = createMap(topic, goal, domain, sections);

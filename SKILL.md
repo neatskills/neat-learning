@@ -9,7 +9,7 @@ description: Use when the user wants to learn a topic through AI-guided, discove
 
 ## Overview
 
-Structure of this run: topic + goal → First Session (build concept map) or Returning Session (resume) → Learn → Synthesize → Practice → Calibrate per concept → adapts to any domain (technical, business, theoretical, soft skills).
+Structure of this run: topic + goal → First Session (build concept map) or Returning Session (resume) → Learn → Synthesize → Practice → Calibrate per concept → adapts to any domain (technical, analytical, strategic, interpersonal).
 
 ## When to Use
 
@@ -62,7 +62,7 @@ Cert: after Calibrate, run readiness check — see `references/modes/cert.md`.
 Use `getStatus(mapPath)` to compute progress and stats on demand. Markers: `[x]` mastered · `[>]` in progress · `[ ]` not started.
 
 - **Progress** (user asks for map view): sections with concept markers and counts, overall % mastered
-- **Stats** (user asks "how long?" / "stats"): avg hours/concept, estimated days remaining, confidence level
+- **Stats** (user asks "how long?" / "stats"): avg hours/concept, estimated days remaining, sample size
 - **Mastery** (after Calibrate passes): "[Concept] mastered! Progress: X/Y (Z%)"
 
 Done.

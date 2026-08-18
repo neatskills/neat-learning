@@ -28,26 +28,18 @@ Record results with `recordActivity`:
 ```javascript
 const { recordActivity } = require('./scripts/map.js');
 
-recordActivity(mapPath, conceptName, 'calibrate', { correct });
+recordActivity(mapPath, conceptName, 'calibrate', { score: correct });
 ```
 
-This writes `activity.calibrate`; on 2+ correct it sets status to `mastered`,
+This writes `activity.calibrate`; on score ≥ 2 it sets status to `mastered`,
 otherwise status stays `practicing`:
 
 ```yaml
 calibrate:
   date: '2026-06-27T00:00:00.000Z'
-  judgment:
-    correct: 3
-    total: 3
-  expert_thinking:
-    - Knows when NOT to use Deployments (one-time tasks need Job)
-    - Understands Deployment vs StatefulSet vs Job contexts
-    - Identified common beginner mistakes (replicas=1)
+  score: 3
+  attempts: 1
 ```
-
-On failure, record the gaps in `expert_thinking` as needs
-(e.g. `["Needs refinement: couldn't identify when NOT to use concept"]`).
 
 ## After Calibrate
 

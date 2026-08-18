@@ -10,13 +10,10 @@
 
 - Learn: 4/5+ questions correct
 - Synthesize: Vocabulary introduced
-- Prerequisites: All "requires" dependencies at status `practicing` or `mastered`
-  (check `concept.dependencies.requires` array against concept statuses in all sections)
 
 **Blocked if:**
 
 - Learn weak (<4/5 correct)
-- Prerequisites missing or weak
 
 ## Domain Adaptation
 
@@ -98,7 +95,7 @@ Record results with `recordActivity`:
 ```javascript
 const { recordActivity } = require('./scripts/map.js');
 
-recordActivity(mapPath, conceptName, 'practice', { independence });
+recordActivity(mapPath, conceptName, 'practice');
 ```
 
 This writes `activity.practice` and sets the concept status to `practicing`:
@@ -106,20 +103,7 @@ This writes `activity.practice` and sets the concept status to `practicing`:
 ```yaml
 practice:
   date: '2026-06-27T00:00:00.000Z'
-  independence: true
-  exercises:
-    - name: Write Pod manifest
-      status: complete
-      errors: 0
-    - name: Debug failing Pod
-      status: complete
-      errors: 0
-  error_patterns: []
 ```
-
-For weak practice, set `independence: false` and record `error_patterns`
-(e.g. `["Conceptual: confused replicas vs Pod count"]`) - they drive the
-readiness decision below.
 
 ## Readiness for Calibrate
 
