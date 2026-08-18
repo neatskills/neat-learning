@@ -1,10 +1,8 @@
 # State File Format
 
-**Location:** `docs/neat_learning/<topic-slug>/map.json`
+**Location:** `./learning/<topic-slug>/map.json`
 
 **Format:** Pure JSON. Read and write via `scripts/map.js` — do not hand-edit fields.
-
-**Slug rule:** `topic.toLowerCase().replace(/[^a-z0-9]+/g, '-')`
 
 ## Top-Level Schema
 
@@ -13,16 +11,8 @@
   "topic": "Kubernetes",
   "goal": "Deploy production applications",
   "domain": "technical",
-  "started": "2026-08-17T10:00:00.000Z",
   "last_session": "2026-08-17T10:00:00.000Z",
   "total_sessions": 4,
-  "progress": { "mastered": 3, "total": 8 },
-  "learning_stats": {
-    "avg_hours_per_concept": 2.1,
-    "estimated_days_remaining": 12,
-    "sample_size": 3,
-    "last_calculated": "2026-08-17T10:00:00.000Z"
-  },
   "cert": true,
   "domains": [
     { "name": "Cluster Architecture", "weight_pct": 25 },
@@ -32,11 +22,9 @@
 }
 ```
 
-`learning_stats` is `null` until the first concept completes the full activity chain (learn → synthesize → practice → calibrate passed).
+`cert` and `domains` are present only on cert maps. Omitted on topic maps.
 
-`cert` and `domains` are present only on cert maps (created via `createCertMap`). Omitted on topic maps.
-
-`total_sessions` starts at 0 and is incremented by `endSession` — value N means N sessions have ended.
+`total_sessions` starts at 0 and is incremented by `endSession`.
 
 ## Concept Schema
 
@@ -44,13 +32,11 @@
 {
   "name": "Kubernetes Pods",
   "description": "Core schedulable unit",
-  "status": "not-started",
-  "dependencies": { "requires": [], "enables": ["Deployments"] },
   "activity": {
-    "learn":      { "date": "...", "correct": 4, "total": 5 },
-    "synthesize": { "completed": "..." },
-    "practice":   { "date": "...", "independence": true },
-    "calibrate":  { "date": "...", "correct": 2, "total": 3, "attempts": 1 }
+    "learn":      { "date": "...", "score": 4 },
+    "synthesize": { "date": "..." },
+    "practice":   { "date": "..." },
+    "calibrate":  { "date": "...", "score": 2, "attempts": 1 }
   }
 }
 ```
@@ -59,20 +45,19 @@
 
 `not-started → learning → practicing → mastered`
 
-Status is derived from the activity chain — it is stored for convenience but always matches:
+Status is derived on demand from the activity chain — never stored:
 
 | Condition | Status |
 |---|---|
 | No `activity.learn` | `not-started` |
 | `learn` present, no `practice` | `learning` |
-| `practice` present; no `calibrate` or `calibrate.correct < 2` | `practicing` |
-| `calibrate.correct >= 2` | `mastered` |
+| `practice` present; no `calibrate` or `calibrate.score < 2` | `practicing` |
+| `calibrate.score >= 2` | `mastered` |
 
-Note: `synthesize` does not affect status.
+`synthesize` does not affect status.
 
-## Field Types
+## Field Notes
 
-- Dates: ISO 8601 strings (`2026-08-17T10:00:00.000Z`)
-- `calibrate.total`: always `3`
-- `calibrate.attempts`: increments on each call; resets when practice is re-recorded after cap
-- `practice.independence`: boolean — true if the learner worked without hints
+- Dates: ISO 8601 strings
+- `calibrate.attempts`: increments on each call; resets when practice is re-recorded after 3 failed attempts
+- `progress` and `learning_stats` are computed on demand — not stored

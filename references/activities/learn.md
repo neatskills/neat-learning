@@ -172,9 +172,9 @@ hasn't landed — spaced repetition will bring it back sooner via high `hints_ne
 | Domain | Question Type | Example |
 | -------- | --------------- | --------- |
 | **Technical** | Predictive ("What happens if...?") | "Container crashes?" → "3 identical copies?" |
-| **Soft Skills** | Scenario ("In this situation...?") | "Seller says '$15k firm.' Counter $8k vs $12k?" |
-| **Business** | Estimation ("Calculate...") | "Company generates $100K/year for 10 years. Worth $1M today?" |
-| **Theoretical** | Pattern ("Which? Why?") | "Study A cuts heart disease. Study B: none. Which remember better?" |
+| **Analytical** | Estimation ("Calculate / model...") | "Company generates $100K/year for 10 years. Worth $1M today?" |
+| **Strategic** | Decision ("What's the priority?") | "Growing 20% monthly, burning $500k/month, 18mo runway. What do you do?" |
+| **Interpersonal** | Scenario ("In this situation...?") | "Seller says '$15k firm.' Counter $8k vs $12k?" |
 
 ## Readiness Criteria
 

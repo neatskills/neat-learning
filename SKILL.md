@@ -25,177 +25,44 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 ## Phase 1: Setup
 
-**Step 1 — Topic:** If not provided, ask "What topic would you like to learn?" Normalize to a slug to prevent duplicates:
+**1. Topic & mode:** Ask "What would you like to learn?" if not provided. Normalize to a slug.
 
-- Lowercase with hyphens: "Model Context Protocol" → `model-context-protocol`
-- Strip versions unless explicit: "Python 3" → `python`
-- Singular form: "negotiations" → `negotiation`
+- Cert/exam keywords or exam name → **cert mode**: topic = goal = cert
+- Otherwise → **topic mode**
 
-List `./learning/` and compare slugs to detect similar existing maps:
+**2. Existing map?** List `./learning/` for a match:
 
-- Similar found: "You have an existing map for [Topic] — is that the same? [y/n]" → Yes: load and continue; No: proceed with new slug
-- No similar map: confirm canonical name — "I'll help you learn [Canonical Name]. Is that correct? [y/n]" → If no: ask what to call it, use their answer as display name, keep slug for file paths
+**Yes → Returning:** Load map. If cert → read `references/modes/cert.md`. Go to Phase 2.
 
-**Step 2 — Goal:** If not provided, ask "What's your goal for learning [topic]?" (e.g. deploy apps, pass cert, review code). Refine if vague:
+**No → New:**
+- **Cert:** Read `references/modes/cert.md`. Generate map. Go to Phase 2.
+- **Topic:** Ask "What's your goal?" Refine if vague; confirm. Check for similar existing goal. Read `references/domains.md` (one concept = one tradeoff). Read `references/modes/topic.md`. Generate map. Go to Phase 2.
 
-- **Too broad:** "Are you building/using/reviewing [topic]?" → "Learn MCP deeply" → "Build production-ready MCP servers"
-- **No context:** "What will you do with this?" → "Understand negotiation" → "Negotiate salary offers"
-- **Compound ("X and Y"):** same workflow → combine; unrelated → split, ask which to start
+## Phase 2: Activities
 
-Propose: "So your goal is: '[refined]'?" → confirm. If still vague, ask one more round.
+Sequence: `not-started → Learn → Synthesize → Practice → Calibrate → mastered → next concept`. All mastered → see mode reference. Use `getStatus(mapPath)` for current concept and next activity; override when readiness gates say otherwise.
 
-Check for cert/exam keywords ("pass", "cert", "exam", "CKA", "AWS SAA", "PMP"):
+Read the activity reference file before running it. Record results with `recordActivity` after — the reference shows the call shape.
 
-- Match → **REQUIRED:** Read `references/modes/cert.md` before continuing
-- No match → topic mode, continue to Step 3
+| Activity | Purpose | Reference |
+|---|---|---|
+| **Learn** | Ask questions, not explain | `references/activities/learn.md` |
+| **Synthesize** | Consolidate, introduce terminology | `references/activities/synthesize.md` |
+| **Practice** | Apply knowledge | `references/activities/practice.md` |
+| **Calibrate** | Expert judgment — tradeoffs, mistakes | `references/activities/calibrate.md` |
 
-Check for existing goals with this topic: exact match → load; similar → ask use existing or create new.
+Cert: after Calibrate, run readiness check — see `references/modes/cert.md`.
 
-**Step 3 — Domain & map:** **REQUIRED:** Read `references/map-concepts.md` before detecting the domain — it defines the four domains, detection rules, and concept granularity.
+**Pacing:** 1–2 concepts per session. Check continue/stop after each concept. Call `endSession(mapPath)` at end.
 
-Detect domain: unambiguous → "This looks like [domain]. Is that right? [y/n]"; ambiguous → present options a/b/c.
+**Navigation:** User can skip ahead, repeat, or ask about an unknown concept — explain it, offer to add it to the map.
 
-Generate map:
+## Phase 3: Status
 
-- **Cert mode:** follow `references/modes/cert.md` (already loaded in Step 2)
-- **Topic mode:** **REQUIRED:** Read `references/modes/topic.md` before generating
+Use `getStatus(mapPath)` to compute progress and stats on demand. Markers: `[x]` mastered · `[>]` in progress · `[ ]` not started.
 
-**Step 4 — Begin:** Display sections/concepts. Start Learn on first concept.
-
-## Phase 2: Returning Session — Load and Review
-
-**Step 1 — Normalize topic and derive path:** Apply the same slug transformation as First Session Step 2. List `docs/neat_learning/` to find the matching map. Derive:
-`mapPath = docs/neat_learning/{topic-slug}/map.json`
-
-**Step 2 — Load state:** if map does not exist at the derived path → first session flow.
-
-**Cert maps:** if no map was found, or if `data.cert === true` after loading — **REQUIRED:** Read `references/modes/cert.md` for cert-specific returning session behavior.
-
-```javascript
-const { loadMap } = require('./scripts/map.js');
-const data = loadMap(mapPath);
-```
-
-**REQUIRED:** Read `references/state-format.md` before reading or writing map files -
-it defines the frontmatter structure and field types.
-
-
-**Step 3 — Calculate learning stats:**
-
-Stats are stored in `data.learning_stats` and recalculated automatically by
-`recordActivity`. Read directly: `data.learning_stats?.avg_hours_per_concept`, etc.
-`null` until the first concept completes the full activity chain.
-
-**Step 4 — Present status:** **REQUIRED:** Read `references/display.md` for the session status block format and display rules.
-
-## Phase 3: Activities
-
-After each activity, record results with `recordActivity` from `scripts/map.js` — each activity
-reference file shows the call shape.
-
-### 1. Learn
-
-**Purpose:** Learn through questions/predictions, not explanations
-
-**Status update:** Concept → status: `learning`
-
-**REQUIRED:** Read `references/activities/learn.md` before running this activity - do not
-improvise the question strategy, readiness gates, or state-update format from the purpose line above.
-
-### 2. Synthesize
-
-**Purpose:** Consolidate insights, introduce terminology, build mental model
-
-**Status update:** Concept → status: `learning` (stays same until Practice)
-
-**REQUIRED:** Read `references/activities/synthesize.md` before running this activity -
-it defines the format and state-update structure.
-
-### 3. Practice
-
-**Purpose:** Apply knowledge through domain-appropriate exercises
-
-**Status update:** Concept → status: `practicing`
-
-**REQUIRED:** Read `references/activities/practice.md` before running this activity -
-it defines readiness gates, domain adaptation, and state-update format.
-
-### 4. Calibrate
-
-**Purpose:** Develop expert judgment - when rules break, tradeoffs, common mistakes
-
-**Status update:** Concept → status: `mastered` (if passed 2/3)
-
-**REQUIRED:** Read `references/activities/calibrate.md` before running this activity -
-it defines the question pattern, pass criteria, and state-update format.
-
-**Cert mode:** After recording Calibrate results, run the readiness check — see `references/modes/cert.md`.
-
-### Activity Selection Logic
-
-```text
-Returning session?
-  YES → Calculate due reviews
-    Any due?
-      YES → Offer review [continue/review/stats]
-      NO → Continue to next activity
-  NO → First session, build initial map
-
-Next activity for concept:
-  status: not-started → Learn (questions)
-  status: learning + Learn done → Synthesize (terminology)
-  status: learning + Synthesize done → Practice (hands-on)
-  status: practicing + Practice done → Calibrate (expert judgment)
-  status: mastered + due → Learn (review)
-  status: mastered + not due → Next concept or end
-  end (all mastered) → see mode reference for end state
-```
-
-This diagram is the authoritative source. Use `getStatus(mapPath)` to retrieve `currentConcept`
-and `nextActivity` — it implements this selection logic. Override it when readiness gates say
-otherwise (e.g. repeat Learn after weak performance).
-
-**Session pacing:** Aim for 1–2 concepts per session (~30–60 min). After completing a concept or
-activity block, check whether the user wants to continue or stop. Call `endSession(mapPath)` at
-the end of every session to persist `last_session` and increment `total_sessions`.
-
-**User navigation:** Skip ahead ("practice X"), repeat ("more questions on Y"), add concepts ("What's Z?")
-
-**Adding concepts mid-journey** - when user asks about a concept not in the map:
-
-**Step 1 — Explain:** briefly explain the concept.
-**Step 2 — Ask:** "Should I add [X] to your map? [y/n]"
-**Step 3 — If yes:** determine section, set `dependencies` (requires/enables), add with status `not-started`
-**Step 4 — If no:** answer the question but don't persist
-
-## Phase 4: Progress Tracking
-
-**REQUIRED:** Read `references/display.md` for progress and stats display formats.
-
-Data lives in `data.progress` and `data.learning_stats` — read directly from the loaded map. `recordActivity` recalculates stats automatically after each activity.
+- **Progress** (user asks for map view): sections with concept markers and counts, overall % mastered
+- **Stats** (user asks "how long?" / "stats"): avg hours/concept, estimated days remaining, confidence level
+- **Mastery** (after Calibrate passes): "[Concept] mastered! Progress: X/Y (Z%)"
 
 Done.
-
-## Concept Status Values
-
-- `not-started`: No Learn activity yet
-- `learning`: Learn and/or Synthesize complete
-- `practicing`: Practice complete, awaiting Calibrate
-- `mastered`: Calibrate passed (2/3+)
-
-## Learning Stats Updates
-
-**After each concept completion:**
-
-**Step 1 — Stats auto-updated:** `recordActivity` recalculates and saves `learning_stats` automatically — no separate call needed.
-**Step 2 — Show:** mastery notification format from `references/display.md`.
-
-## Common Mistakes
-
-| Mistake | Fix |
-| --------- | ----- |
-| Explaining before asking | Always ask a predictive question first (see `references/activities/learn.md`) |
-| Skipping the activity reference files | Read the REQUIRED reference before running an activity |
-| Hand-editing state fields | Record results via `recordActivity` in `scripts/map.js` — it derives status and recalculates stats atomically |
-| Skipping topic normalization | Duplicates maps - normalize before checking for existing maps |
-

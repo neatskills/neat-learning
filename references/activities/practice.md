@@ -23,9 +23,9 @@
 | Domain | Exercise Type | Example |
 | -------- | --------------- | --------- |
 | **Technical** | Bug spotting, decisions, code review | "Find errors in this code", "Which implementation is better?" |
-| **Soft Skills** | Role-play scenarios | "Role-play salary negotiation", "Practice anchoring" |
-| **Business** | Case studies, models | "Build DCF model for startup", "Analyze company" |
-| **Theoretical** | Analysis, pattern ID | "Identify cognitive biases in scenarios" |
+| **Analytical** | Quantitative problems, models | "Build DCF model for startup", "Derive the confidence interval" |
+| **Strategic** | Case studies, framework application | "Analyze this company's competitive position", "Which strategy fits?" |
+| **Interpersonal** | Role-play scenarios | "Role-play salary negotiation", "Practice anchoring" |
 
 ### Technical Domain: Critical Evaluation vs Code Writing
 
