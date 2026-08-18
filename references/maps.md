@@ -48,7 +48,7 @@
 Status is derived on demand from the activity chain — never stored:
 
 | Condition | Status |
-|---|---|
+| --- | --- |
 | No `activity.learn` | `not-started` |
 | `learn` present, no `practice` | `learning` |
 | `practice` present; no `calibrate` or `calibrate.score < 2` | `practicing` |
@@ -60,4 +60,4 @@ Status is derived on demand from the activity chain — never stored:
 
 - Dates: ISO 8601 strings
 - `calibrate.attempts`: increments on each call; resets when practice is re-recorded after 3 failed attempts
-- `progress` and `learning_stats` are computed on demand — not stored
+- `progress` and `stats` are computed on demand — not stored

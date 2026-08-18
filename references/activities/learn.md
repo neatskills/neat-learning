@@ -83,7 +83,7 @@ Count as hint: `hints_needed` +2. The comprehension question replaces the curren
 Distinguish three cases — don't just answer to end friction:
 
 | Case | Signs | Response |
-|---|---|---|
+| --- | --- | --- |
 | **Impatient** | has the pieces, wants speed | sharper hint, near-rhetorical question, or parallel example — `hints_needed` +1, not an explanation |
 | **Genuinely stuck** | same wrong guess, silence, "no idea" | one concrete fact/rule they're missing, then next question — they complete the reasoning |
 | **Uncertain / hedged** | answer ends in "?", "maybe", restates prior answer | "why does that follow?" before confirming — don't accept a hedge as understanding |
