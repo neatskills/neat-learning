@@ -17,6 +17,10 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 ## Configuration
 
+### Skill path
+
+Resolve to canonical, symlink-free path before following any `references/` links.
+
 **Workspace:**
 
 - Working space: `./learning/`
