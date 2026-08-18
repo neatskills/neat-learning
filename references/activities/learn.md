@@ -49,9 +49,7 @@ Which of these best describes [concept]?
 | Correct + uncertain / hedged | Probe: ask them to justify before moving on |
 | Wrong | Give one insight, ask a related question at the same level |
 
-**Learner agency:** `tip` and `explain` are always offered on every question and honored immediately — they are part of
-the design, not an interruption. If the learner types `t`, `tip`, `e`, `explain`, or asks for
-"a hint" / "give me options" in free text, treat `t`/hint as `tip` and `e` as `explain`.
+**Learner agency:** `tip` and `explain` are always offered and honored immediately. `t`/hint → `tip`; `e`/explain → `explain`.
 
 ### tip
 
@@ -66,71 +64,33 @@ Count as hint: `hints_needed` +1. Re-show the question after.
 
 ### explain
 
-Give a full explanation of the concept (definition, how it works, why it matters). Then ask a comprehension question —
-not predictive, but understanding-check — before moving on.
+Give a full explanation (definition, how it works, why it matters). Then ask a comprehension question (understanding-check, not predictive) before moving on.
 
-Example follow-up after explaining Pod:
-> "Got it — so given that a Pod shares network and storage across its containers, what would happen if one container in
-> a Pod crashes?"
-
-Count as hint: `hints_needed` +2. The comprehension question does not count toward the tree — it replaces the current
-question slot.
+Count as hint: `hints_needed` +2. The comprehension question replaces the current question slot — it does not count toward the tree.
 
 ## Tree-Based Question Strategy
 
-**Core principle:** User thinks and predicts BEFORE AI explains
+**Core questions (variable N):** simple (3–4), medium (5–7), complex (8–10).
 
-**Structure:**
+- **Depth (vertical):** drill deeper when user confused or topic is critical
+- **Breadth (horizontal):** explore wider when user understands well and related concepts matter for goal
+- **Stop when:** sufficient understanding for goal, or diminishing returns
 
-1. **Core questions (variable N):**
-   - N varies by complexity: simple (3-4), medium (5-7), complex (8-10)
-   - Determined by concept's natural structure
-
-2. **Depth (vertical):** Drill deeper when user confused OR topic critical for goal
-   - Example: "Container crashes?" → "Restart policy?" → "When use 'Never'?"
-
-3. **Breadth (horizontal):** Explore wider when user understands well AND related concepts matter for goal
-   - Example: Pod basics → init containers → sidecars → lifecycle phases
-
-4. **Stop when:** Sufficient understanding for goal, covered core + relevant depth/breadth, diminishing returns
-
-**Per-question flow:**
-
-```text
-Ask predictive question → User predicts → Confirm or clarify →
-Track performance → Decide: next core / deeper / wider / stop
-```
+**Per-question flow:** Ask predictive question → user predicts → confirm or clarify → track → decide: next core / deeper / wider / stop.
 
 ## Handling Pushback
 
-Users push back mid-question: "just tell me," "I don't have time for this," "can you skip to the answer?"
-Distinguish three cases before reacting - don't just answer, or agree, to end the friction:
+Distinguish three cases — don't just answer to end friction:
 
-**Impatient** (has the pieces, wants speed): don't give the answer. Give a sharper hint, narrow the
-question until it's nearly rhetorical, or state a parallel example and ask them to apply the same
-reasoning to the real one. Record it as a hint (`hints_needed` +1), not as an explanation given.
+| Case | Signs | Response |
+|---|---|---|
+| **Impatient** | has the pieces, wants speed | sharper hint, near-rhetorical question, or parallel example — `hints_needed` +1, not an explanation |
+| **Genuinely stuck** | same wrong guess, silence, "no idea" | one concrete fact/rule they're missing, then next question — they complete the reasoning |
+| **Uncertain / hedged** | answer ends in "?", "maybe", restates prior answer | "why does that follow?" before confirming — don't accept a hedge as understanding |
 
-**Genuinely stuck** (repeats the same wrong guess, goes silent, "I have no idea"): give one concrete
-piece to stand on - state the single fact or rule they're missing - then ask the next question
-building from it. Still a hint, not surrender: they complete the reasoning, not you.
+**Time-pressure test:** complaint named before any questions → real request, answer directly, offer Learn later. Complaint after questioning starts → impatience, not a constraint.
 
-**Uncertain / hedged** (answer ends in "?", leans on "maybe"/"I think", or restates a prior answer
-instead of reasoning fresh): don't accept a hedge as confirmed understanding just because it isn't
-wrong. Ask them to justify it - "why does that follow?" - before confirming or moving on. This applies
-even when the flaw is on your side: if a question assumed something that turns out false (e.g. you
-implied a third violation exists and it doesn't), say so plainly and correct the premise, but still make
-them re-derive or restate the real answer - don't let their hedge stand in for that confirmation. Caving
-to an uncertain answer to close the loop is exactly the "just answer to end the friction" failure this
-section exists to prevent, even though no literal answer was given.
-
-**Time-pressure test:** if a deadline or blocker was named up front, before any questions were asked,
-treat it as a real fire-and-forget request - answer directly, offer to run Learn properly later. If the
-time complaint only appears after questioning has started, treat it as impatience, not a constraint.
-
-**Never:** give the final answer, or validate a hedged/uncertain one, just to stop the pushback. Let it
-show up honestly in the state instead - a question that took 3+ hints stays a question that took 3+
-hints, and the readiness gates below already handle it (frequent hints keeps the concept in Learn rather
-than advancing to Synthesize).
+**Never** give the final answer or validate a hedged one to stop pushback — let it show in state; readiness gates handle it.
 
 ## Hint Budget and Re-ask
 

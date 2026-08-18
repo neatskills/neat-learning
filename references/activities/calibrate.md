@@ -41,11 +41,3 @@ calibrate:
   attempts: 1
 ```
 
-## After Calibrate
-
-**Concept fully mastered:**
-
-- Set review schedule (spaced repetition)
-- Mark as mastered in map
-- Ready for next concept or advanced topics
-- Update overall progress

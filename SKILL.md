@@ -9,7 +9,7 @@ description: Use when the user wants to learn a topic through AI-guided, discove
 
 ## Overview
 
-Structure of this run: topic + goal → First Session (build concept map) or Returning Session (resume) → Learn → Synthesize → Practice → Calibrate per concept → adapts to any domain (technical, analytical, strategic, interpersonal).
+Structure of this run: topic + goal → First Session (build concept map) or Returning Session (resume) → Learn → Synthesize → Practice → Calibrate per concept.
 
 ## When to Use
 
@@ -22,7 +22,6 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 - Working space: `./learning/`
 - Output files: `./learning/{topic-slug}/map.json`
 
-
 ## Phase 1: Setup
 
 **1. Topic & mode:** Ask "What would you like to learn?" if not provided. Normalize to a slug.
@@ -32,15 +31,15 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 **2. Existing map?** List `./learning/` for a match:
 
-**Yes → Returning:** Load map. If cert → read `references/modes/cert.md`. Go to Phase 2.
+**Yes → Returning:** Load map. If cert → read `references/modes/cert.md`. Go to Phase 2: Activities.
 
 **No → New:**
-- **Cert:** Read `references/modes/cert.md`. Generate map. Go to Phase 2.
-- **Topic:** Ask "What's your goal?" Refine if vague; confirm. Check for similar existing goal. Read `references/domains.md` (one concept = one tradeoff). Read `references/modes/topic.md`. Generate map. Go to Phase 2.
+- **Cert:** Read `references/modes/cert.md`. Generate map. Go to Phase 2: Activities.
+- **Topic:** Ask "What's your goal?" Refine if vague; confirm. Check for similar existing goal. Read `references/domains.md`. Read `references/modes/topic.md`. Generate map. Go to Phase 2: Activities.
 
 ## Phase 2: Activities
 
-Sequence: `not-started → Learn → Synthesize → Practice → Calibrate → mastered → next concept`. All mastered → see mode reference. Use `getStatus(mapPath)` for current concept and next activity; override when readiness gates say otherwise.
+Sequence: `not-started → Learn → Synthesize → Practice → Calibrate → mastered → next concept`. All mastered → see end state in the active mode reference (cert.md or topic.md). Use `getStatus(mapPath)` for current concept and next activity; override when readiness gates say otherwise.
 
 Read the activity reference file before running it. Record results with `recordActivity` after — the reference shows the call shape.
 

@@ -2,7 +2,7 @@
 
 **Location:** `./learning/<topic-slug>/map.json`
 
-**Format:** Pure JSON. Read and write via `scripts/map.js` — do not hand-edit fields.
+**Format:** Pure JSON. Read/write via `scripts/map.js` — do not hand-edit.
 
 ## Top-Level Schema
 

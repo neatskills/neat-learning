@@ -26,11 +26,7 @@
 
 ### Technical Domain: Critical Evaluation vs Code Writing
 
-**Prefer critical evaluation over code writing:**
-
-Practice should be about **applying understanding**, not repeating what was covered in Learn/Synthesize.
-
-**Critical evaluation exercises:**
+**Critical evaluation exercises** (prefer these over code writing — apply understanding, not repeat it):
 
 1. **Bug spotting** - Show buggy code, user identifies errors and explains why
 2. **Decision-making** - Present scenario, user chooses right approach with reasoning
@@ -43,11 +39,7 @@ Practice should be about **applying understanding**, not repeating what was cove
 - Writing code from scratch (redundant with Learn phase)
 - Repetitive exercises explaining what code does (already covered in Synthesize)
 
-**Implementation notes:**
-
-- Use code snippets in conversation (no files created)
-- For critical concepts, optionally use `/tmp` for throwaway verification
-- Focus on evaluation skills that prepare for Calibrate (expert judgment)
+**Notes:** Use code snippets in conversation (no files). For critical concepts, optionally use `/tmp` for throwaway verification.
 
 #### Bug Spotting Exercise Strategy
 

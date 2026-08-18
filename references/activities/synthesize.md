@@ -8,18 +8,6 @@ show how concepts connect
 **When to run:** After Learn shows strong understanding (4/5+ correct), before Practice
 (need consolidated understanding + vocabulary)
 
-## Why Understanding Before Vocabulary
-
-**Wrong order (traditional):**
-
-1. "A Pod is the smallest deployable unit..." → User memorizes definition → Doesn't understand WHY it exists
-
-**Right order (discovery-based):**
-
-1. Learn: "If container crashes, what should happen?" → User builds understanding
-2. Name: "That wrapper is called a Pod" → Vocabulary connects to understanding
-3. User knows both WHAT it is and WHY it exists
-
 ## Format
 
 ```text
@@ -58,13 +46,6 @@ synthesize:
   terms: [Pod, Pod spec, Pod lifecycle, Pod status, restart policy]
   mental_model: "Pod wraps containers, spec defines desired state, lifecycle manages runtime"
 ```
-
-## Readiness to Move Forward
-
-**After Synthesize:**
-
-- Ready for Practice (has consolidated understanding and terminology)
-- Can reference official docs (vocabulary matches industry terms)
 
 ## Common Mistakes to Avoid
 
