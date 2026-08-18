@@ -2,7 +2,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { createMap, loadMap } = require('../scripts/map');
+const { createMap, createCertMap, loadMap } = require('../scripts/map');
 
 const TMP = path.join(__dirname, '../test-output/map');
 if (fs.existsSync(TMP)) fs.rmSync(TMP, { recursive: true });
@@ -271,6 +271,46 @@ endSession(statusPath);
 endSession(statusPath);
 assert.strictEqual(loadMap(statusPath).total_sessions, before + 3);
 console.log('✓ endSession is additive across calls');
+
+// 27. createCertMap writes cert frontmatter and sorts sections by weight descending
+const CERT_DOMAINS = [
+  {
+    name: 'Troubleshooting', weight_pct: 30,
+    concepts: [{ name: 'Debug pods', description: 'Read pod logs' }]
+  },
+  {
+    name: 'Cluster Architecture', weight_pct: 25,
+    concepts: [{ name: 'Control plane', description: 'API server components' }]
+  },
+  {
+    name: 'Workloads', weight_pct: 15,
+    concepts: [{ name: 'Deployments', description: 'Manage replicas' }]
+  }
+];
+const { mapPath: certPath } = createCertMap('cka', 'Pass CKA exam', CERT_DOMAINS, TMP);
+const certData = loadMap(certPath);
+assert.strictEqual(certData.cert, true);
+assert.strictEqual(certData.domains.length, 3);
+assert.strictEqual(certData.sections[0].name, 'Troubleshooting (30%)');
+assert.strictEqual(certData.sections[1].name, 'Cluster Architecture (25%)');
+assert.strictEqual(certData.sections[2].name, 'Workloads (15%)');
+assert.strictEqual(certData.domains[0].name, 'Troubleshooting');
+assert.strictEqual(certData.domains[0].weight_pct, 30);
+assert.strictEqual(certData.progress.total, 3);
+console.log('✓ createCertMap writes cert frontmatter with sections sorted by weight');
+
+// 28. createCertMap throws if map already exists
+try {
+  createCertMap('cka', 'Pass CKA exam', CERT_DOMAINS, TMP);
+  assert.fail('should have thrown');
+} catch (e) {
+  assert.ok(e.message.includes('already exists'));
+}
+console.log('✓ createCertMap throws if map already exists');
+
+// 29. createCertMap domains strip weight from stored domain names
+assert(!certData.domains[0].name.includes('('), 'stored domain name has no weight suffix');
+console.log('✓ createCertMap stores domain names without weight suffix');
 
 fs.rmSync(TMP, { recursive: true });
 console.log('\nAll map tests passed! ✓');

@@ -162,6 +162,45 @@ function recordActivity(mapPath, conceptName, activityType, results = {}) {
   store.save(mapPath, data);
 }
 
+function createCertMap(topic, goal, domains, _basePath) {
+  const basePath = _basePath || path.join(__dirname, '..', 'docs', 'neat_learning');
+  const mapPath = path.join(basePath, toSlug(topic), 'map.json');
+
+  if (store.exists(mapPath)) {
+    throw new Error(`Map already exists: ${mapPath}`);
+  }
+
+  const sortedDomains = [...domains].sort((a, b) => b.weight_pct - a.weight_pct);
+
+  const sections = sortedDomains.map(domain => ({
+    name: `${domain.name} (${domain.weight_pct}%)`,
+    description: '',
+    concepts: (domain.concepts || []).map(c => ({
+      name: c.name,
+      description: c.description,
+      status: 'not-started',
+      dependencies: c.dependencies || { requires: [], enables: [] }
+    }))
+  }));
+
+  const data = {
+    topic,
+    goal,
+    domain: 'technical',
+    cert: true,
+    domains: sortedDomains.map(d => ({ name: d.name, weight_pct: d.weight_pct })),
+    started: now(),
+    last_session: now(),
+    total_sessions: 0,
+    progress: { mastered: 0, total: sections.flatMap(s => s.concepts).length },
+    learning_stats: null,
+    sections
+  };
+
+  store.save(mapPath, data);
+  return { mapPath };
+}
+
 function addConcept(mapPath, sectionName, concept) {
   const data = store.load(mapPath);
   const section = data.sections.find(s => s.name === sectionName);
@@ -200,4 +239,4 @@ function endSession(mapPath) {
   store.save(mapPath, data);
 }
 
-module.exports = { createMap, loadMap, recordActivity, nextActivityFor, addConcept, getStatus, endSession };
+module.exports = { createMap, createCertMap, loadMap, recordActivity, nextActivityFor, addConcept, getStatus, endSession };

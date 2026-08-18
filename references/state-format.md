@@ -23,11 +23,18 @@
     "sample_size": 3,
     "last_calculated": "2026-08-17T10:00:00.000Z"
   },
+  "cert": true,
+  "domains": [
+    { "name": "Cluster Architecture", "weight_pct": 25 },
+    { "name": "Troubleshooting",      "weight_pct": 30 }
+  ],
   "sections": [...]
 }
 ```
 
 `learning_stats` is `null` until the first concept completes the full activity chain (learn → synthesize → practice → calibrate passed).
+
+`cert` and `domains` are present only on cert maps (created via `createCertMap`). Omitted on topic maps.
 
 `total_sessions` starts at 0 and is incremented by `endSession` — value N means N sessions have ended.
 
