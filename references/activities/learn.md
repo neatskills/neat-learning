@@ -28,18 +28,6 @@ Which of these best describes [concept]?
 [t] tip  |  [e] explain
 ```
 
-**Example (Pod, goal: deploy applications):**
-> A Pod is like a shipping container for your app — it bundles one or more containers so they share
-> the same network and storage and travel as a unit. For deploying applications, Pods are the smallest thing Kubernetes
-> actually schedules and runs.
->
-> Which of these best describes a Pod?
-> [a] A container image stored in a registry
-> [b] A wrapper around containers that share network and storage
-> [c] A virtual machine managed by Kubernetes
->
-> [t] tip  |  [e] explain
-
 **Adaptive escalation after each answer:**
 
 | Response | Next step |
@@ -54,10 +42,6 @@ Which of these best describes [concept]?
 
 Extend the opening analogy with a concrete detail that narrows the learner's reasoning — do NOT state the answer or
 eliminate options directly.
-
-Example (Pod question):
-> "Think about what makes a shipping container useful — it keeps everything inside isolated from other containers, but
-> shares the same ship and loading dock."
 
 Count as hint: `hints_needed` +1. Re-show the question after.
 
@@ -166,14 +150,3 @@ learn:
   date: '2026-06-27T00:00:00.000Z'
   score: 5
 ```
-
-## Common Mistakes to Avoid
-
-| Mistake | Fix |
-| --------- | ----- |
-| Skipping the concept overview | Always orient before asking — zero-context learners can't predict meaningfully |
-| Starting with an open question | First question is always options (recognition) — escalate once learner has foothold |
-| Yes/no questions only | Use open-ended, scenario-based questions |
-| Not tracking performance | Record every answer for state updates |
-| Moving on too quickly | Need 4/5+ correct before Synthesize |
-| Ignoring confusion patterns | Surface and address specific misconceptions |

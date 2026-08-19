@@ -43,33 +43,11 @@
 
 #### Bug Spotting Exercise Strategy
 
-**Hybrid Approach (Density + Adaptive):**
+2–3 exercises per concept, each with 2–3 bugs spanning different categories: transport/communication, lifecycle (startup/shutdown/cleanup), async/sync handling, error handling/logging, security (validation, injection, path traversal), resource management (leaks, connection pools).
 
-**Structure:**
+**Adapt:** most bugs caught (e.g. 5/6) → move on. Many missed (e.g. 2/6) → add a targeted exercise on the weak area. Simple concepts may need only 1 exercise; critical/complex concepts warrant the full 2–3.
 
-- **2-3 bug spotting exercises** per concept (not just 1)
-- Each exercise contains **2-3 bugs** covering different error categories
-- **Adapt:** If learner catches all bugs easily → move on. If learner misses many → add targeted exercises.
-
-**Error categories to cover (for technical concepts):**
-
-- Transport/communication issues
-- Lifecycle errors (startup, shutdown, cleanup)
-- Async/sync handling
-- Error handling and logging
-- Security issues (validation, injection, path traversal)
-- Resource management (memory leaks, connection pools)
-
-**Example progression:**
-
-1. Exercise 1: 3 bugs (transport conflict, async handling, error handling)
-2. Exercise 2: 3 bugs (lifecycle cleanup, memory leaks, validation)
-3. If 5/6 caught → move to next activity type
-4. If 2/6 caught → add Exercise 3 focusing on weak areas
-
-**For simpler concepts:** 1 bug spotting exercise may be sufficient
-
-**For critical/complex concepts:** 2-3 exercises ensure comprehensive coverage of common traps
+**Example:** Exercise 1 — transport conflict, async handling, error handling. Exercise 2 — lifecycle cleanup, memory leak, validation.
 
 ## Performance Tracking
 

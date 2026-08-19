@@ -1,6 +1,6 @@
 # State File Format
 
-**Location:** `./learning/<topic-slug>/map.json`
+**Location:** `./learning/{topic-slug}/map.json`
 
 **Format:** Pure JSON. Read/write via `scripts/map.js` — do not hand-edit.
 
