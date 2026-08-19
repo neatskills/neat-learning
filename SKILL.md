@@ -21,7 +21,7 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 Resolve to canonical, symlink-free path before following any `references/` links.
 
-**Workspace:**
+### Workspace
 
 - Working space: `./learning/`
 - Output files: `./learning/{topic-slug}/map.json` — format: [maps.md](references/maps.md)
