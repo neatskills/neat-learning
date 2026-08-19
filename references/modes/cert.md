@@ -2,11 +2,13 @@
 
 ## Initial Setup (First Session)
 
-On cert keyword match in goal refinement, confirm and ask for docs in one message:
-> "This looks like cert prep. Share the official exam guide (PDF, paste, or link) and I'll build a map calibrated to it."
+On cert keyword match in goal refinement, confirm cert prep in one message, then immediately web-search for the official exam guide:
 
-- **User shares docs** → extract blueprint (see Map Generation below)
-- **User has no docs** → "I need the official blueprint for an accurate cert map — come back when you have it, or I can build a general [topic] map instead. [cert later / general now]"
+**Search query**: `"[exam name or code] official exam guide blueprint domains objectives site:[vendor].com"` (e.g. `"CKA exam curriculum domains cncf.io"`, `"AWS SAA-C03 exam guide domains aws.amazon.com"`)
+
+- **Found** → extract and build map; tell the user which blueprint was used
+- **Ambiguous** → show what was found; ask the user to confirm or supply a better source
+- **Not found** → ask the user to share the exam guide (PDF, paste, or link)
 
 ## Map Generation
 
