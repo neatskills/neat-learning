@@ -85,15 +85,11 @@ Target: <topic-slug> / session <N>
 
 Count columns by scanning back through this session: **Tool calls** = every Bash/Read/Edit/Write; **File reads** = every Read; **Reasoning** = low / medium / high (high = multi-step inference with few tool calls).
 
-| Phase / Step | Duration (s) | Tool calls | File reads | Reasoning |
+| Phase | Duration (s) | Tool calls | File reads | Reasoning |
 | --- | --- | --- | --- | --- |
-| Phase 1 — Setup *(total)* | | | | |
-| Phase 1 — Step 1 — Topic & mode | | | | |
-| Phase 1 — Step 2 — Existing map | | | | |
-| Phase 2 — Activities *(total)* | | | | |
-| Phase 3 — Status *(total)* | | | | |
-
-For phase-level rows: record total for that phase. For step rows: record that step's duration within the phase.
+| Phase 1 — Setup | | | | |
+| Phase 2 — Activities | | | | |
+| Phase 3 — Status | | | | |
 
 **Reflection** — omit any bullet where count is zero.
 
