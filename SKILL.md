@@ -20,8 +20,8 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 ### Workspace
 
 - `<self-path>`: canonical, symlink-free path of this skill's own directory; use for `references/` lookups.
-- Working space: `./learning/`
-- Output files: `./learning/{topic-slug}/map.json` — format: [maps.md](references/maps.md)
+- `<output-path>`: `./learning`
+- Output files: `<output-path>/{topic-slug}/map.json` — format: [maps.md](references/maps.md)
 
 ## Phase 1: Setup
 
@@ -30,7 +30,7 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 - Cert/exam keywords or exam name → **cert mode**: topic = goal = cert
 - Otherwise → **topic mode**
 
-**Step 2 — Existing map:** List `./learning/` for a match:
+**Step 2 — Existing map:** List `<output-path>` for a match:
 
 **Yes → Returning:** Load map. If cert → read [references/modes/cert.md](references/modes/cert.md). Go to Phase 2: Activities.
 
