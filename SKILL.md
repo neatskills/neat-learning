@@ -74,6 +74,8 @@ Use `getStatus(mapPath)` to compute progress and stats on demand. Markers: `[x]`
 
 ## Phase 4: Retro
 
+See [retro-reflection.md](references/retro-reflection.md) for column definitions and reflection prompts.
+
 Runs once per session, triggered by the user stopping (see Phase 2: Activities — Pacing).
 
 `<name>`: this skill's name (frontmatter). `Target:`: topic slug and session number (e.g. `kubernetes / session 3`).
@@ -83,23 +85,10 @@ Retro: neat-learning
 Target: <topic-slug> / session <N>
 ```
 
-Count columns by scanning back through this session: **Tool calls** = every Bash/Read/Edit/Write; **File reads** = every Read; **Reasoning** = low / medium / high (high = multi-step inference with few tool calls).
-
 | Phase | Duration (s) | Tool calls | File reads | Reasoning |
 | --- | --- | --- | --- | --- |
 | Phase 1 — Setup | | | | |
 | Phase 2 — Activities | | | | |
 | Phase 3 — Status | | | | |
-
-**Reflection** — omit any bullet where count is zero.
-
-Direct:
-- Reasoning spikes:
-- Duplicate file reads:
-- Mid-run corrections:
-
-Inferred (only if surprising and not already logged above):
-- Unclear instruction or judgment gap:
-- Unexpected win:
 
 Done.
