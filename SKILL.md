@@ -17,12 +17,9 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 ## Configuration
 
-### Skill path
-
-Resolve to canonical, symlink-free path before following any `references/` links.
-
 ### Workspace
 
+- **`<self-path>`** — canonical, symlink-free path of this skill's own directory; use for `references/` lookups.
 - Working space: `./learning/`
 - Output files: `./learning/{topic-slug}/map.json` — format: [maps.md](references/maps.md)
 
