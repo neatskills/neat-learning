@@ -22,7 +22,7 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 - **`<self-path>`:** — canonical, symlink-free path of this skill's own directory; use for `references/` lookups.
 - Working space: `./learning/`
 - Output files: `./learning/{topic-slug}/map.json` — format: [maps.md](references/maps.md)
-- **Perf Logging:** At the start and end of each phase, record the current Unix timestamp using whatever mechanism the environment provides; if none is available, mark the phase as "not logged". Do not print the raw values. Durations are approximate. Report in the Retro phase.
+- **Perf Logging:** Record a Unix timestamp at the start and end of each phase. Print `Perf Logging: <label>` when logged; if unavailable, mark as "not logged" — never fabricate a duration.
 
 ## Phase 1: Setup
 
