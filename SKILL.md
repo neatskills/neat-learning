@@ -70,11 +70,11 @@ Use `getStatus(mapPath)` to compute progress and stats on demand. Markers: `[x]`
 
 ## Phase 4: Retro
 
-See [retro-reflection.md](references/retro-reflection.md) for column definitions and reflection prompts.
+See [retro-reflection.md](references/retro-reflection.md) for the Template, column definitions, and reflection item descriptions.
 
 Runs once per session, triggered by the user stopping (see Phase 2: Activities — Pacing).
 
-`<name>`: this skill's name (frontmatter). `Target:`: topic slug and session number (e.g. `kubernetes / session 3`).
+`Target:`: topic slug and session number (e.g. `kubernetes / session 3`).
 
 ```text
 Retro: neat-learning
