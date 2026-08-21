@@ -19,10 +19,9 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 ### Workspace
 
-- **`<self-path>`:** — canonical, symlink-free path of this skill's own directory; use for `references/` lookups.
+- `<self-path>`: canonical, symlink-free path of this skill's own directory; use for `references/` lookups.
 - Working space: `./learning/`
 - Output files: `./learning/{topic-slug}/map.json` — format: [maps.md](references/maps.md)
-- **Perf Logging:** Record a Unix timestamp at the start and end of each phase. Print `Perf Logging: <label>` when logged; if unavailable, mark as "not logged" — never fabricate a duration.
 
 ## Phase 1: Setup
 
@@ -81,10 +80,10 @@ Retro: neat-learning
 Target: <topic-slug> / session <N>
 ```
 
-| Phase | Duration (s) | Tool calls | File reads | Reasoning |
-| --- | --- | --- | --- | --- |
-| Phase 1 — Setup | | | | |
-| Phase 2 — Activities | | | | |
-| Phase 3 — Status | | | | |
+| Phase | Tool calls | File reads | Reasoning |
+| --- | --- | --- | --- |
+| Phase 1 — Setup | | | |
+| Phase 2 — Activities | | | |
+| Phase 3 — Status | | | |
 
 Done.

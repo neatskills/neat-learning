@@ -11,9 +11,8 @@ Retro: <name>
 Target: <target-name-or-path>
 ```
 
-Below the block, emit the Reflection section (see below) and a perf table — one row per `## Phase` heading in this skill, labeled `Phase <n> — <phase-name>`.
+Below the block, emit the Reflection section (see below) and a table — one row per `## Phase` heading in this skill, labeled `Phase <n> — <phase-name>`.
 
-For *(avg/skill)* rows: record total ÷ N skills (e.g. 104 s total / 4 skills = 26 s/skill).
 
 ## Column Definitions
 
