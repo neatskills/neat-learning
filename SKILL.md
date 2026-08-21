@@ -69,21 +69,6 @@ Use `getStatus(mapPath)` to compute progress and stats on demand. Markers: `[x]`
 
 ## Phase 4: Retro
 
-See [retro-reflection.md](references/retro-reflection.md) for the Template, column definitions, and reflection item descriptions.
-
-Runs once per session, triggered by the user stopping (see Phase 2: Activities — Pacing).
-
-`Target:`: topic slug and session number (e.g. `kubernetes / session 3`).
-
-```text
-Retro: neat-learning
-Target: <topic-slug> / session <N>
-```
-
-| Phase | Tool calls | File reads | Reasoning |
-| --- | --- | --- | --- |
-| Phase 1 — Setup | | | |
-| Phase 2 — Activities | | | |
-| Phase 3 — Status | | | |
+Follow the Retro Layout in [retro-layout.md](references/retro-layout.md).
 
 Done.
