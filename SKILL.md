@@ -19,11 +19,10 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 ### Workspace
 
-- **`<self-path>`** — canonical, symlink-free path of this skill's own directory; use for `references/` lookups.
+- **`<self-path>`:** — canonical, symlink-free path of this skill's own directory; use for `references/` lookups.
 - Working space: `./learning/`
 - Output files: `./learning/{topic-slug}/map.json` — format: [maps.md](references/maps.md)
-
-**Perf Logging:** At the start and end of each phase, run `date +%s` and record `<label>_start` / `<label>_end`. Do not print the raw values. Durations are approximate. Report in the Retro phase.
+- **Perf Logging:** At the start and end of each phase, run `date +%s` and record `<label>_start` / `<label>_end`. Do not print the raw values. Durations are approximate. Report in the Retro phase.
 
 ## Phase 1: Setup
 
