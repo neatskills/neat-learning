@@ -19,7 +19,6 @@ Run when the user wants to learn a topic through guided discovery (e.g. "Teach m
 
 ### Workspace
 
-- `<self-path>`: resolve this skill's own directory to canonical, symlink-free path.
 - `<output-path>`: `./learning`
 - Output files: `<output-path>/{topic-slug}/map.json` — format: [maps.md](references/maps.md)
 
