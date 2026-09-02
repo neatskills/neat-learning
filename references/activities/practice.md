@@ -85,6 +85,6 @@ practice:
 
 **Stay in Practice if:**
 
-- High error rate (>30%)
+- High error rate (≥30%)
 - Same mistakes repeated
 - Needs frequent hints

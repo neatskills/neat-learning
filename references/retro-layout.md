@@ -1,11 +1,11 @@
 # Retro
 
-Shared column definitions, reflection prompts, and Retro-block template for the Retro phase used across the neat-skill suite.
+Column definitions, reflection prompts, and the Retro-block template for this skill's Phase 4: Retro.
 
 ## Retro Layout
 
 `<retro>`: this skill's name (frontmatter), not the target. 
-`<target>`: input skill or path.
+`<target>`: the topic and mode set in Phase 1 Step 1 (e.g. `Kubernetes (topic mode)`, `CKA (cert mode)`).
 
 ```text
 Retro: <retro>

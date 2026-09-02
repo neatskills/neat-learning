@@ -10,6 +10,8 @@ show how concepts connect
 
 ## Format
 
+Keep vocabulary to 3-5 key terms.
+
 ```text
 AI: "You now understand:
      - [Key insight 1 from Learn]
@@ -42,15 +44,5 @@ This writes `activity.synthesize` (status stays `learning`):
 
 ```yaml
 synthesize:
-  date: '2026-06-27T00:00:00.000Z'
+  completed: '2026-06-27T00:00:00.000Z'
 ```
-
-## Common Mistakes to Avoid
-
-| Mistake | Fix |
-| --------- | ----- |
-| Introducing terms too early | Wait until Learn shows understanding |
-| Info dumping vocabulary | Keep it to 3-5 key terms |
-| Not connecting to understanding | Always recap what user discovered first |
-| Skipping the "one sentence" | User needs a memorable summary |
-| Not explaining WHY terms matter | Connect to real-world usage (docs, conversations) |

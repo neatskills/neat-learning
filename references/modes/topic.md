@@ -38,3 +38,5 @@ Where `sections` follows Foundation → Core → Advanced order:
 
 When all concepts are mastered:
 > "You've mastered all concepts! Want to add an advanced concept or start a new goal?"
+
+Call `endSession(mapPath)`, then run Phase 4: Retro.

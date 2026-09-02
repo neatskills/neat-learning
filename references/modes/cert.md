@@ -23,17 +23,19 @@ const { createCertMap } = require('./scripts/map.js');
 const { mapPath } = createCertMap(topic, goal, domains);
 ```
 
-Where `domains` is `[{ name, weight_pct, concepts: [{ name, description, dependencies }] }]`.
+Where `domains` is `[{ name, weight_pct, concepts: [{ name, description, dependencies }] }]`. `dependencies` is only used to decide array order when building the concept list — `createCertMap` does not persist it; the stored concept has just `name` and `description`.
 
 Practice preference: prefer scenario-based exercises ("A company needs X — which approach and why?") over bug spotting or code writing.
 
 ## Returning Session
 
 If map not found at the derived path, scan all maps under `./learning/` for cert maps (`cert: true`) whose exam topic relates to the user's input:
-> "You have a [Exam] cert map for [Topic] — is that what you meant? [y/n]"
+> "You have a [Exam] cert map for [Topic] — is that what you meant?"
+> 1. Yes
+> 2. No
 
-- Yes → load that cert map and continue as returning session
-- No → first session flow
+- 1 → load that cert map and continue as returning session
+- 2 → first session flow
 
 If no related cert map found → first session flow.
 
@@ -60,4 +62,4 @@ Ready when all domains ≥80%:
 
 ## End State
 
-When all concepts are mastered: skip the generic "all mastered" message — the cert readiness check handles this moment.
+When all concepts are mastered: skip the generic "all mastered" message — the cert readiness check handles this moment. Call `endSession(mapPath)`, then run Phase 4: Retro.

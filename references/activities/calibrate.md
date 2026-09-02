@@ -13,7 +13,6 @@ Ask 3 questions — when NOT to use, X vs Y tradeoff, common beginner mistake �
 **Pass 2/3 correctly:**
 
 - Concept status → `mastered`
-- Review schedule starts (2-day initial interval)
 - Ready for advanced topics
 
 **Pass 0-1/3:**
@@ -28,15 +27,15 @@ Record results with `recordActivity`:
 ```javascript
 const { recordActivity } = require('./scripts/map.js');
 
-recordActivity(mapPath, conceptName, 'calibrate', { score: correct });
+recordActivity(mapPath, conceptName, 'calibrate', { correct });
 ```
 
-This writes `activity.calibrate`; on score ≥ 2 it sets status to `mastered`,
+This writes `activity.calibrate`; on `correct` ≥ 2 it sets status to `mastered`,
 otherwise status stays `practicing`:
 
 ```yaml
 calibrate:
   date: '2026-06-27T00:00:00.000Z'
-  score: 3
+  correct: 3
   attempts: 1
 ```

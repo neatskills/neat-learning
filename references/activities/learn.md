@@ -94,12 +94,13 @@ Example: "The container doesn't restart because the restart policy is set to ___
 **End-of-session re-ask:** After all questions complete, re-ask any that hit the threshold — one fresh
 question per concept, different framing, same difficulty. One shot, no hints.
 
-- *"Let's try this from a different angle — one shot:"*
+- `"Let's try this from a different angle — one shot:"`
 - Correct → understanding confirmed, record reduced hints penalty
 - Wrong → state the answer directly, move on. No further attempts.
 
 The re-ask terminates cleanly either way. If they cannot answer even a fresh question, the concept
-hasn't landed — spaced repetition will bring it back sooner via high `hints_needed`.
+hasn't landed — treat it as a confusion pattern under Readiness Criteria below, so the concept stays
+in Learn instead of advancing to Synthesize.
 
 ## Performance Tracking
 
@@ -129,7 +130,7 @@ hasn't landed — spaced repetition will bring it back sooner via high `hints_ne
 
 **Stay in Learn if:**
 
-- <3/5 correct (need more learning)
+- <4/5 correct (need more learning)
 - Confusion pattern detected (specific misconception)
 - Hints needed frequently (>2 per question)
 
@@ -140,7 +141,7 @@ Record results with `recordActivity`:
 ```javascript
 const { recordActivity } = require('./scripts/map.js');
 
-recordActivity(mapPath, conceptName, 'learn', { score: correct });
+recordActivity(mapPath, conceptName, 'learn', { correct, total });
 ```
 
 This writes `activity.learn` and sets the concept status to `learning`:
@@ -148,5 +149,6 @@ This writes `activity.learn` and sets the concept status to `learning`:
 ```yaml
 learn:
   date: '2026-06-27T00:00:00.000Z'
-  score: 5
+  correct: 5
+  total: 5
 ```

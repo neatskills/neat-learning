@@ -86,9 +86,13 @@ AI will ask your goal, detect domain, build initial map, and start with Learn qu
 share network. This is called a **Pod**. Mental model: Pod wraps containers → spec defines
 desired state → lifecycle manages runtime → status shows current state."
 
-**Practice:** "Write a Pod manifest running nginx with liveness probe"
+**Practice:** "This Pod spec has two bugs — a missing liveness probe and a restart policy that won't recover a crashed container. Find them and explain the fix."
 
 **Calibrate:** "When would you NOT use a Deployment?" → "StatefulSet vs Deployment - when each?" → "Common Pod mistakes?"
+
+## Skill
+
+- **neat-learning:** Use when the user wants to learn a topic through AI-guided, discovery-based coaching, or asks to continue a learning session already in progress — structured concept-map coaching, not one-off Q&A — Learning coach who guides discovery-based learning through structured questioning — producing a personalized concept map the user masters concept by concept.
 
 ## Documentation
 

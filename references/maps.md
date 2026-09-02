@@ -11,6 +11,7 @@
   "topic": "Kubernetes",
   "goal": "Deploy production applications",
   "domain": "technical",
+  "started": "2026-06-27T00:00:00.000Z",
   "last_session": "2026-08-17T10:00:00.000Z",
   "total_sessions": 4,
   "cert": true,
@@ -18,7 +19,9 @@
     { "name": "Cluster Architecture", "weight_pct": 25 },
     { "name": "Troubleshooting",      "weight_pct": 30 }
   ],
-  "sections": [...]
+  "sections": [...],
+  "progress": { "mastered": 3, "total": 12 },
+  "learning_stats": { "avg_hours_per_concept": 1.2, "estimated_days_remaining": 4, "sample_size": 3 }
 }
 ```
 
@@ -32,11 +35,12 @@
 {
   "name": "Kubernetes Pods",
   "description": "Core schedulable unit",
+  "status": "mastered",
   "activity": {
-    "learn":      { "date": "...", "score": 4 },
-    "synthesize": { "date": "..." },
+    "learn":      { "date": "...", "correct": 4, "total": 5 },
+    "synthesize": { "completed": "..." },
     "practice":   { "date": "..." },
-    "calibrate":  { "date": "...", "score": 2, "attempts": 1 }
+    "calibrate":  { "date": "...", "correct": 2, "attempts": 1 }
   }
 }
 ```
@@ -45,14 +49,14 @@
 
 `not-started → learning → practicing → mastered`
 
-Status is derived on demand from the activity chain — never stored:
+Status is derived from the activity chain and cached as `status` on each concept — recomputed and overwritten on every write (`createMap`, `createCertMap`, `recordActivity`, `addConcept`):
 
 | Condition | Status |
 | --- | --- |
 | No `activity.learn` | `not-started` |
 | `learn` present, no `practice` | `learning` |
-| `practice` present; no `calibrate` or `calibrate.score < 2` | `practicing` |
-| `calibrate.score >= 2` | `mastered` |
+| `practice` present; no `calibrate` or `calibrate.correct < 2` | `practicing` |
+| `calibrate.correct >= 2` | `mastered` |
 
 `synthesize` does not affect status.
 
@@ -60,4 +64,4 @@ Status is derived on demand from the activity chain — never stored:
 
 - Dates: ISO 8601 strings
 - `calibrate.attempts`: increments on each call; resets when practice is re-recorded after 3 failed attempts
-- `progress` and `stats` are computed on demand — not stored
+- `progress` and `learning_stats` are recomputed and stored at the top level on every write; `getStatus` returns the stored `learning_stats` value under the key `stats`
